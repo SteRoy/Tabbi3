@@ -4,23 +4,24 @@ import NavBar from "../NavBar";
 import { Button } from 'primereact/button';
 import InputBox from "../components/InputBox";
 
-class LoginPage extends React.Component {
+class RegisterPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: "",
+            email: "",
             password: "",
+            confirmpassword: "",
             errors: {}
         }
 
-        this.login = this.login.bind(this);
+        this.register = this.register.bind(this);
     }
 
-    login() {
+    register() {
         let validation = true;
         let errors = {};
         // This should probably be refactored to be more dynamic.
-        ["email", "password"].forEach(field => {
+        ["email", "password", "confirmpassword"].forEach(field => {
             if (!this.state[field]) {
                 errors[field] = "This field is required.";
                 validation = false;
@@ -40,18 +41,18 @@ class LoginPage extends React.Component {
     render() {
         return (
             <div>
-                <NavBar active="login"/>
+                <NavBar active="register"/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-4">
                         <Card>
-                            <span className="display-4 text-center">Login</span>
+                            <span className="display-4 text-center">Register</span>
                             <hr/>
 
-                            <form onSubmit={this.login}>
+                            <form onSubmit={this.register}>
                                 <InputBox
                                     id="email"
                                     cb={(dict) => this.setState(dict)}
-                                    value={this.state.username}
+                                    value={this.state.email}
                                     type="text"
                                     errors={this.state.errors}
                                 />
@@ -63,10 +64,18 @@ class LoginPage extends React.Component {
                                     type="password"
                                     errors={this.state.errors}
                                 />
+
+                                <InputBox
+                                    id="confirmpassword"
+                                    label="Confirm Password"
+                                    cb={(dict) => this.setState(dict)}
+                                    value={this.state.confirmpassword}
+                                    type="password"
+                                    errors={this.state.errors}
+                                />
                             </form>
 
-                            <Button label="Login" className="p-button-raised p-button-success p-mt-4" onClick={this.login} />
-                            <Button label="Forgot Password" className="p-button-raised p-button-secondary p-ml-4" />
+                            <Button label="Register" className="p-button-raised p-button-success p-mt-4" onClick={this.register} />
                         </Card>
                     </div>
                 </div>
@@ -75,4 +84,4 @@ class LoginPage extends React.Component {
     }
 }
 
-export default LoginPage;
+export default RegisterPage;

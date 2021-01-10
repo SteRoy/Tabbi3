@@ -1,17 +1,13 @@
 import React from "react";
 import {Password} from "primereact/password";
 import {InputText} from "primereact/inputtext";
-const ttlibString = require("../../lib/string");
+const ttlib = require("ttlib");
 
 class InputBox extends React.Component {
-
-    login() {
-
-    }
-
     render() {
         return (
-            <span className="p-float-label p-mt-4">
+            <span className="p-mt-4">
+                <label htmlFor={this.props.id}>{this.props.label ? this.props.label : ttlib.string.toTitleCase(this.props.id)}</label>
                 {
                     this.props.type === "text" ?
                         <InputText
@@ -33,7 +29,6 @@ class InputBox extends React.Component {
                         />
                     : ""
                 }
-                <label htmlFor={this.props.id}>{ttlibString.toTitleCase(this.props.id)}</label>
                 {/* Render Error Per Field */}
                 {
                     this.props.errors[this.props.id] ?

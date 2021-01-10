@@ -10,6 +10,7 @@ import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 // Page Imports
 import LoginPage from "./LoginPage";
 import HomePage from "./HomePage";
+import RegisterPage from "./RegisterPage";
 
 ReactDOM.render(
   <React.StrictMode>
@@ -17,6 +18,7 @@ ReactDOM.render(
         <Switch>
             <Route exact path="/" component={HomePage}/>
             <Route exact path="/login" component={LoginPage}/>
+            <Route exact path="/register" component={RegisterPage}/>
         </Switch>
     </Router>
   </React.StrictMode>,

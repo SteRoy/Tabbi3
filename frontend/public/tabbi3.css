@@ -32,3 +32,53 @@ div.person-card>.p-card-body>.p-card-content {
     margin-left: auto;
     margin-right: auto;
 }
+
+.judge-card {
+    border-radius: 2px;
+    border: 2px solid rgb(0,0,0,.1);
+    background-color: rgb(255, 255, 255);
+    box-shadow: none;
+    box-sizing: border-box;
+    padding: 8px;
+    min-height: 40px;
+    margin-bottom: 8px;
+    user-select: none;
+    color: rgb(9, 30, 66);
+    display: flex;
+    width: 200px;
+}
+
+.judge-card-score {
+    border-right: 1px solid rgb(0,0,0,.1);
+}
+
+.clashed-personal {
+    background-color: #FF4848;
+}
+
+.clashed-institution-current {
+    background-color: #FFA848;
+}
+
+.clashed-soft {
+    background-color: #48E5FF;
+}
+
+.clashed-institution-previous {
+    background-color: #D948FF;
+}
+
+.clash-legend {
+    display: inline-block;
+    text-align: center;
+    line-height: 1.5;
+    color: black;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.4rem;
+    border-radius: 3px;
+}
+
+.alloc-drag-over {
+    background-color: mediumseagreen;
+}

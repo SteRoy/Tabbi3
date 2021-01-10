@@ -11,6 +11,7 @@
     "primeicons": "^4.1.0",
     "primereact": "^5.0.2",
     "react": "^17.0.1",
+    "react-beautiful-dnd": "^13.0.0",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",

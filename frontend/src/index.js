@@ -21,7 +21,7 @@ ReactDOM.render(
             <Route exact path="/" component={HomePage}/>
             <Route exact path="/login" component={LoginPage}/>
             <Route exact path="/register" component={RegisterPage}/>
-            <Route exact path="/tournament" component={TournamentRouter}/>
+            <Route path="/tournament" component={TournamentRouter}/>
             <Route exact path="/tournaments" component={TournamentListPage}/>
         </Switch>
         <hr/>

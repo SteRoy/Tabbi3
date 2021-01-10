@@ -6,8 +6,8 @@ class PanelAllocation extends React.Component {
     render() {
         return (
             <Droppable
-                droppableId={`droppable-${this.props.id}`}
-                key={`droppable-${this.props.id}`}
+                droppableId={this.props.id}
+                key={this.props.id}
                 direction="horizontal"
             >
                 {(provided, snapshot) => {
@@ -16,11 +16,11 @@ class PanelAllocation extends React.Component {
                             <div
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
-                                style={{height: "60px", width: "200px", marginLeft: "10px", marginRight: "10px"}}
+                                style={{height: "60px", marginLeft: "10px", marginRight: "10px"}}
                             >
                                 {
-                                    this.props.panel.map((judge, index) => (
-                                        <Draggable draggableId={`draggable-${judge.id}`} key={`draggable-${judge.id}`} index={index}>
+                                    this.props.adj.filter(a => a.roomid === this.props.id).map((judge, index) => (
+                                        <Draggable draggableId={judge.id} key={`draggable-${judge.id}`} index={index}>
                                             {(provided, snapshot) => (
                                                 <div
                                                     ref={provided.innerRef}

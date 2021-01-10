@@ -1,7 +1,7 @@
 import React from "react";
 import NavBar from "../../NavBar";
 import {Card} from "primereact/card";
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
 import PanelAllocation from "./components/PanelAllocation";
 
 
@@ -11,37 +11,36 @@ class AllocationPage extends React.Component {
         this.state = {
             rooms: [
                 {
-                    id: 0,
+                    id: "0",
                     teams: {
                         og: "Team A",
                         oo: "Team B",
                         cg: "Team C",
                         co: "Team D"
-                    },
-                    panel: [
-                        {id: 0, name: "Matt Hazell", score: "10.0"}
-                    ]
+                    }
                 },
-
                 {
-                    id: 1,
+                    id: "1",
                     teams: {
                         og: "Team E",
                         oo: "Team F",
                         cg: "Team G",
                         co: "Team H"
-                    },
-                    panel: [
-                        {id: 1, name: "Jess Musulin", score: "6.9"}
-                    ]
+                    }
                 }
+            ],
+            adj: [
+                {roomid: "0", id: "0", name: "Judge 1", score: "10.0"},
+                {roomid: "1", id: "1", name: "Judge 2", score: "10.0"},
+                {roomid: "0", id: "2", name: "Judge 3", score: "10.0"},
             ]
         }
 
         this.onDragEnd = this.onDragEnd.bind(this);
     }
 
-    onDragEnd = () => {
+    onDragEnd = (result) => {
+        console.log(result);
     };
 
     render() {
@@ -90,6 +89,7 @@ class AllocationPage extends React.Component {
                                                     <PanelAllocation
                                                         panel={room.panel}
                                                         id={room.id}
+                                                        adj={this.state.adj}
                                                     />
                                                 </td>
                                             </tr>

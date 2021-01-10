@@ -11,6 +11,7 @@ import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import LoginPage from "./LoginPage";
 import HomePage from "./HomePage";
 import RegisterPage from "./RegisterPage";
+import TournamentListPage from "./TournamentListPage";
 
 ReactDOM.render(
   <React.StrictMode>
@@ -19,6 +20,7 @@ ReactDOM.render(
             <Route exact path="/" component={HomePage}/>
             <Route exact path="/login" component={LoginPage}/>
             <Route exact path="/register" component={RegisterPage}/>
+            <Route exact path="/tournaments" component={TournamentListPage}/>
         </Switch>
     </Router>
   </React.StrictMode>,

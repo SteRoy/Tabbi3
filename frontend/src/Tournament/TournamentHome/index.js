@@ -45,7 +45,7 @@ class TournamentHome extends React.Component {
                                                 description={"Durham Union Society"}
                                             />
                                     </div>
-
+                                    <hr/>
                                     <div className="text-center display-5">Adjudication Core</div>
                                     <div className="p-grid">
                                         <div className="p-col">
@@ -56,7 +56,7 @@ class TournamentHome extends React.Component {
                                             />
                                         </div>
                                     </div>
-
+                                    <hr/>
                                     <div className="text-center display-5">Tabulation Team</div>
                                     <div className="p-grid">
                                         <div className="p-col">

@@ -14,8 +14,6 @@
     position: relative;
     overflow: hidden;
     border-radius: 50%;
-    margin-left: auto;
-    margin-right: auto;
     margin-top: 2px;
 }
 
@@ -28,4 +26,9 @@
 div.person-card>.p-card-body>.p-card-content {
     padding-top: 0!important;
     padding-bottom: 0!important;
+}
+
+.image-center {
+    margin-left: auto;
+    margin-right: auto;
 }

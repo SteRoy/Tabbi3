@@ -21,7 +21,7 @@ class TournamentHome extends React.Component {
                                         alt={"Doxbridge Worlds 2021"}
                                         src={"https://scontent.fdsa1-1.fna.fbcdn.net/v/t1.0-9/s960x960/118215732_448142762751434_3584822132726396335_o.jpg?_nc_cat=101&ccb=2&_nc_sid=340051&_nc_ohc=ICKy43wgZQoAX9g9p8F&_nc_ht=scontent.fdsa1-1.fna&tp=7&oh=c2807d21f734b569ae39ce06cf112855&oe=601FF2B9"}
                                         onError={(e) => e.target.src='https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'}
-                                        className="card-tournament-logo p-mb-3"
+                                        className="card-tournament-logo p-mb-3 image-center w-100"
                                     />
                                     <p>
                                         Doxbridge Worlds 2021 aims to be the largest ever debating tournament, and a post-NYE filler for those of you who haven't managed to get your competitive debating fix over the holidays.

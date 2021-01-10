@@ -5,7 +5,7 @@ class PersonCard extends React.Component {
 
     render() {
         const header = <div className="w-100">
-            <div className="profile-pic-display text-center">
+            <div className="profile-pic-display image-center text-center">
                 <img alt="Card" className="text-center" src={this.props.img}/>
             </div>
         </div>;

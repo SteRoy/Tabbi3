@@ -26,7 +26,9 @@ class HomePage extends React.Component {
                             <hr/>
                             <div className="text-center">
                                 <Button icon="pi pi-plus" className="p-button-primary" label="Create a Tournament"/>
-                                <Button icon="pi pi-calendar" className="ml-5 p-button-secondary" label="View Archived Tournaments"/>
+                                <a href="/tournaments">
+                                    <Button icon="pi pi-calendar" className="ml-5 p-button-secondary" label="View Archived Tournaments"/>
+                                </a>
                             </div>
                         </Card>
                     </div>

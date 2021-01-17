@@ -3,12 +3,15 @@ import {InputNumber} from "primereact/inputnumber";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {Chip} from "primereact/chip";
+import MotionCard from "./MotionCard";
 
 class DrawPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            motion: false,
+            showMotion: false,
+            infoslide: "",
+            motion: "THW Ban Zoos",
             scrolling: false,
             scrollSpeed: 5,
             draw: [
@@ -39,9 +42,9 @@ class DrawPage extends React.Component {
                     <a className="navbar-brand" href="/">Tabbi3</a>
                     <button
                         className={`btn btn-outline-warning my-2 my-sm-0`}
-                        onClick={() => this.setState({motion: !this.state.motion})}
+                        onClick={() => this.setState({showMotion: !this.state.showMotion})}
                     >
-                        {this.state.motion ? "Draw" : "Motion"}
+                        {this.state.showMotion ? "Draw" : "Motion"}
                     </button>
                     <div className="nav-item p-mx-2 text-right">
                         <InputNumber
@@ -64,16 +67,32 @@ class DrawPage extends React.Component {
                         {this.state.scrolling ? "Stop" : "Start"} Scroll
                     </button>
                 </nav>
-                <DataTable
-                    className="p-datatable-gridlines"
-                    value={this.state.draw}
-                >
-                    <Column field="venue" header="Venue"/>
-                    {["og", "oo", "cg", "co"].map(pos => (
-                        <Column body={(rowData, pos) => teamTemplate(pos, rowData)} header={pos.toUpperCase()}/>
-                    ))}
-                    <Column field="panel" header="Panel"/>
-                </DataTable>
+                {
+                    this.state.showMotion ?
+                        <div className="p-grid p-justify-center">
+                            {
+                                this.state.infoslide ? <MotionCard
+                                    header={"Info Slide"}
+                                    text={this.state.infoslide}
+                                /> : ""
+                            }
+                            <MotionCard
+                                header={"Motion"}
+                                text={this.state.motion}
+                            />
+                        </div>
+                        :
+                        <DataTable
+                            className="p-datatable-gridlines"
+                            value={this.state.draw}
+                        >
+                            <Column field="venue" header="Venue"/>
+                            {["og", "oo", "cg", "co"].map(pos => (
+                                <Column body={(rowData, pos) => teamTemplate(pos, rowData)} header={pos.toUpperCase()}/>
+                            ))}
+                            <Column field="panel" header="Panel"/>
+                        </DataTable>
+                }
             </div>
         )
     }

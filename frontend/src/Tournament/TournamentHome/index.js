@@ -31,7 +31,7 @@ class TournamentHome extends React.Component {
                                     </p>
                                 </div>
 
-                                <div className="p-col">
+                                <div className="p-col p-mx-1">
                                     <div className="text-center display-5">Organisation Committee</div>
                                     <div className="p-grid">
                                             <PersonCard
@@ -48,24 +48,20 @@ class TournamentHome extends React.Component {
                                     <hr/>
                                     <div className="text-center display-5">Adjudication Core</div>
                                     <div className="p-grid">
-                                        <div className="p-col">
-                                            <PersonCard
-                                                img="https://i.imgur.com/AJXabvo.png"
-                                                name="Jess Musulin"
-                                                description={"Too Old For A Society"}
-                                            />
-                                        </div>
+                                        <PersonCard
+                                            img="https://i.imgur.com/AJXabvo.png"
+                                            name="Jess Musulin"
+                                            description={"Too Old For A Society"}
+                                        />
                                     </div>
                                     <hr/>
                                     <div className="text-center display-5">Tabulation Team</div>
                                     <div className="p-grid">
-                                        <div className="p-col">
-                                            <PersonCard
-                                                img="https://i.imgur.com/Ri4tYBc.png"
-                                                name="Steven Roy"
-                                                description={"Durham Union Society"}
-                                            />
-                                        </div>
+                                        <PersonCard
+                                            img="https://i.imgur.com/Ri4tYBc.png"
+                                            name="Steven Roy"
+                                            description={"Durham Union Society"}
+                                        />
                                     </div>
                                 </div>
                             </div>

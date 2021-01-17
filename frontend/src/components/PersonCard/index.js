@@ -1,20 +1,16 @@
 import React from "react";
-import {Card} from "primereact/card";
+import {Chip} from "primereact/chip";
 
 class PersonCard extends React.Component {
 
     render() {
-        const header = <div className="w-100">
-            <div className="profile-pic-display image-center text-center">
-                <img alt="Card" className="text-center" src={this.props.img}/>
-            </div>
-        </div>;
         return (
-            <Card header={header} title={this.props.name} className="text-center person-card p-ml-2 p-mt-4" style={{width: "200px"}}>
-                <i>
-                    {this.props.description}
-                </i>
-            </Card>
+            <Chip
+                label={this.props.name}
+                image={this.props.img}
+                icon="pi pi-user"
+                className="p-mr-2 p-mt-3"
+            />
         );
     }
 }

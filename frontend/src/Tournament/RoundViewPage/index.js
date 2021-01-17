@@ -5,11 +5,13 @@ import {Card} from "primereact/card";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import RoundToolBar from "./RoundToolBar";
+import SpoilerWrapper from "../../components/SpoilerWrapper";
 
 class RoundViewPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            showDetails: false,
             draw: [
                 {
                     room: "Room 1",
@@ -42,16 +44,24 @@ class RoundViewPage extends React.Component {
                             <RoundToolBar
                                 roundID={1}
                             />
+                            <br/>
                             <div className="p-grid">
                                 <div className="p-col text-center">
                                     <h6>Round Details</h6>
-                                    <DataTable
-                                        value={this.state.details}
-                                        className="p-datatable-striped"
-                                    >
-                                        <Column field="key"/>
-                                        <Column field="value"/>
-                                    </DataTable>
+                                    <SpoilerWrapper
+                                        body={
+                                            <DataTable
+                                                value={this.state.details}
+                                                className={`p-datatable-striped ${this.state.showDetails ? '': 'blur'}`}
+                                            >
+                                                <Column field="key"/>
+                                                <Column field="value"/>
+                                            </DataTable>
+                                        }
+                                        cbToggle={
+                                            (value) => this.setState({showDetails: value})
+                                        }
+                                    />
                                 </div>
                                 <div className="p-col text-center">
                                     <h6>Round Settings</h6>

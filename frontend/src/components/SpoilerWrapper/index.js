@@ -9,6 +9,7 @@ class SpoilerWrapper extends React.Component {
                 onMouseUp={(e) => this.props.cbToggle(false)}
             >
                 {this.props.body}
+                <small><i>Hold down left click to show round details</i></small>
             </span>
         );
     }

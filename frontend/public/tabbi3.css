@@ -72,6 +72,26 @@ div.person-card>.p-card-body>.p-card-content {
     background-color: lightgreen;
 }
 
+.position-fourth {
+    background-color: darkred;
+    color: white;
+}
+
+.position-third {
+    background-color: goldenrod;
+    color: white;
+}
+
+.position-second {
+    background-color: yellow;
+    color: black;
+}
+
+.position-first {
+    background-color: forestgreen;
+    color: white;
+}
+
 .clash-legend {
     display: inline-block;
     text-align: center;
@@ -94,4 +114,12 @@ div.person-card>.p-card-body>.p-card-content {
     -ms-filter: blur(5px);
     filter: blur(5px);
     background-color: #ccc;
+}
+
+.border-right {
+    border-right: 1px solid rgb(0,0,0,.1);
+}
+
+.border-bottom {
+    border-bottom: 1px solid rgb(0,0,0,.1);
 }

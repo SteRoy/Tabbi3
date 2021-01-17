@@ -28,7 +28,7 @@ class DrawPage extends React.Component {
             const key = column.header.toLowerCase();
             return key === rowData.highlight ?
                 <Chip
-                    className="bg-primary text-white"
+                    className="team-highlight text-white"
                     label={rowData[key]}
                     icon="pi pi-forward"
                 />

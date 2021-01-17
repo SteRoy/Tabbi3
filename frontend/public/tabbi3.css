@@ -123,3 +123,8 @@ div.person-card>.p-card-body>.p-card-content {
 .border-bottom {
     border-bottom: 1px solid rgb(0,0,0,.1);
 }
+
+.team-highlight {
+    background-color: skyblue!important;
+}
+

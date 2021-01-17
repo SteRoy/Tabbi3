@@ -8,11 +8,19 @@ class RegisterPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            name: "",
             email: "",
             password: "",
             confirmpassword: "",
             errors: {}
         }
+
+        this.fields = [
+            {id: "name"},
+            {id: "email"},
+            {id: "password", type: "password"},
+            {id: "confirmpassword", label: "Confirm Password", type: "password"}
+        ]
 
         this.register = this.register.bind(this);
     }
@@ -21,7 +29,7 @@ class RegisterPage extends React.Component {
         let validation = true;
         let errors = {};
         // This should probably be refactored to be more dynamic.
-        ["email", "password", "confirmpassword"].forEach(field => {
+        ["name", "email", "password", "confirmpassword"].forEach(field => {
             if (!this.state[field]) {
                 errors[field] = "This field is required.";
                 validation = false;
@@ -49,30 +57,18 @@ class RegisterPage extends React.Component {
                             <hr/>
 
                             <form onSubmit={this.register}>
-                                <InputBox
-                                    id="email"
-                                    cb={(dict) => this.setState(dict)}
-                                    value={this.state.email}
-                                    type="text"
-                                    errors={this.state.errors}
-                                />
-
-                                <InputBox
-                                    id="password"
-                                    cb={(dict) => this.setState(dict)}
-                                    value={this.state.password}
-                                    type="password"
-                                    errors={this.state.errors}
-                                />
-
-                                <InputBox
-                                    id="confirmpassword"
-                                    label="Confirm Password"
-                                    cb={(dict) => this.setState(dict)}
-                                    value={this.state.confirmpassword}
-                                    type="password"
-                                    errors={this.state.errors}
-                                />
+                                {
+                                    this.fields.map(field => (
+                                        <InputBox
+                                            id={field.id}
+                                            label={field.label}
+                                            cb={(dict) => this.setState(dict)}
+                                            value={this.state[field.id]}
+                                            type={field.type || "text"}
+                                            errors={this.state.errors}
+                                        />
+                                    ))
+                                }
                             </form>
 
                             <Button label="Register" className="p-button-raised p-button-success p-mt-4" onClick={this.register} />

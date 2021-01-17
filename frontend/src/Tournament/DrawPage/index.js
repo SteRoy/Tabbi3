@@ -34,7 +34,7 @@ class DrawPage extends React.Component {
         }
 
         return (
-            <div>
+            <div style={{minHeight: "90vh"}}>
                 <nav className="navbar navbar-expand-lg navbar-light bg-light">
                     <a className="navbar-brand" href="/">Tabbi3</a>
                     <button

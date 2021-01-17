@@ -30,9 +30,10 @@ class AllocationPage extends React.Component {
                 }
             ],
             adj: [
-                {roomid: "0", id: "0", name: "Judge 1", score: "10.0"},
-                {roomid: "1", id: "1", name: "Judge 2", score: "10.0"},
-                {roomid: "0", id: "2", name: "Judge 3", score: "10.0"},
+                {roomid: "0", id: "0", name: "Judge 1", score: "10.0", index: 0},
+                {roomid: "1", id: "1", name: "Judge 2", score: "10.0", index: 0},
+                {roomid: "0", id: "2", name: "Judge 3", score: "10.0", index: 1},
+                {roomid: "0", id: "3", name: "Judge 4", score: "10.0", index: 2},
             ]
         }
 
@@ -41,6 +42,36 @@ class AllocationPage extends React.Component {
 
     onDragEnd = (result) => {
         console.log(result);
+        if (result.destination) {
+            if (result.destination.droppableId !== result.source.droppableId) {
+                // Get all adjudicators in new room
+                let adjInNewRoom = this.state.adj.filter(a => a.roomid === result.destination.droppableId);
+
+                // Get all adjudicators in old room
+                let adjInOldRoom = this.state.adj.filter(a => a.roomid === result.source.droppableId && a.id !== result.draggableId);
+
+                // Determine new index for each of those adj
+                // In old room, -- to index for each judge with index > sourceIndex
+                adjInOldRoom = adjInOldRoom.map(adj => adj.index > result.source.index ? {index: adj.index - 1, id: adj.id} : {index: adj.index, id: adj.id});
+                // In new room, ++ to index for each judge with index >= destinationIndex
+                adjInNewRoom = adjInNewRoom.map(adj => adj.index >= result.destination.index ? {index: adj.index + 1, id: adj.id} : {index: adj.index, id: adj.id});
+
+                // Single source of truth for adjudicators who require an update is
+                const adjIDNeedingUpdate = adjInOldRoom.map(adj => adj.id).concat(adjInNewRoom.map(adj => adj.id)).concat([result.draggableId]);
+                const adjUpdates = adjInOldRoom.concat(adjInNewRoom).concat([{id: result.draggableId, index: result.destination.index, roomid: result.destination.droppableId}]);
+
+                // TODO: Investigate a better storage method that allows the parallelism of this to not be such a huge pain in the ass
+                this.setState(prevState => ({
+                    adj: prevState.adj.map(
+                        adjAlloc =>
+                            adjIDNeedingUpdate.includes(adjAlloc.id) ?
+                                {...adjAlloc, ...adjUpdates.find(update => update.id === adjAlloc.id)}
+                                :
+                                {...adjAlloc}
+                    )
+                }));
+            }
+        }
     };
 
     render() {
@@ -60,7 +91,7 @@ class AllocationPage extends React.Component {
                             </div>
                             <hr/>
                             <DragDropContext onDragEnd={this.onDragEnd}>
-                                <table className="table text-center" style={{tableLayout: "auto"}}>
+                                <table className="table text-center" style={{tableLayout: "fixed"}}>
                                     <thead>
                                         <tr>
                                             <th style={{width: "10%"}}>#</th>
@@ -74,12 +105,12 @@ class AllocationPage extends React.Component {
                                             <tr>
                                                 <td>{room.id}</td>
                                                 <td>
-                                                    <div className="p-grid">
-                                                        <div className="p-col" style={{paddingTop: "0"}}>
+                                                    <div className="p-grid" style={{margin: "0"}}>
+                                                        <div className="p-col" style={{padding: "0"}}>
                                                             <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.og}</div>
                                                             <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.cg}</div>
                                                         </div>
-                                                        <div className="p-col" style={{paddingTop: "0"}}>
+                                                        <div className="p-col" style={{padding: "0"}}>
                                                             <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.oo}</div>
                                                             <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.co}</div>
                                                         </div>
@@ -87,7 +118,6 @@ class AllocationPage extends React.Component {
                                                 </td>
                                                 <td>
                                                     <PanelAllocation
-                                                        panel={room.panel}
                                                         id={room.id}
                                                         adj={this.state.adj}
                                                     />

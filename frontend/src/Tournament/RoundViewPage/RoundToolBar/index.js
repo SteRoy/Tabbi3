@@ -30,7 +30,7 @@ class RoundToolBar extends React.Component {
     render() {
         const alignLeft = (
             <React.Fragment>
-                <Button label="Allocations" icon="pi pi-directions" className="p-mr-2 p-button-help" />
+                <a href={`./${this.props.roundID}/allocate`}><Button label="Allocations" icon="pi pi-directions" className="p-mr-2 p-button-help" /></a>
                 <Button label="Motion" icon="pi pi-plus" className="p-mr-2 p-button-help" />
             </React.Fragment>
         );

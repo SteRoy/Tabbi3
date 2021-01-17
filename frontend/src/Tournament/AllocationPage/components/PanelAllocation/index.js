@@ -4,6 +4,10 @@ import AllocationJudge from "../AllocationJudge";
 
 class PanelAllocation extends React.Component {
     render() {
+        const draggableStyle = (style) => ({
+            marginRight: "20px",
+            ...style
+        });
         return (
             <Droppable
                 droppableId={this.props.id}
@@ -16,20 +20,23 @@ class PanelAllocation extends React.Component {
                             <div
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
-                                style={{height: "60px", marginLeft: "10px", marginRight: "10px"}}
+                                style={{height: "60px", marginRight: "10px", display: "flex", padding: 8, overflow: 'auto'}}
                             >
                                 {
-                                    this.props.adj.filter(a => a.roomid === this.props.id).map((judge, index) => (
-                                        <Draggable draggableId={judge.id} key={`draggable-${judge.id}`} index={index}>
+                                    this.props.adj.filter(a => a.roomid === this.props.id).sort((a,b) => a.index < b.index ? -1 : 1).map((judge) => (
+                                        <Draggable draggableId={judge.id} key={`draggable-${judge.id}`} index={judge.index}>
                                             {(provided, snapshot) => (
                                                 <div
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
+                                                    style={draggableStyle(provided.draggableProps.style)}
                                                     {...provided.dragHandleProps}
                                                 >
                                                     <AllocationJudge
                                                         name={judge.name}
                                                         score={judge.score}
+                                                        chair={judge.index === 0}
+                                                        isDragged={snapshot.isDragging}
                                                     />
                                                 </div>
                                             )}

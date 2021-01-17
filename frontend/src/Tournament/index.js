@@ -11,7 +11,7 @@ class TournamentRouter extends React.Component {
         return (
             <React.Fragment>
                 <Route exact path="/tournament/:slug" component={TournamentHome}/>
-                <Route exact path="/tournament/:slug/round" component={RoundViewPage}/>
+                <Route exact path="/tournament/:slug/round/:rid" component={RoundViewPage}/>
                 <Route exact path="/tournament/:slug/round/:rid/allocate" component={AllocationPage}/>
             </React.Fragment>
         )

@@ -68,6 +68,10 @@ div.person-card>.p-card-body>.p-card-content {
     background-color: #D948FF;
 }
 
+.color-dragged {
+    background-color: lightgreen;
+}
+
 .clash-legend {
     display: inline-block;
     text-align: center;

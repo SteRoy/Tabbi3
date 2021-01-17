@@ -39,7 +39,9 @@ class RoundViewPage extends React.Component {
                         <Card>
                             <div className="display-4 text-center w-100">Round 1 - Doxbridge Worlds 2021</div>
                             <hr/>
-                            <RoundToolBar/>
+                            <RoundToolBar
+                                roundID={1}
+                            />
                             <div className="p-grid">
                                 <div className="p-col text-center">
                                     <h6>Round Details</h6>

@@ -1,11 +1,15 @@
 const express = require('express');
 const path = require('path');
-
 const app = express();
+
+// Use JSON
+app.use(express.json);
 
 // Serve static files from the React frontend
 app.use(express.static(path.join(__dirname, 'frontend/build')));
 
+// Serverside API
+app.use(`/api`, require("./api"));
 
 // Catchall to render react frontend
 app.get('*', (req, res) => {

@@ -9,6 +9,7 @@ import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 
 // Page Imports
 import LoginPage from "./LoginPage";
+import LogoutPage from "./LogoutPage";
 import HomePage from "./HomePage";
 import RegisterPage from "./RegisterPage";
 import TournamentListPage from "./TournamentListPage";
@@ -20,6 +21,7 @@ ReactDOM.render(
         <Switch>
             <Route exact path="/" component={HomePage}/>
             <Route exact path="/login" component={LoginPage}/>
+            <Route exact path="/logout" component={LogoutPage}/>
             <Route exact path="/register" component={RegisterPage}/>
             <Route path="/tournament" component={TournamentRouter}/>
             <Route exact path="/tournaments" component={TournamentListPage}/>

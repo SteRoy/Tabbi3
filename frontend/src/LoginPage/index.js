@@ -4,6 +4,7 @@ import NavBar from "../NavBar";
 import { Button } from 'primereact/button';
 import InputBox from "../components/InputBox";
 import {Toast} from "primereact/toast";
+import { Redirect } from "react-router-dom";
 const ttlib = require("ttlib");
 
 class LoginPage extends React.Component {
@@ -12,7 +13,8 @@ class LoginPage extends React.Component {
         this.state = {
             username: "",
             password: "",
-            errors: {}
+            errors: {},
+            redirect: false
         }
 
         this.login = this.login.bind(this);
@@ -34,11 +36,12 @@ class LoginPage extends React.Component {
             ttlib.api.requestAPI(
                 `/accounts/login`,
                 "POST",
-                (response) => {
+                () => {
                     ttlib.component.toastSuccess(this.toast, "Login Successful", "You have been successfully logged in.");
                     this.setState({
                         email: "",
-                        password: ""
+                        password: "",
+                        redirect: true
                     });
                 },
                 (errorMessage) => {
@@ -65,6 +68,7 @@ class LoginPage extends React.Component {
             <div>
                 <NavBar active="login"/>
                 <Toast ref={(ref) => this.toast = ref}/>
+                {this.state.redirect ? <Redirect to="/"/> : ""}
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-4">
                         <Card>

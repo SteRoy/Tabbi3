@@ -28,9 +28,9 @@ router.post("/create", (req, res) => {
             {
                 include: [models.Person]
             }
-        ).then(account => {
+        ).then(() => {
             return res.status(200).json({success: `Account Created`});
-        }).catch(error => {
+        }).catch(() => {
             return res.status(500).json({error: `Could not create new account - are you already registered?`});
         });
     }).catch(missingField => {
@@ -44,6 +44,46 @@ router.post("/create", (req, res) => {
 //
 router.post("/login", passport.authenticate('local'), (req, res) => {
     return res.status(200).json({success: "Logged in"});
+});
+
+//
+// POST /api/accounts/logout
+// 200 Logged out successfully
+//
+router.post("/logout", (req, res) => {
+    req.logout();
+    return res.status(200).json({success: "Logged out"});
 })
+
+
+//
+// GET /api/accounts/me
+// 200 Session is authed, provide account details
+// 401 User is not logged in
+// 500 Who knows what happened, you are somehow authed with passport but don't exist
+//
+router.get("/me", (req, res) => {
+   if (req.user) {
+        models.Account.findOne({
+            attributes: [
+              'email',
+              'Person.name'
+            ],
+            where: {
+                email: req.user.email
+            },
+            include: [
+                models.Person
+            ]
+        }).then(account => {
+            return res.status(200).json({account});
+        }).catch(err => {
+            console.log(err);
+            return res.status(500).json({error: `Internal Server Error`});
+        })
+   } else {
+       return res.status(401).json({error: `You are not logged in.`});
+   }
+});
 
 module.exports = router;

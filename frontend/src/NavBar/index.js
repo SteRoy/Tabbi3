@@ -1,8 +1,12 @@
 import React from 'react';
+const ttlib = require("ttlib");
 
 class NavBar extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            loggedIn: false
+        };
         this.items = [
             {
                 label: "Home",
@@ -17,14 +21,35 @@ class NavBar extends React.Component {
             {
                 label: "Login",
                 href: "/login",
-                id: "login"
+                id: "login",
+                condition: () => !this.state.loggedIn && this.state.account
             },
             {
                 label: "Register",
                 href: "/register",
-                id: "register"
+                id: "register",
+                condition: () => !this.state.loggedIn && this.state.account
+            },
+            {
+                label: "Logout",
+                href: "/logout",
+                id: "logout",
+                condition: () => this.state.loggedIn && this.state.account
             }
         ]
+    }
+
+    componentDidMount() {
+        ttlib.api.requestAPI(`/accounts/me`, "GET", (data) => {
+            this.setState({
+                account: data.account,
+                loggedIn: true
+            })
+        }, () => {
+            this.setState({
+                account: {}
+            })
+        })
     }
 
     render() {
@@ -41,8 +66,14 @@ class NavBar extends React.Component {
                     <ul className="navbar-nav mr-auto">
                         {
                             this.items.map(entry => {
+                                if (Object.keys(entry).includes('condition')) {
+                                    if (!entry.condition()) {
+                                        return "";
+                                    }
+                                }
                                 return (
-                                    <li key={entry.id} className={`nav-item ${this.props.active === entry.id ? "active" : ""}`}>
+                                    <li key={entry.id}
+                                        className={`nav-item ${this.props.active === entry.id ? "active" : ""}`}>
                                         <a className={`nav-link`} href={entry.href}>{entry.label}</a>
                                     </li>
                                 )

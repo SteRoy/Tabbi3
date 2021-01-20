@@ -16,7 +16,7 @@ class HomePage extends React.Component {
                             <div className="display-4 text-center w-100">Current Tournaments</div>
                             <hr/>
                             <div className="p-grid p-justify-center">
-                                <div className="p-col-3">
+                                <div className="p-xl-3 p-lg-3 p-md-3 p-col-6">
                                     <TournamentCard
                                         title="Doxbridge Worlds 2021"
                                         description={"Doxbridge Worlds 2021 aims to be the largest ever debating tournament, and a post-NYE filler for those of you who haven't managed to get your competitive debating fix over the holidays."}

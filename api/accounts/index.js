@@ -5,12 +5,12 @@ const ttlib = require("ttlib");
 // TODO: Captcha Authenticate
 
 //
-//  POST /api/accounts
+//  POST /api/accounts/create
 //  500: Sequelize Create failed to return new person
 //  400: Missing either name, email, password
 //  200: Account created successfully
 //
-router.post("/", (req, res) => {
+router.post("/create", (req, res) => {
     ttlib.validation.objContainsFields(req.body, ["name", "email", "password"]).then(postForm => {
         const salt = ttlib.auth.generateSalt();
         const password = ttlib.auth.saltHashString(postForm.password, salt);

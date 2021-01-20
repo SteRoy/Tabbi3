@@ -1,3 +1,4 @@
+const env = require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -20,3 +21,12 @@ const port = process.env.PORT || 5000;
 app.listen(port);
 
 console.log(`Tabbi3 Running on ${port}`);
+
+// Test SQL
+try {
+    require("./models").sequelize.authenticate().then(authed => {
+        console.log(`Tabbi3 DB Connection Established`);
+    });
+} catch (error) {
+    console.error(`Unable to connect to database: `, error);
+}

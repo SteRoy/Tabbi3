@@ -42,7 +42,7 @@ class NavBar extends React.Component {
                         {
                             this.items.map(entry => {
                                 return (
-                                    <li className={`nav-item ${this.props.active === entry.id ? "active" : ""}`}>
+                                    <li key={entry.id} className={`nav-item ${this.props.active === entry.id ? "active" : ""}`}>
                                         <a className={`nav-link`} href={entry.href}>{entry.label}</a>
                                     </li>
                                 )

@@ -2,17 +2,21 @@
   "development": {
     "use_env_variable": "DATABASE_URL",
     "dialect": "postgres",
-    "ssl": {
-      "sslmode": "require",
-      "rejectUnauthorized": false
+    "dialectOptions": {
+      "ssl": {
+        "sslmode": "require",
+        "rejectUnauthorized": false
+      }
     }
   },
   "production": {
     "use_env_variable": "DATABASE_URL",
     "dialect": "postgres",
-    "ssl": {
-      "sslmode": "require",
-      "rejectUnauthorized": false
+    "dialectOptions": {
+      "ssl": {
+        "sslmode": "require",
+        "rejectUnauthorized": false
+      }
     }
   }
 }

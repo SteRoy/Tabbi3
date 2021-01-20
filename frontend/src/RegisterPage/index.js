@@ -38,7 +38,7 @@ class RegisterPage extends React.Component {
             }
         });
 
-        if (this.state.password !== this.confirmpassword) {
+        if (this.state.password !== this.state.confirmpassword) {
             validation = false;
             errors["password"] = "Passwords must match.";
             errors["confirmpassword"] = "Passwords must match.";
@@ -47,7 +47,7 @@ class RegisterPage extends React.Component {
         if (validation) {
             // Login Post Request
             ttlib.api.requestAPI(
-                `/accounts`,
+                `/accounts/create`,
                 "POST",
                 (response) => {
                     ttlib.component.toastSuccess(this.toast, "Registration Successful", "Your account has been created, you can now login.");

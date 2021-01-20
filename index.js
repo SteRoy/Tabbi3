@@ -12,7 +12,7 @@ const models = require("./models");
 app.use(express.json());
 
 // SSL for non-development
-if (process.env.DEBUG !== "TRUE") {
+if (process.env.DEVELOPMENT !== "TRUE") {
     const enforce = require('express-sslify');
     app.use(enforce.HTTPS({ trustProtoHeader: true }));
 }
@@ -42,30 +42,29 @@ passport.use(new LocalStrategy(
     {usernameField: 'email'},
     function(email, password, done) {
         if (!email || !password) {
-            return done(null, {
-                status: false,
-                message: "Incorrect User Credentials"
-            })
+            return done(null, false);
         } else {
             models.Account.findOne({
                 where: {
                     email
                 }
             }).then(account => {
-                const salt = account.salt;
-                const candidateHash = ttlib.auth.saltHashString(password, salt);
-                if (candidateHash === account.password) {
-                    return done(null, {
-                        status: true,
-                        message: "Login successful.",
-                        username: account.username
-                    })
+                if (account) {
+                    const salt = account.salt;
+                    const candidateHash = ttlib.auth.saltHashString(password, salt);
+                    if (candidateHash === account.password) {
+                        return done(null, {
+                            status: true,
+                            message: "Login successful.",
+                            email: account.email
+                        })
+                    } else {
+                        return done(null, false);
+                    }
                 } else {
-                    return done(null, {
-                        status: false,
-                        message: "Incorrect User Credentials"
-                    })
+                    return done(null, false);
                 }
+
             })
         }
     }

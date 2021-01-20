@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const models = require("../../models");
 const ttlib = require("ttlib");
+const passport = require("passport");
 
 // TODO: Captcha Authenticate
 
@@ -12,28 +13,37 @@ const ttlib = require("ttlib");
 //
 router.post("/create", (req, res) => {
     ttlib.validation.objContainsFields(req.body, ["name", "email", "password"]).then(postForm => {
+        console.log(postForm);
         const salt = ttlib.auth.generateSalt();
         const password = ttlib.auth.saltHashString(postForm.password, salt);
-        const newPerson = models.Person.create(
+        models.Account.create(
             {
-                name: postForm.name,
-                account: {
-                    email: postForm.email,
-                    salt,
-                    password
+                email: postForm.email,
+                salt,
+                password,
+                Person: {
+                    name: postForm.name
                 }
             },
             {
-                include: [models.Account]
-            });
-        if (newPerson) {
+                include: [models.Person]
+            }
+        ).then(account => {
             return res.status(200).json({success: `Account Created`});
-        } else {
-            return res.status(500).json({error: `Internal Server Error`});
-        }
+        }).catch(error => {
+            return res.status(500).json({error: `Could not create new account - are you already registered?`});
+        });
     }).catch(missingField => {
         return res.status(400).json({error: `Missing ${missingField}`});
     })
 });
+
+//
+// POST /api/accounts/login
+// 200 Logged in successfully
+//
+router.post("/login", passport.authenticate('local'), (req, res) => {
+    return res.status(200).json({success: "Logged in"});
+})
 
 module.exports = router;

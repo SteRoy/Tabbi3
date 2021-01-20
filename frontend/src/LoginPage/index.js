@@ -3,6 +3,8 @@ import { Card } from 'primereact/card';
 import NavBar from "../NavBar";
 import { Button } from 'primereact/button';
 import InputBox from "../components/InputBox";
+import {Toast} from "primereact/toast";
+const ttlib = require("ttlib");
 
 class LoginPage extends React.Component {
     constructor(props) {
@@ -29,6 +31,27 @@ class LoginPage extends React.Component {
 
         if (validation) {
             // Login Post Request
+            ttlib.api.requestAPI(
+                `/accounts/login`,
+                "POST",
+                (response) => {
+                    ttlib.component.toastSuccess(this.toast, "Login Successful", "You have been successfully logged in.");
+                    this.setState({
+                        email: "",
+                        password: ""
+                    });
+                },
+                (errorMessage) => {
+                    let error = errorMessage;
+                    if (errorMessage === "Unauthorized") {
+                        error = `Incorrect Credentials`;
+                    }
+                    ttlib.component.toastError(this.toast, "Login Failed", error);
+                },
+                {
+                    email: this.state.email,
+                    password: this.state.password
+                });
         } else {
             this.setState({
                 errors
@@ -41,6 +64,7 @@ class LoginPage extends React.Component {
         return (
             <div>
                 <NavBar active="login"/>
+                <Toast ref={(ref) => this.toast = ref}/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-4">
                         <Card>
@@ -51,7 +75,7 @@ class LoginPage extends React.Component {
                                 <InputBox
                                     id="email"
                                     cb={(dict) => this.setState(dict)}
-                                    value={this.state.username}
+                                    value={this.state.email}
                                     type="text"
                                     errors={this.state.errors}
                                 />

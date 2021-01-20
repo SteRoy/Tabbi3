@@ -39,6 +39,7 @@ passport.deserializeUser(function(email, done) {
     });
 });
 passport.use(new LocalStrategy(
+    {usernameField: 'email'},
     function(email, password, done) {
         if (!email || !password) {
             return done(null, {

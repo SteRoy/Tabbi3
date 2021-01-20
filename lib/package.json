@@ -1,5 +1,8 @@
 {
   "name": "ttlib",
   "description": "Tabbi3 Utility Library",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "dependencies": {
+    "axios": "^0.21.1"
+  }
 }

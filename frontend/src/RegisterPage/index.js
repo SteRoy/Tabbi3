@@ -3,6 +3,8 @@ import { Card } from 'primereact/card';
 import NavBar from "../NavBar";
 import { Button } from 'primereact/button';
 import InputBox from "../components/InputBox";
+import {Toast} from "primereact/toast";
+const ttlib = require("ttlib");
 
 class RegisterPage extends React.Component {
     constructor(props) {
@@ -36,8 +38,34 @@ class RegisterPage extends React.Component {
             }
         });
 
+        if (this.state.password !== this.confirmpassword) {
+            validation = false;
+            errors["password"] = "Passwords must match.";
+            errors["confirmpassword"] = "Passwords must match.";
+        }
+
         if (validation) {
             // Login Post Request
+            ttlib.api.requestAPI(
+                `/accounts`,
+                "POST",
+                (response) => {
+                    ttlib.component.toastSuccess(this.toast, "Registration Successful", "Your account has been created, you can now login.");
+                    this.setState({
+                        name: "",
+                        email: "",
+                        password: "",
+                        confirmpassword: ""
+                    });
+                },
+                (errorMessage) => {
+                    ttlib.component.toastError(this.toast, "Registration Failed", errorMessage);
+                },
+                {
+                    name: this.state.name,
+                    email: this.state.email,
+                    password: this.state.password
+                });
         } else {
             this.setState({
                 errors
@@ -50,6 +78,7 @@ class RegisterPage extends React.Component {
         return (
             <div>
                 <NavBar active="register"/>
+                <Toast ref={(ref) => this.toast = ref}/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-4">
                         <Card>

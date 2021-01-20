@@ -3,7 +3,7 @@ const path = require('path');
 const app = express();
 
 // Use JSON
-app.use(express.json);
+app.use(express.json());
 
 // Serve static files from the React frontend
 app.use(express.static(path.join(__dirname, 'frontend/build')));
@@ -13,7 +13,7 @@ app.use(`/api`, require("./api"));
 
 // Catchall to render react frontend
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname+'/frontend/build/index.html'));
+    res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
 });
 
 const port = process.env.PORT || 5000;

@@ -34,7 +34,6 @@ class CreateInstitutionPage extends React.Component {
             'GET',
             (respData) => {
                 this.fuse = new Fuse(respData.institutions, this.fuseOptions);
-                console.log(respData);
                 this.setState(respData)
             },
             (errorMessage) => {}

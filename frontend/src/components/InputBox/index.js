@@ -2,6 +2,7 @@ import React from "react";
 import {Password} from "primereact/password";
 import {InputText} from "primereact/inputtext";
 import {Chips} from "primereact/chips";
+import InstitutionSelector from "../InstitutionSelector";
 const ttlib = require("ttlib");
 
 class InputBox extends React.Component {
@@ -43,6 +44,18 @@ class InputBox extends React.Component {
                             />
                             <small>{this.props.tooltip}</small>
                         </span>
+                        : ""
+                }
+                {
+                    this.props.type === "institution" ?
+                        <div>
+                            <InstitutionSelector
+                                institutions={this.props.options()}
+                                id={this.props.id}
+                                onSelect={(dict) => this.props.cb(dict)}
+                                value={this.props.value}
+                            />
+                        </div>
                         : ""
                 }
                 {/* Render Error Per Field */}

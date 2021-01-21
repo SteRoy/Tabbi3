@@ -46,6 +46,8 @@ router.get("/options", (req, res) => {
 //
 // POST /api/institutions/create
 // 200 - Institution added
+// 400 - Missing Field
+// 500 - ISE, create object failed
 //
 router.post("/create", (req, res) => {
     ttlib.validation.objContainsFields(req.body, ["name", "shortName", "aliases"]).then(postForm => {
@@ -59,11 +61,37 @@ router.post("/create", (req, res) => {
                 include: [
                     models.InstitutionAlias
                 ]
-            })
-        return res.status(200).json({success: "Institution Created"});
+            }).then(() => {
+            return res.status(200).json({success: "Institution Created"});
+        }).catch(() => {
+            return res.status(500).json({error: "Internal Server Error"});
+        })
     }).catch(error => {
         return res.status(400).json({error: `Missing ${error}`});
     });
-})
+});
+
+//
+// POST /api/institutions/:identifier/alias
+// 200 - Institution Alias created
+// 400 - Missing Field
+//
+router.post(`/:identifier/alias`, (req, res) => {
+    ttlib.validation.objContainsFields(req.body, ["alias"]).then(postForm => {
+        const titleCaseAlias = ttlib.string.toTitleCase(postForm.alias);
+        models.InstitutionAlias.findOrCreate({
+            where: {
+                InstitutionId: req.params.identifier,
+                alias: titleCaseAlias
+            }
+        }).then(() => {
+            return res.status(200).json({success: `Alias Created`});
+        }).catch(() => {
+            return res.status(500).json({error: `Internal Server Error`});
+        })
+    }).catch(error => {
+        return res.status(400).json({error: `Missing ${error}`});
+    })
+});
 
 module.exports = router;

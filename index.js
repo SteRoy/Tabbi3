@@ -7,7 +7,6 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const ttlib = require("ttlib");
 const models = require("./models");
-const csrf = require("csurf");
 
 // Use JSON
 app.use(express.json());
@@ -73,7 +72,6 @@ passport.use(new LocalStrategy(
 
 // TODO: Update storage strategy to use postgresql
 app.use(session({secret: process.env.SECRET_TOKEN, resave: false, saveUninitialized: false}));
-app.use(csrf({ cookie: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 

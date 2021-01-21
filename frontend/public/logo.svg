@@ -1,0 +1,32 @@
+<svg viewBox="-1 61 169 188" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<defs>
+		<rect id="square" width="38" height="38" rx="3" stroke-width="1" stroke="black"/>
+		<g id="colorT">
+			<use xlink:href="#square" x="80" y="0"/>
+			<use xlink:href="#square" x="40" y="0"/>
+			<use xlink:href="#square" x="0" y="0"/>
+			<use xlink:href="#square" x="40" y="40"/>
+			<use xlink:href="#square" x="40" y="80"/>
+		</g>
+		<g id="noCol">
+			<use xlink:href="#square" x="80" y="40"/>
+			<use xlink:href="#square" x="0" y="40"/>
+			<use xlink:href="#square" x="80" y="80"/>
+			<use xlink:href="#square" x="0" y="80"/>
+		</g>
+	</defs>
+	<g id="cube" style="">
+		<g class="face" id="east" style="transform: rotateX(-30deg) rotateY(45deg) translate3d(0, 120px, 119px);">
+			<use xlink:href="#colorT" fill="red"/>
+			<use xlink:href="#noCol" fill="blue"/>
+		</g>
+		<g class="face" id="west" style="transform: rotateX(-30deg) rotateY(-45deg) translate3d(0, 120px, 1px);">
+			<use xlink:href="#colorT" fill="orange"/>
+			<use xlink:href="#noCol" fill="yellow"/>
+		</g>
+		<g class="face" id="north" style="transform: rotateX(30deg) rotateY(-45deg) rotateX(-90deg) translateZ(119px);">
+			<use xlink:href="#colorT" fill="green"/>
+			<use xlink:href="#noCol" fill="white"/>
+		</g>
+	</g>
+</svg>

@@ -40,6 +40,12 @@ class NavBar extends React.Component {
                 condition: () => !this.state.loggedIn && this.state.account
             },
             {
+                label: "Profile",
+                href: "/profile/me",
+                id: "me",
+                condition: () => this.state.loggedIn && this.state.account
+            },
+            {
                 label: "Logout",
                 href: "/logout",
                 id: "logout",
@@ -51,7 +57,7 @@ class NavBar extends React.Component {
     componentDidMount() {
         ttlib.api.requestAPI(`/accounts/me`, "GET", (data) => {
             if (this.props.userCB) {
-                this.props.userCB(data.account, true);
+                this.props.userCB(data.account, true, data.clash);
             }
             this.setState({
                 account: data.account,

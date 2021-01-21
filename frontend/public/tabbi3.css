@@ -131,3 +131,7 @@ div.person-card>.p-card-body>.p-card-content {
 .child-w-100>:first-child {
     width: 100%;
 }
+
+.w-25-override {
+    min-width: 25%!important;
+}

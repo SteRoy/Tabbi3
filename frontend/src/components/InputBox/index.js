@@ -3,6 +3,9 @@ import {Password} from "primereact/password";
 import {InputText} from "primereact/inputtext";
 import {Chips} from "primereact/chips";
 import InstitutionSelector from "../InstitutionSelector";
+import {Calendar} from "primereact/calendar";
+import PersonSelector from "../PersonSelector";
+import {Dropdown} from "primereact/dropdown";
 const ttlib = require("ttlib");
 
 class InputBox extends React.Component {
@@ -18,6 +21,7 @@ class InputBox extends React.Component {
                             value={this.props.value}
                             onChange={(e) => this.props.cb({[this.props.id]: e.target.value})}
                             tooltip={this.props.tooltip}
+                            disabled={this.props.readOnly}
                         />
                     : ""
                 }
@@ -57,6 +61,63 @@ class InputBox extends React.Component {
                             />
                         </div>
                         : ""
+                }
+                {
+                    this.props.type === "people" ?
+                        <div>
+                            <PersonSelector
+                                options={this.props.options()}
+                                id={this.props.id}
+                                cb={(dict) => this.props.cb(dict)}
+                                value={this.props.value}
+                                multiple={true}
+                            />
+                        </div>
+                        : ""
+                }
+                {
+                    this.props.type === "person" ?
+                        <div>
+                            <PersonSelector
+                                options={this.props.options()}
+                                id={this.props.id}
+                                cb={(dict) => this.props.cb(dict)}
+                                value={this.props.value}
+                                multiple={false}
+                            />
+                        </div>
+                        : ""
+                }
+                {
+                    this.props.type === "dropdown" ?
+                        <div>
+                            <Dropdown
+                                options={this.props.options()}
+                                id={this.props.id}
+                                onChange={(e) => this.props.cb({[this.props.id]: e.value})}
+                                value={this.props.value}
+                                className={`w-100 ${this.props.errors[this.props.id] ? 'p-invalid' : ''}`}
+                            />
+                        </div>
+                        : ""
+                }
+                {
+                    this.props.type === "date" ?
+                        <div>
+                            <Calendar
+                                id={this.props.id}
+                                value={this.props.value}
+                                onChange={(e) => this.props.cb({[this.props.id]: e.value})}
+                                dateFormat="dd/mm/yy"
+                                showTime={this.props.time}
+                                className="w-100"
+                                hourFormat="24"
+                                appendTo={document.body}
+                                panelClassName="w-25-override"
+                            />
+                        </div>
+                        :
+                        ""
                 }
                 {/* Render Error Per Field */}
                 {

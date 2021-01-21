@@ -15,16 +15,20 @@ import RegisterPage from "./RegisterPage";
 import TournamentListPage from "./TournamentListPage";
 import TournamentRouter from "./Tournament";
 import InstitutionList from "./Institution/InstitutionList";
+import CreateTournamentPage from "./Tournament/CreateTournamentPage";
+import UserProfile from "./UserProfile";
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
         <Switch>
             <Route exact path="/" component={HomePage}/>
+            <Route exact path="/profile/:id" component={UserProfile}/>
             <Route exact path="/login" component={LoginPage}/>
             <Route exact path="/logout" component={LogoutPage}/>
             <Route exact path="/register" component={RegisterPage}/>
             <Route path="/tournament" component={TournamentRouter}/>
+            <Route path="/tournaments/create" component={CreateTournamentPage}/>
             <Route exact path="/institutions" component={InstitutionList}/>
             <Route exact path="/tournaments" component={TournamentListPage}/>
         </Switch>

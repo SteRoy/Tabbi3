@@ -7,6 +7,7 @@ import RoundViewPage from "./RoundViewPage";
 import AllocationPage from "./AllocationPage";
 import BallotPage from "./BallotPage";
 import DrawPage from "./DrawPage";
+import CreateTournamentPage from "./CreateTournamentPage";
 
 class TournamentRouter extends React.Component {
     render() {

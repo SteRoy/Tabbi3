@@ -11,14 +11,33 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsTo(models.Account);
+      this.belongsTo(models.Person);
       this.belongsTo(models.Institution);
     }
-  };
+  }
+
   InstitutionMembership.init({
-    startDate: DataTypes.DATE,
-    endDate: DataTypes.DATE
+    startDate: {
+      type: DataTypes.DATE,
+      get() {
+        const rawDate = this.getDataValue('startDate');
+        return rawDate ? new Date(rawDate).toDateString() : "";
+      }
+    },
+    endDate: {
+      type: DataTypes.DATE,
+      get() {
+        const rawDate = this.getDataValue('endDate');
+        return rawDate ? new Date(rawDate).toDateString() : "";
+      }
+    },
   }, {
+    indexes: [
+      {
+        unique: true,
+        fields: ['PersonId', 'InstitutionId']
+      }
+    ],
     sequelize,
     modelName: 'InstitutionMembership',
   });

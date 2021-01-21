@@ -63,23 +63,38 @@ router.post("/logout", (req, res) => {
 //
 router.get("/me", (req, res) => {
    if (req.user) {
-        models.Account.findOne({
-            attributes: [
-              'email',
-              'Person.name'
-            ],
-            where: {
-                email: req.user.email
-            },
-            include: [
-                models.Person
-            ]
-        }).then(account => {
-            return res.status(200).json({account});
-        }).catch(err => {
-            console.log(err);
-            return res.status(500).json({error: `Internal Server Error`});
-        })
+       models.PersonalClash.findAll({
+           attributes: ["createdAt", "type", "targetAccountId"],
+           where: {
+               fromAccountId: req.user.id
+           }
+       }).then(clash => {
+           models.Account.findOne({
+               attributes: [
+                   'email'
+               ],
+               where: {
+                   email: req.user.email
+               },
+               include: [
+                   {
+                       model: models.Person,
+                       include: [
+                           {
+                               model: models.InstitutionMembership,
+                               include: [
+                                   models.Institution
+                               ]
+                           }
+                       ]
+                   }
+               ]
+           }).then(account => {
+               return res.status(200).json({account, clash});
+           }).catch(err => {
+               return res.status(500).json({error: `Internal Server Error: ${err}`});
+           })
+       });
    } else {
        return res.status(401).json({error: `You are not logged in.`});
    }

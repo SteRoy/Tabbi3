@@ -18,11 +18,12 @@ router.get("/", (req, res) => {
             models
                 .InstitutionMembership
                 .findAll({
-                    group: 'InstitutionId',
                     attributes: ['InstitutionId', [models.sequelize.fn('COUNT', 'InstitutionId'), 'Members']],
                     includes: [
                         models.Institution
                     ]
+                }, {
+                    group: 'InstitutionId'
                 }).then(institutionsWithMembers => {
                 return res.status(200).json({institutions, institutionsWithMembers});
             })

@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       this.hasMany(models.TournamentRole);
+      this.hasMany(models.TournamentSetting);
     }
   }
   Tournament.init({

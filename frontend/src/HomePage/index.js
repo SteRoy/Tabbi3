@@ -26,7 +26,9 @@ class HomePage extends React.Component {
                             <hr/>
                             <div className="text-center p-grid">
                                 <div className="p-col mr-2">
-                                    <Button icon="pi pi-plus" className="p-button-primary" label="Create a Tournament"/>
+                                    <a href="/tournaments/create">
+                                        <Button icon="pi pi-plus" className="p-button-primary" label="Create a Tournament"/>
+                                    </a>
                                 </div>
 
                                 <div className="p-col">

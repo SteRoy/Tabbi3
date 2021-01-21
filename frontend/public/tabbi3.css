@@ -128,3 +128,6 @@ div.person-card>.p-card-body>.p-card-content {
     background-color: skyblue!important;
 }
 
+.child-w-100>:first-child {
+    width: 100%;
+}

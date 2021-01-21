@@ -1,6 +1,10 @@
 import React from 'react';
 const ttlib = require("ttlib");
 
+//
+//  Props
+//  userCB - (loggedInUser, isLoggedIn) => {}
+//
 class NavBar extends React.Component {
     constructor(props) {
         super(props);
@@ -17,6 +21,11 @@ class NavBar extends React.Component {
                 label: "Tournaments",
                 href: "/tournaments",
                 id: "tournaments"
+            },
+            {
+                label: "Institutions",
+                href: "/institutions",
+                id: "institutions"
             },
             {
                 label: "Login",
@@ -41,11 +50,17 @@ class NavBar extends React.Component {
 
     componentDidMount() {
         ttlib.api.requestAPI(`/accounts/me`, "GET", (data) => {
+            if (this.props.userCB) {
+                this.props.userCB(data.account, true);
+            }
             this.setState({
                 account: data.account,
                 loggedIn: true
             })
         }, () => {
+            if (this.props.userCB) {
+                this.props.userCB({}, false);
+            }
             this.setState({
                 account: {}
             })

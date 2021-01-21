@@ -11,8 +11,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.hasMany(models.InstitutionMembership);
+      this.hasMany(models.InstitutionAlias);
     }
-  };
+  }
   Institution.init({
     name: DataTypes.STRING,
     shortName: DataTypes.STRING

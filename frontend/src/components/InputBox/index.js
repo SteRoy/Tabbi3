@@ -1,6 +1,7 @@
 import React from "react";
 import {Password} from "primereact/password";
 import {InputText} from "primereact/inputtext";
+import {Chips} from "primereact/chips";
 const ttlib = require("ttlib");
 
 class InputBox extends React.Component {
@@ -15,6 +16,7 @@ class InputBox extends React.Component {
                             id={this.props.id}
                             value={this.props.value}
                             onChange={(e) => this.props.cb({[this.props.id]: e.target.value})}
+                            tooltip={this.props.tooltip}
                         />
                     : ""
                 }
@@ -28,6 +30,20 @@ class InputBox extends React.Component {
                             onChange={(e) => this.props.cb({[this.props.id]: e.target.value})}
                         />
                     : ""
+                }
+                {
+                    this.props.type === "chips" ?
+                        <span>
+                            <Chips
+                                value={this.props.value}
+                                id={this.props.id}
+                                className={`w-100 child-w-100 ${this.props.errors[this.props.id] ? "p-invalid" : ""}`}
+                                onChange={(e) => this.props.cb({[this.props.id]: e.value})}
+                                allowDuplicate={false}
+                            />
+                            <small>{this.props.tooltip}</small>
+                        </span>
+                        : ""
                 }
                 {/* Render Error Per Field */}
                 {

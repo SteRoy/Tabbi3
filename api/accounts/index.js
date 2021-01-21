@@ -13,7 +13,6 @@ const passport = require("passport");
 //
 router.post("/create", (req, res) => {
     ttlib.validation.objContainsFields(req.body, ["name", "email", "password"]).then(postForm => {
-        console.log(postForm);
         const salt = ttlib.auth.generateSalt();
         const password = ttlib.auth.saltHashString(postForm.password, salt);
         models.Account.create(

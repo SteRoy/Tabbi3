@@ -24,11 +24,16 @@ class HomePage extends React.Component {
                                 </div>
                             </div>
                             <hr/>
-                            <div className="text-center">
-                                <Button icon="pi pi-plus" className="p-button-primary" label="Create a Tournament"/>
-                                <a href="/tournaments">
-                                    <Button icon="pi pi-calendar" className="ml-5 p-button-secondary" label="View Archived Tournaments"/>
-                                </a>
+                            <div className="text-center p-grid">
+                                <div className="p-col mr-2">
+                                    <Button icon="pi pi-plus" className="p-button-primary" label="Create a Tournament"/>
+                                </div>
+
+                                <div className="p-col">
+                                    <a href="/tournaments">
+                                        <Button icon="pi pi-calendar" className="p-button-secondary" label="View Archived Tournaments"/>
+                                    </a>
+                                </div>
                             </div>
                         </Card>
                     </div>

@@ -11,7 +11,15 @@ router.get("/", (req, res) => {
     models.Tournament.findAll({
         include: [
             models.TournamentSetting,
-            models.TournamentRole
+            {
+                model: models.TournamentRole,
+                include: [
+                    {
+                        model: models.Account,
+                        include: models.Person
+                    }
+                ]
+            }
         ]
     }).then(tournaments => {
         return res.status(200).json(tournaments);

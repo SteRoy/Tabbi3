@@ -3,21 +3,28 @@ import { Card } from 'primereact/card';
 import NavBar from "../NavBar";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
+import {Chip} from "primereact/chip";
+import {Redirect} from "react-router-dom";
+const ttlib = require("ttlib");
 
 class TournamentListPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            tournaments: [
-                {
-                    name: "Doxbridge Worlds 2021",
-                    logo: "https://scontent.fdsa1-1.fna.fbcdn.net/v/t1.0-9/s960x960/118215732_448142762751434_3584822132726396335_o.jpg?_nc_cat=101&ccb=2&_nc_sid=340051&_nc_ohc=ICKy43wgZQoAX9g9p8F&_nc_ht=scontent.fdsa1-1.fna&tp=7&oh=c2807d21f734b569ae39ce06cf112855&oe=601FF2B9",
-                    institution: "Doxbridge Debating",
-                    tab: "Steven Roy, Edmund Ross",
-                    adj: "Jess Musulin"
-                }
-            ]
+            tournaments: []
         }
+    }
+
+    componentDidMount() {
+        ttlib.api.requestAPI(
+            `/tournaments`,
+            'GET',
+            (tournaments) => {
+                console.log(tournaments);
+                this.setState({tournaments})
+            },
+            () => {}
+        )
     }
 
     render() {
@@ -26,9 +33,16 @@ class TournamentListPage extends React.Component {
             return <img alt={tournament.name} src={tournament.logo} onError={(e) => e.target.src='https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'} className="datatable-tournament-logo" />;
         }
 
+        const teamBody = (row, team) => {
+            return row.TournamentRoles.filter(r => r.role === team).map(TournamentRole => (
+                <Chip label={TournamentRole.Account.Person.name} className="p-mr-1 p-mt-1"/>
+            ))
+        }
+
         return (
             <div>
                 <NavBar active="tournaments"/>
+                {this.state.selected ? <Redirect to={`/tournament/${this.state.selected.slug}`}/> : ""}
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
                         <Card>
@@ -39,12 +53,14 @@ class TournamentListPage extends React.Component {
                                 paginator
                                 paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} tournaments" rows={10} rowsPerPageOptions={[10,20,50]}
+                                selection={this.state.selected}
+                                onSelectionChange={e => this.setState({selected: e.value})}
+                                selectionMode="single"
+                                dataKey="id"
                             >
                                 <Column field="name" header="Tournament Name"/>
-                                <Column header="Logo" body={tournamentLogoBody}/>
-                                <Column field="institution" header="Hosted By"/>
-                                <Column field="tab" header="Tab Team"/>
-                                <Column field="adj" header="Adj Core"/>
+                                <Column body={(row) => teamBody(row, "tab")} header="Tab Team"/>
+                                <Column body={(row) => teamBody(row, "adjcore")} header="Adj Core"/>
                             </DataTable>
                         </Card>
                     </div>

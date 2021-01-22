@@ -4,7 +4,7 @@ import {Card} from "primereact/card";
 import InputBox from "../../components/InputBox";
 import {Button} from "primereact/button";
 import {Checkbox} from "primereact/checkbox";
-import Redirect from "react-router-dom";
+import {Redirect} from "react-router-dom";
 const ttlib = require("ttlib");
 
 class CreateTournamentPage extends React.Component {

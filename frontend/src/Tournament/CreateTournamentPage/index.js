@@ -4,6 +4,7 @@ import {Card} from "primereact/card";
 import InputBox from "../../components/InputBox";
 import {Button} from "primereact/button";
 import {Checkbox} from "primereact/checkbox";
+import Redirect from "react-router-dom";
 const ttlib = require("ttlib");
 
 class CreateTournamentPage extends React.Component {
@@ -64,7 +65,11 @@ class CreateTournamentPage extends React.Component {
             ttlib.api.requestAPI(
                 `/tournaments/create`,
                 `POST`,
-                () => {},
+                (respData) => {
+                    this.setState({
+                        slug: respData.slug
+                    })
+                },
                 () => {},
                 {
                     name: postForm.name,
@@ -92,6 +97,7 @@ class CreateTournamentPage extends React.Component {
         return(
             <div>
                 <NavBar active="tournamentCreate" userCB={(user, loggedIn) => this.setState({user, loggedIn})}/>
+                {this.state.slug ? <Redirect to={`/tournament/${this.state.slug}`}/> : ""}
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-8">
                         <Card>

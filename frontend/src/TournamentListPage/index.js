@@ -20,7 +20,6 @@ class TournamentListPage extends React.Component {
             `/tournaments`,
             'GET',
             (tournaments) => {
-                console.log(tournaments);
                 this.setState({tournaments})
             },
             () => {}

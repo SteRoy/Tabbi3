@@ -36,7 +36,7 @@ class InstitutionList extends React.Component {
 
     render() {
         const members = (row) => {
-            const obj = this.state.institutionsWithMembers.find(i => i.id === row.InstitutionId)
+            const obj = this.state.institutionsWithMembers.find(i => i.InstitutionId === row.id);
             if (obj) {
                 return <span>{obj.Members}</span>
             } else {

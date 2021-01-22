@@ -19,6 +19,7 @@ router.get("/", (req, res) => {
                 .InstitutionMembership
                 .findAll({
                     attributes: ['InstitutionId', [models.sequelize.fn('COUNT', 'InstitutionId'), 'Members']],
+                    group: 'InstitutionId',
                     includes: [
                         models.Institution
                     ]

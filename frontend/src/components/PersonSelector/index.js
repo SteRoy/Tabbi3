@@ -35,7 +35,7 @@ class PersonSelector extends React.Component {
                 multiple={this.props.multiple}
                 id={this.props.id}
                 value={this.props.value}
-                field="id"
+                field="name"
                 suggestions={this.state.suggestions}
                 completeMethod={searchPerson}
                 onChange={(e) => this.props.cb({[this.props.id]: e.value})}

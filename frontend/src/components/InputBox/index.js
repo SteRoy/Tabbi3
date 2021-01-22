@@ -6,6 +6,7 @@ import InstitutionSelector from "../InstitutionSelector";
 import {Calendar} from "primereact/calendar";
 import PersonSelector from "../PersonSelector";
 import {Dropdown} from "primereact/dropdown";
+import {InputNumber} from "primereact/inputnumber";
 const ttlib = require("ttlib");
 
 class InputBox extends React.Component {
@@ -24,6 +25,20 @@ class InputBox extends React.Component {
                             disabled={this.props.readOnly}
                         />
                     : ""
+                }
+                {
+                    this.props.type === "number" ?
+                        <InputNumber
+                            className={`w-100 ${this.props.errors[this.props.id] ? "p-invalid" : ""}`}
+                            id={this.props.id}
+                            value={this.props.value}
+                            min={this.props.min}
+                            max={this.props.max}
+                            step={1}
+                            onValueChange={(e) => this.props.cb({[this.props.id]: e.target.value})}
+                            tooltip={this.props.tooltip}
+                        />
+                        : ""
                 }
                 {
                     this.props.type === "password" ?
@@ -72,6 +87,11 @@ class InputBox extends React.Component {
                                 value={this.props.value}
                                 multiple={true}
                             />
+                            {this.props.tooltip ?
+                                <div><small>{this.props.tooltip}</small></div>
+                                :
+                                ""
+                            }
                         </div>
                         : ""
                 }
@@ -83,8 +103,10 @@ class InputBox extends React.Component {
                                 id={this.props.id}
                                 cb={(dict) => this.props.cb(dict)}
                                 value={this.props.value}
-                                multiple={false}
                             />
+                            {this.props.tooltip ?
+                                <div><small>{this.props.tooltip}</small></div>
+                                : ""}
                         </div>
                         : ""
                 }

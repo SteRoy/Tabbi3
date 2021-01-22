@@ -17,7 +17,7 @@ class PersonalClashForm extends React.Component {
         this.fields = [
             {
                 id: "selectedTarget",
-                type: "people",
+                type: "person",
                 label: "Person to Clash",
                 options: () => this.state.people
             },

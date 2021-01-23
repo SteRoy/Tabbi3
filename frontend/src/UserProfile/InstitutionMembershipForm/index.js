@@ -41,7 +41,8 @@ class InstitutionMembershipForm extends React.Component {
     }
 
     submit() {
-        ttlib.validation.objContainsFields(this.state, ["selectedInstitution", "startDate", "endDate"]).then(postForm => {
+        console.log(this.state);
+        ttlib.validation.objContainsFields(this.state, ["selectedInstitution"]).then(postForm => {
             ttlib.api.requestAPI(
                 `/people/me/institutions`,
                 'POST',

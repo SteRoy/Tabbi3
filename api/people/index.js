@@ -25,7 +25,7 @@ router.get("/", (req, res) => {
 router.post("/me/institutions", (req, res) => {
     // TODO: Requires req.user, so must be authenticated or hard fail
     // TODO: Verify that the index uniquity constraint on this works
-    ttlib.validation.objContainsFields(req.body, ["institution", "startDate", "endDate"]).then(postForm => {
+    ttlib.validation.objContainsFields(req.body, ["institution"]).then(postForm => {
         if (req.user) {
             models.Person.findOne({
                 where: {
@@ -35,8 +35,8 @@ router.post("/me/institutions", (req, res) => {
                 models.InstitutionMembership.create({
                     PersonId: person.id,
                     InstitutionId: postForm.institution,
-                    startDate: postForm.startDate,
-                    endDate: postForm.endDate
+                    startDate: postForm.startDate === "" ? null : postForm.startDate,
+                    endDate: postForm.endDate === "" ? null : postForm.endDate
                 }).then(created => {
                     return res.status(200).json({success: `Institution Membership Created`});
                 }).catch(err => {

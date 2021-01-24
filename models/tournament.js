@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(models.TournamentRole);
       this.hasMany(models.TournamentSetting);
+      this.hasMany(models.Speaker);
+      this.hasMany(models.Team);
+      this.hasMany(models.Adjudicator);
     }
   }
   Tournament.init({

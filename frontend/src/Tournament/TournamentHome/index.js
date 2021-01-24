@@ -24,7 +24,6 @@ class TournamentHome extends React.Component {
             },
             (error) => {
                 // handle 404
-                console.log(error);
                 this.setState({
                     error
                 })

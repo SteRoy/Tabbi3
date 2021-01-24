@@ -10,7 +10,8 @@ class TournamentHome extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            tournament: null
+            tournament: null,
+            error: null,
         }
     }
 
@@ -19,11 +20,14 @@ class TournamentHome extends React.Component {
             `/tournaments/${this.props.match.params.slug}/public`,
             `GET`,
             (tournamentData) => {
-                console.log(tournamentData);
                 this.setState({...tournamentData})
             },
-            () => {
+            (error) => {
                 // handle 404
+                console.log(error);
+                this.setState({
+                    error
+                })
             }
         );
     }
@@ -81,7 +85,12 @@ class TournamentHome extends React.Component {
                                     </div>
                                 </Card>
                                 :
-                                <Loading/>
+                                this.state.error ?
+                                    <p className="alert alert-danger display-5 text-center">
+                                        {this.state.error}
+                                    </p>
+                                    :
+                                    <Loading/>
                         }
                     </div>
                 </div>

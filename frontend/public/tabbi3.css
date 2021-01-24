@@ -135,3 +135,7 @@ div.person-card>.p-card-body>.p-card-content {
 .w-25-override {
     min-width: 25%!important;
 }
+
+.p-grid {
+    margin-right: 0!important;
+}

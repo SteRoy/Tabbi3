@@ -33,10 +33,13 @@ ReactDOM.render(
             <Route exact path="/tournaments" component={TournamentListPage}/>
         </Switch>
         <hr/>
-        <a className="text-white" href="https://github.com/SteRoy/Tabbi3">
+        <a className="text-white text-center" href="https://github.com/SteRoy/Tabbi3">
             <p className="text-center">
                 Tabbi3 &copy; 2021 - made with secret alien technology
             </p>
+            <div className="alert alert-warning text-center mx-5">
+                Tabbi3 is in an <b>alpha</b> build. It has not been robustly tested and should not be used as the sole tabulation system for any tournament at this time.
+            </div>
         </a>
     </Router>
   </React.StrictMode>,

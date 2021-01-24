@@ -7,13 +7,17 @@ import {Calendar} from "primereact/calendar";
 import PersonSelector from "../PersonSelector";
 import {Dropdown} from "primereact/dropdown";
 import {InputNumber} from "primereact/inputnumber";
+import {Checkbox} from "primereact/checkbox";
+import {InputTextarea} from "primereact/inputtextarea";
 const ttlib = require("ttlib");
 
 class InputBox extends React.Component {
     render() {
         return (
             <span className="p-mt-4">
-                <label htmlFor={this.props.id}>{this.props.label ? this.props.label : ttlib.string.toTitleCase(this.props.id)}</label>
+                {
+                    this.props.hideLabel ? "" : <label htmlFor={this.props.id}>{this.props.label ? this.props.label : ttlib.string.toTitleCase(this.props.id)}</label>
+                }
                 {
                     this.props.type === "text" ?
                         <InputText
@@ -140,6 +144,27 @@ class InputBox extends React.Component {
                         </div>
                         :
                         ""
+                }
+                { this.props.type === "boolean" ?
+                    <Checkbox
+                        inputId={this.props.id}
+                        name={this.props.id}
+                        checked={this.props.value}
+                        onChange={
+                            (e) => {this.props.cb({[this.props.id]: e.checked})}
+                        }
+                    /> : ""
+                }
+                { this.props.type === "textarea" ?
+                    <InputTextarea
+                        id={this.props.id}
+                        value={this.props.value}
+                        className="w-100"
+                        onChange={
+                            (e) => this.props.cb({[this.props.id]: e.target.value})
+
+                        }
+                    /> : ""
                 }
                 {/* Render Error Per Field */}
                 {

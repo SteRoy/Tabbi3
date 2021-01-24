@@ -8,12 +8,14 @@ import AllocationPage from "./AllocationPage";
 import BallotPage from "./BallotPage";
 import DrawPage from "./DrawPage";
 import CreateTournamentPage from "./CreateTournamentPage";
+import ConfigPage from "./ConfigPage";
 
 class TournamentRouter extends React.Component {
     render() {
         return (
             <React.Fragment>
                 <Route exact path="/tournament/:slug" component={TournamentHome}/>
+                <Route exact path="/tournament/:slug/config" component={ConfigPage}/>
                 <Route exact path="/tournament/:slug/round/:rid" component={RoundViewPage}/>
                 <Route exact path="/tournament/:slug/round/:rid/allocate" component={AllocationPage}/>
                 <Route exact path="/tournament/:slug/round/:rid/displayDraw" component={DrawPage}/>

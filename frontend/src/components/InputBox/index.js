@@ -9,6 +9,8 @@ import {Dropdown} from "primereact/dropdown";
 import {InputNumber} from "primereact/inputnumber";
 import {Checkbox} from "primereact/checkbox";
 import {InputTextarea} from "primereact/inputtextarea";
+import { Slider } from 'primereact/slider';
+import {Knob} from "primereact/knob";
 const ttlib = require("ttlib");
 
 class InputBox extends React.Component {
@@ -16,7 +18,7 @@ class InputBox extends React.Component {
         return (
             <span className="p-mt-4">
                 {
-                    this.props.hideLabel ? "" : <label htmlFor={this.props.id}>{this.props.label ? this.props.label : ttlib.string.toTitleCase(this.props.id)}</label>
+                    this.props.hideLabel ? "" : <label htmlFor={this.props.id} className={`${this.props.type === "boolean" ? 'p-mb-0' : ''}`}>{this.props.label ? this.props.label : ttlib.string.toTitleCase(this.props.id)}</label>
                 }
                 {
                     this.props.type === "text" ?
@@ -146,14 +148,23 @@ class InputBox extends React.Component {
                         ""
                 }
                 { this.props.type === "boolean" ?
-                    <Checkbox
-                        inputId={this.props.id}
-                        name={this.props.id}
-                        checked={this.props.value}
-                        onChange={
-                            (e) => {this.props.cb({[this.props.id]: e.checked})}
+                    <div className="p-mt-0">
+                        {
+                            this.props.hideLabel ?
+                                "" :
+                                <div>
+                                    <small>{this.props.tooltip}</small>
+                                </div>
                         }
-                    /> : ""
+                        <Checkbox
+                            inputId={this.props.id}
+                            name={this.props.id}
+                            checked={this.props.value}
+                            onChange={
+                                (e) => {this.props.cb({[this.props.id]: e.checked})}
+                            }
+                        />
+                    </div> : ""
                 }
                 { this.props.type === "textarea" ?
                     <InputTextarea
@@ -165,6 +176,24 @@ class InputBox extends React.Component {
 
                         }
                     /> : ""
+                }
+                { this.props.type === "ranking" ?
+                    <div className="text-center">
+                        <Knob
+                            id={this.props.id}
+                            value={this.props.value}
+                            className="w-100"
+                            step={1}
+                            min={0}
+                            max={100}
+                            size={150}
+                            onChange={
+                                (e) => this.props.cb({[this.props.id]: e.value})
+
+                            }
+                        />
+                    </div>
+                     : ""
                 }
                 {/* Render Error Per Field */}
                 {

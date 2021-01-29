@@ -118,7 +118,7 @@ class ConfigPage extends React.Component {
                 <Toast ref={(ref) => this.toast = ref}/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
-                        <TournamentToolBar/>
+                        <TournamentToolBar slug={this.props.match.params.slug}/>
                         {
                             this.state.tournament ?
                                 <Card>

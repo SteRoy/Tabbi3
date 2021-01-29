@@ -12,13 +12,14 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       this.hasMany(models.InstitutionMembership);
-      this.hasMany(models.Speaker);
-      this.hasMany(models.Adjudicator);
+      this.hasMany(models.Speaker, {onDelete: 'cascade'});
+      this.hasMany(models.Adjudicator, {onDelete: 'cascade'});
       this.belongsTo(models.Account);
     }
   }
   Person.init({
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
+    placeholder: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Person',

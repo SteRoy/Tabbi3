@@ -92,6 +92,10 @@ div.person-card>.p-card-body>.p-card-content {
     color: white;
 }
 
+.bg-placeholder {
+    background-color: #FFE776!important;
+}
+
 .clash-legend {
     display: inline-block;
     text-align: center;

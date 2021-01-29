@@ -37,7 +37,7 @@ class RoundViewPage extends React.Component {
                 <NavBar active=""/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
-                        <TournamentToolBar/>
+                        <TournamentToolBar slug={this.props.match.params.slug}/>
                         <Card>
                             <div className="display-4 text-center w-100">Round 1 - Doxbridge Worlds 2021</div>
                             <hr/>

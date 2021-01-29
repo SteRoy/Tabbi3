@@ -41,7 +41,6 @@ class AllocationPage extends React.Component {
     }
 
     onDragEnd = (result) => {
-        console.log(result);
         if (result.destination) {
             if (result.destination.droppableId !== result.source.droppableId) {
                 // Get all adjudicators in new room

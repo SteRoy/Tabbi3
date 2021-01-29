@@ -9,6 +9,9 @@ import BallotPage from "./BallotPage";
 import DrawPage from "./DrawPage";
 import CreateTournamentPage from "./CreateTournamentPage";
 import ConfigPage from "./ConfigPage";
+import CreatePlaceholderModelPage from "./CreatePlaceholderModelPage";
+import AdjudicatorListPage from "./AdjudicatorListPage";
+import TeamListPage from "./TeamListPage";
 
 class TournamentRouter extends React.Component {
     render() {
@@ -16,6 +19,9 @@ class TournamentRouter extends React.Component {
             <React.Fragment>
                 <Route exact path="/tournament/:slug" component={TournamentHome}/>
                 <Route exact path="/tournament/:slug/config" component={ConfigPage}/>
+                <Route exact path="/tournament/:slug/create/:model" component={CreatePlaceholderModelPage}/>
+                <Route exact path="/tournament/:slug/list/adjudicators" component={AdjudicatorListPage}/>
+                <Route exact path="/tournament/:slug/list/teams" component={TeamListPage}/>
                 <Route exact path="/tournament/:slug/round/:rid" component={RoundViewPage}/>
                 <Route exact path="/tournament/:slug/round/:rid/allocate" component={AllocationPage}/>
                 <Route exact path="/tournament/:slug/round/:rid/displayDraw" component={DrawPage}/>

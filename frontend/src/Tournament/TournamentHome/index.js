@@ -37,7 +37,7 @@ class TournamentHome extends React.Component {
                 <NavBar active=""/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
-                        <TournamentToolBar/>
+                        <TournamentToolBar slug={this.props.match.params.slug}/>
                         {
                             this.state.tournament ?
                                 <Card>

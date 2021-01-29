@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     Adjudicator.init({
         redacted: DataTypes.BOOLEAN,
         independent: DataTypes.BOOLEAN,
-        testScore: DataTypes.DOUBLE
+        testScore: DataTypes.DOUBLE,
+        placeholder: DataTypes.BOOLEAN
     }, {
         sequelize,
         modelName: 'Adjudicator',

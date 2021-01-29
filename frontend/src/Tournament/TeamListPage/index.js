@@ -34,7 +34,6 @@ class TeamListPage extends React.Component {
                         s2name: t.Speaker2.Person.name
                     }
                 ))
-                console.log(teams);
                 this.setState({teams})
             },
             () => {}

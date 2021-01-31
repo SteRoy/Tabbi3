@@ -36,6 +36,7 @@ class RoundToolBar extends React.Component {
             <React.Fragment>
                 <a href={`./${this.props.roundID}/allocate`}><Button label="Allocations" icon="pi pi-directions" className="p-mr-2 p-button-help" /></a>
                 <Button label="Motion" icon="pi pi-plus" className="p-mr-2 p-button-help" onClick={this.props.motionCB} />
+                <a href={`./${this.props.roundID}/displayDraw`}><Button label="Draw Display" icon="pi pi-desktop" className="p-mr-2 p-button-secondary" /></a>
                 <Button onClick={confirm} label="Generate Draw" icon="pi pi-compass" className="p-mr-2 p-button-danger" />
             </React.Fragment>
         );

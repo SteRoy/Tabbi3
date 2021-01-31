@@ -4,28 +4,58 @@ import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {Chip} from "primereact/chip";
 import MotionCard from "./MotionCard";
+const ttlib = require("ttlib");
 
 class DrawPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             showMotion: false,
-            infoslide: "",
-            motion: "THW Ban Zoos",
             scrolling: false,
             scrollSpeed: 5,
-            draw: [
-                {highlight: "og", og: "Team A", oo: "Team B", cg: "Team C", co: "Team D", venue: "Room A", panel: "Matt Hazell, Jess Musulin"},
-                {highlight: "oo", og: "Team A", oo: "Team B", cg: "Team C", co: "Team D", venue: "Room A", panel: "Matt Hazell, Jess Musulin"},
-                {highlight: "cg", og: "Team A", oo: "Team B", cg: "Team C", co: "Team D", venue: "Room A", panel: "Matt Hazell, Jess Musulin"},
-                {highlight: "co", og: "Team A", oo: "Team B", cg: "Team C", co: "Team D", venue: "Room A", panel: "Matt Hazell, Jess Musulin"}
-            ].sort((a,b) => a[a.highlight] < b[b.highlight] ? -1 : 1)
+            round: {},
+            draw: []
         }
+
+    }
+
+    componentDidMount() {
+        ttlib.api.requestAPI(
+            `/tournaments/${this.props.match.params.slug}/round/${this.props.match.params.rid}`,
+            `GET`,
+            (respData) => {
+                let draw = respData.round.Debates.map(debate => {
+                    let debateObj = {
+                        panel: debate.AdjAllocs.map(adj => ({name: adj.Adjudicator.Person.name, chair: adj.chair}))
+                    };
+
+                    ["OG", "OO", "CG", "CO"].forEach(pos => {
+                        let teamalloc = debate.TeamAllocs.find(dta => dta.position === pos);
+                        if (teamalloc) {
+                            teamalloc = teamalloc.Team.name;
+                        } else {
+                            teamalloc = "Not Set"
+                        }
+                        debateObj[pos] = teamalloc;
+                    });
+
+                    return debateObj;
+                });
+                draw = draw.map(room => ["OG", "OO", "CG", "CO"].map(pos => ({...room, highlight: pos}))).flat();
+
+                this.setState({...respData, draw: draw.sort((a,b) => a[a.highlight] < b[b.highlight] ? -1 : 1)});
+            },
+            (err) => {
+                this.setState({
+                    error: err
+                })
+            }
+        )
     }
 
     render() {
         const teamTemplate = (column, rowData) => {
-            const key = column.header.toLowerCase();
+            const key = column.header;
             return key === rowData.highlight ?
                 <Chip
                     className="team-highlight text-white"
@@ -34,6 +64,20 @@ class DrawPage extends React.Component {
                 />
                 :
                 <span>{rowData[key]}</span>;
+        }
+
+        const panelRender = (row) => {
+            const length = row.panel.length;
+            const panel = row.panel.filter(adj => !adj.chair);
+            const chair = row.panel.find(adj => adj.chair);
+            return [chair, panel].flat().map((adj, index) => {
+                return (adj.chair ?
+                    <span>
+                        <b>&copy; {adj.name}{index === length - 1 ? '' : ', '}</b>
+                    </span>
+                    :
+                    <span>{adj.name}{index === length - 1 ? '' : ','}</span>)
+            })
         }
 
         return (
@@ -71,14 +115,14 @@ class DrawPage extends React.Component {
                     this.state.showMotion ?
                         <div className="p-grid p-justify-center">
                             {
-                                this.state.infoslide ? <MotionCard
+                                this.state.round.infoslide ? <MotionCard
                                     header={"Info Slide"}
-                                    text={this.state.infoslide}
+                                    text={this.state.round.infoslide}
                                 /> : ""
                             }
                             <MotionCard
                                 header={"Motion"}
-                                text={this.state.motion}
+                                text={this.state.round.motion}
                             />
                         </div>
                         :
@@ -87,10 +131,10 @@ class DrawPage extends React.Component {
                             value={this.state.draw}
                         >
                             <Column field="venue" header="Venue"/>
-                            {["og", "oo", "cg", "co"].map(pos => (
+                            {["OG", "OO", "CG", "CO"].map(pos => (
                                 <Column body={(rowData, pos) => teamTemplate(pos, rowData)} header={pos.toUpperCase()}/>
                             ))}
-                            <Column field="panel" header="Panel"/>
+                            <Column body={panelRender} header="Panel"/>
                         </DataTable>
                 }
             </div>

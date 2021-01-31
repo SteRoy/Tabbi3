@@ -85,6 +85,42 @@ router.get(`/:slug/round/:roundid`, (req, res) => {
 })
 
 //
+// POST /api/tournaments/:slug/round/:roundid/motion
+// Set motion and info slide
+// 200 - updated sucessfully
+// 404 - round/tournament not found
+// 400 - missing field
+//
+router.post(`/:slug/round/:roundid/motion`, (req, res) => {
+    ttlib.validation.objContainsFields(req.body, ['motion']).then(() => {
+        models.Round.findOne({
+            where: {
+                id: req.params.roundid
+            }
+        }).then(round => {
+            if (round) {
+                round.motion = req.body.motion;
+                if (req.body.infoslide) {
+                    round.infoslide = req.body.infoslide;
+                }
+                round.save().then(() => {
+                    return res.status(200).json({success: `Motion Updated`});
+                }).catch(err => {
+                    return res.status(500).json({error: `Internal Server Error: ${err}`})
+                })
+            } else {
+                return res.status(404).json({error: `Round Not Found`})
+            }
+        }).catch(err => {
+            return res.status(500).json({error: `Internal Server Error: ${err}`})
+        })
+    }).catch(missing => {
+        return res.status(400).json({error: `Missing ${missing}`})
+    })
+
+})
+
+//
 // POST /api/tournaments/:slug/rounds/create
 // Create a new round
 //
@@ -131,5 +167,6 @@ router.post(`/:slug/rounds/create`, (req, res) => {
         return res.status(500).json({error: `Internal Server Error: ${error}`});
     })
 })
+
 
 module.exports = router;

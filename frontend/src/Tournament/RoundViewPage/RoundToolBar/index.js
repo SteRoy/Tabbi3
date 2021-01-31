@@ -1,37 +1,17 @@
 import React from "react";
 import {Toolbar} from "primereact/toolbar";
 import {Button} from "primereact/button";
-import {SplitButton} from 'primereact/splitbutton';
 
 class RoundToolBar extends React.Component {
     constructor(props) {
         super(props);
-        // Since the splitbutton menus are going to be so closely linked, we can generate them in this neat way.
-        [this.splitOptionsTeams, this.splitOptionsAdjudicators] = ["teams", "adjudicators"].map(objType => {
-            return ([
-                {
-                    label: 'Create New',
-                    icon: 'pi pi-plus',
-                    command: (e) => {
-                        console.log(objType);
-                    }
-                },
-                {
-                    label: 'List',
-                    icon: 'pi pi-align-justify',
-                    command: (e) => {
-                        console.log(objType);
-                    }
-                }
-            ])
-        });
     }
 
     render() {
         const alignLeft = (
             <React.Fragment>
                 <a href={`./${this.props.roundID}/allocate`}><Button label="Allocations" icon="pi pi-directions" className="p-mr-2 p-button-help" /></a>
-                <Button label="Motion" icon="pi pi-plus" className="p-mr-2 p-button-help" />
+                <Button label="Motion" icon="pi pi-plus" className="p-mr-2 p-button-help" onClick={this.props.motionCB} />
             </React.Fragment>
         );
 

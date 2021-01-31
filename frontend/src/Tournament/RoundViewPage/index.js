@@ -8,6 +8,7 @@ import RoundToolBar from "./RoundToolBar";
 import SpoilerWrapper from "../../components/SpoilerWrapper";
 import {Toast} from "primereact/toast";
 import Loading from "../../components/Loading";
+import MotionDialog from "./MotionDialog";
 const ttlib = require("ttlib");
 
 class RoundViewPage extends React.Component {
@@ -25,7 +26,8 @@ class RoundViewPage extends React.Component {
                     panel: "Matt Hazell"
                 }
             ],
-            error: null
+            error: null,
+            showMotionDialog: false
         }
 
         ttlib.api.requestAPI(
@@ -74,55 +76,64 @@ class RoundViewPage extends React.Component {
                         {
                             this.state.round ?
                                 <Card>
-                                <div className="display-4 text-center w-100">{this.state.round.title} - {this.state.tournament.name}</div>
-                                <hr/>
-                                <RoundToolBar
-                                    roundID={1}
-                                />
-                                <br/>
-                                <div className="p-grid">
-                                    <div className="p-col text-center">
-                                        <h6>Round Details</h6>
-                                        <SpoilerWrapper
-                                            body={
-                                                <DataTable
-                                                    value={this.state.details}
-                                                    className={`p-datatable-striped ${this.state.showDetails ? '': 'blur'}`}
-                                                >
-                                                    <Column field="key"/>
-                                                    <Column field="value"/>
-                                                </DataTable>
-                                            }
-                                            cbToggle={
-                                                (value) => this.setState({showDetails: value})
-                                            }
-                                        />
+                                    <MotionDialog
+                                        visible={this.state.showMotionDialog}
+                                        round={this.state.round}
+                                        hide={() => this.setState({showMotionDialog: false})}
+                                        toast={this.toast}
+                                    />
+                                    <div className="display-4 text-center w-100">{this.state.round.title} - {this.state.tournament.name}</div>
+                                    <hr/>
+                                    <RoundToolBar
+                                        roundID={this.state.round.id}
+                                        motionCB={() => this.setState({showMotionDialog: true})}
+                                        slug={this.state.tournament.slug}
+                                        toast={this.toast}
+                                    />
+                                    <br/>
+                                    <div className="p-grid">
+                                        <div className="p-col text-center">
+                                            <h6>Round Details</h6>
+                                            <SpoilerWrapper
+                                                body={
+                                                    <DataTable
+                                                        value={this.state.details}
+                                                        className={`p-datatable-striped ${this.state.showDetails ? '': 'blur'}`}
+                                                    >
+                                                        <Column field="key"/>
+                                                        <Column field="value"/>
+                                                    </DataTable>
+                                                }
+                                                cbToggle={
+                                                    (value) => this.setState({showDetails: value})
+                                                }
+                                            />
+                                        </div>
+                                        <div className="p-col text-center">
+                                            <h6>Round Settings</h6>
+                                            <DataTable
+                                                className="p-datatable-striped"
+                                                value={this.state.round.RoundSettings}
+                                            >
+                                                <Column body={keyField}/>
+                                                <Column body={valueField}/>
+                                            </DataTable>
+                                        </div>
                                     </div>
-                                    <div className="p-col text-center">
-                                        <h6>Round Settings</h6>
-                                        <DataTable
-                                            className="p-datatable-striped"
-                                            value={this.state.round.RoundSettings}
-                                        >
-                                            <Column body={keyField}/>
-                                            <Column body={valueField}/>
-                                        </DataTable>
-                                    </div>
-                                </div>
-                                <hr/>
-                                <h6 className="text-center">Draw</h6>
-                                <DataTable
-                                    value={this.state.draw}
-                                    className="p-datatable-striped"
-                                >
-                                    <Column field="room" header="Room"/>
-                                    <Column field="og" header="OG"/>
-                                    <Column field="oo" header="OO"/>
-                                    <Column field="cg" header="CG"/>
-                                    <Column field="co" header="CO"/>
-                                    <Column field="panel" header="Panel"/>
-                                </DataTable>
-                            </Card>
+                                    <hr/>
+                                    <h6 className="text-center">Draw</h6>
+                                    <DataTable
+                                        value={this.state.draw}
+                                        className="p-datatable-striped"
+                                    >
+                                        <Column field="room" header="Room"/>
+                                        <Column field="og" header="OG"/>
+                                        <Column field="oo" header="OO"/>
+                                        <Column field="cg" header="CG"/>
+                                        <Column field="co" header="CO"/>
+                                        <Column field="panel" header="Panel"/>
+                                    </DataTable>
+                                </Card>
                                 :
                                 this.state.error ?
                                     <p className="alert alert-danger display-5 text-center">

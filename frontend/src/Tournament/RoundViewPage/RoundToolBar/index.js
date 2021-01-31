@@ -17,7 +17,7 @@ class RoundToolBar extends React.Component {
 
         const alignRight = (
             <React.Fragment>
-                <Button label="Round Settings" icon="pi pi-cog" className="p-mr-2 p-button-secondary" />
+                <a href={`./${this.props.roundID}/config`}><Button label="Round Settings" icon="pi pi-cog" className="p-mr-2 p-button-secondary" /></a>
             </React.Fragment>
         );
 

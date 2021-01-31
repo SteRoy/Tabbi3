@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
             });
 
             this.belongsTo(models.Tournament);
+            this.belongsTo(models.DebateTeamAllocation);
         }
     }
 

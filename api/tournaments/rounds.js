@@ -2,9 +2,9 @@ const router = require('express').Router();
 const models = require("../../models");
 const ttlib = require("ttlib");
 
-const roundSettings = [
-    {id: "silent", description: "Should these round results be used in public aggregated/individual results before the competition is completed.", type: "boolean", required: true},
-    {id: "breakcategory", description: "[Elimination Rounds Only] Should the Round seed only teams qualifying in a particular break category?", type: "text", required: true}
+const RoundSettings = [
+    {key: "silent", description: "Should these round results be used in public aggregated/individual results before the competition is completed.", type: "boolean", required: true},
+    {key: "breakcategory", description: "[Elimination Rounds Only] Should the Round seed only teams qualifying in a particular break category?", type: "text", required: false}
 ];
 
 //
@@ -13,7 +13,7 @@ const roundSettings = [
 //
 router.get("/rounds/settings", (req, res) => {
     return res.status(200).json({
-        settings: roundSettings
+        RoundSettings
     });
 });
 
@@ -118,6 +118,61 @@ router.post(`/:slug/round/:roundid/motion`, (req, res) => {
         return res.status(400).json({error: `Missing ${missing}`})
     })
 
+})
+
+//
+// POST /tournaments/:slug/round/:roundid/configuration
+// 200 - configuration updated
+// 400 - missing or invalid field
+// 404 - Tournament not found
+// 500 - ISE
+//
+router.post(`/:slug/round/:roundid/configuration`, (req, res) => {
+    ttlib.validation.objContainsFields(req.body, ['settings']).then(body => {
+        models.Round.findOne({
+            where: {
+                id: req.params.roundid
+            },
+            include: [
+                models.RoundSetting
+            ]
+        }).then(round => {
+            if (round) {
+                body.settings.forEach(proposedChange => {
+                    const template = RoundSettings.find(c => c.key === proposedChange.key);
+                    // TODO: Value Validation
+                    if (template) {
+                            // TournamentSetting
+                            const currentSetting = round.RoundSettings.find(ts => ts.key === proposedChange.key);
+                            if (currentSetting) {
+                                // UPDATE
+                                currentSetting.value = proposedChange.value;
+                                currentSetting.save().catch(err => {
+                                    return res.status(500).json({error: `Internal Server Error: ${err}`})
+                                })
+                            } else {
+                                // Create
+                                models.RoundSetting.create({
+                                    key: proposedChange.key,
+                                    value: proposedChange.value,
+                                    RoundId: round.id
+                                }).catch(err => {
+                                    return res.status(500).json({error: `Internal Server Error: ${err}`})
+                                })
+                            }
+                    } else {
+                        return res.status(400).json({error: `Unidentified configuration option: ${proposedChange.key}`})
+                    }
+                });
+                return res.status(200).json({success: `TournamentSettings updated`});
+            } else {
+                return res.status(404).json({error: `Tournament not found`});
+            }
+        })
+
+    }).catch(err => {
+        return res.status(400).json({error: `Missing ${err}`});
+    })
 })
 
 //

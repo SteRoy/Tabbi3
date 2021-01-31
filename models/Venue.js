@@ -3,7 +3,7 @@ const {
     Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    class Round extends Model {
+    class Venue extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -12,24 +12,15 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             // define association here
             this.belongsTo(models.Tournament);
-            this.hasMany(models.RoundSetting);
-            this.hasMany(models.Debate);
         }
     }
 
-    Round.init({
-        title: DataTypes.STRING,
-        sequence: DataTypes.INTEGER,
-        type: {
-            type: DataTypes.ENUM,
-            values: ['inround', 'outround']
-        },
-        motion: DataTypes.TEXT,
-        infoslide: DataTypes.TEXT,
-        completed: DataTypes.BOOLEAN
+    Venue.init({
+        name: DataTypes.STRING,
+        disabled: DataTypes.BOOLEAN
     }, {
         sequelize,
-        modelName: 'Round',
+        modelName: 'Venue',
     });
-    return Round;
+    return Venue;
 };

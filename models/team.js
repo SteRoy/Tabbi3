@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
             });
 
             this.belongsTo(models.Tournament);
-            this.hasMany(models.DebateTeamAllocation);
+            this.hasMany(models.TeamAlloc);
         }
     }
 

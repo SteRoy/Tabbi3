@@ -31,15 +31,17 @@ class RoundViewPage extends React.Component {
                 ]
 
                 const debates = respData.round.Debates.map(debate => {
-                    let debateObj = {};
+                    let debateObj = {
+                        panel: debate.AdjAllocs.map(adj => ({name: adj.Adjudicator.Person.name, chair: adj.chair}))
+                    };
                     ["OG", "OO", "CG", "CO"].forEach(pos => {
-                        let dta = debate.DebateTeamAllocations.find(dta => dta.position === pos);
-                        if (dta) {
-                            dta = dta.Team.name;
+                        let teamalloc = debate.TeamAllocs.find(dta => dta.position === pos);
+                        if (teamalloc) {
+                            teamalloc = teamalloc.Team.name;
                         } else {
-                            dta = "Not Set"
+                            teamalloc = "Not Set"
                         }
-                        debateObj[pos] = dta;
+                        debateObj[pos] = teamalloc;
                     });
 
                     return debateObj;
@@ -72,6 +74,20 @@ class RoundViewPage extends React.Component {
                 return <span>{row.value}</span>
             }
         };
+
+        const panel = (row) => {
+            const length = row.panel.length;
+            const panel = row.panel.filter(adj => !adj.chair);
+            const chair = row.panel.find(adj => adj.chair);
+            return [chair, panel].flat().map((adj, index) => {
+                return (adj.chair ?
+                    <span>
+                        <b>&copy; {adj.name}{index === length - 1 ? '' : ', '}</b>
+                    </span>
+                    :
+                    <span>{adj.name}{index === length - 1 ? '' : ','}</span>)
+            })
+        }
 
         return (
             <div>
@@ -138,7 +154,7 @@ class RoundViewPage extends React.Component {
                                         <Column field="OO" header="OO"/>
                                         <Column field="CG" header="CG"/>
                                         <Column field="CO" header="CO"/>
-                                        <Column field="panel" header="Panel"/>
+                                        <Column body={panel} header="Panel"/>
                                     </DataTable>
                                 </Card>
                                 :

@@ -3,7 +3,7 @@ const {
     Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    class Debate extends Model {
+    class TeamAlloc extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -11,17 +11,19 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            this.hasMany(models.TeamAlloc, {onDelete: 'cascade'});
-            this.hasMany(models.AdjAlloc, {onDelete: 'cascade'});
-            this.belongsTo(models.Round);
+            this.belongsTo(models.Debate, {allowNull: false});
+            this.belongsTo(models.Team);
         }
     }
 
-    Debate.init({
-        ranking: DataTypes.INTEGER,
+    TeamAlloc.init({
+        position: {
+            type: DataTypes.ENUM,
+            values: ["OG", "OO", "CG", "CO"]
+        }
     }, {
         sequelize,
-        modelName: 'Debate',
+        modelName: 'TeamAlloc',
     });
-    return Debate;
+    return TeamAlloc;
 };

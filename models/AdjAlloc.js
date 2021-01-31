@@ -3,7 +3,7 @@ const {
     Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    class DebateTeamAllocation extends Model {
+    class AdjAlloc extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -12,18 +12,15 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             // define association here
             this.belongsTo(models.Debate, {allowNull: false});
-            this.belongsTo(models.Team);
+            this.belongsTo(models.Adjudicator);
         }
     }
 
-    DebateTeamAllocation.init({
-        position: {
-            type: DataTypes.ENUM,
-            values: ["OG", "OO", "CG", "CO"]
-        }
+    AdjAlloc.init({
+        chair: DataTypes.BOOLEAN
     }, {
         sequelize,
-        modelName: 'DebateTeamAllocation',
+        modelName: 'AdjAlloc',
     });
-    return DebateTeamAllocation;
+    return AdjAlloc;
 };

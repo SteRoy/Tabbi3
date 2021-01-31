@@ -11,12 +11,7 @@ class AllocationPage extends React.Component {
         super(props);
         this.state = {
             debates: [],
-            adj: [
-                {roomid: "0", id: "0", name: "Judge 1", score: "10.0", index: 0},
-                {roomid: "1", id: "1", name: "Judge 2", score: "10.0", index: 0},
-                {roomid: "0", id: "2", name: "Judge 3", score: "10.0", index: 1},
-                {roomid: "0", id: "3", name: "Judge 4", score: "10.0", index: 2},
-            ]
+            adj: []
         }
 
         this.onDragEnd = this.onDragEnd.bind(this);
@@ -27,12 +22,14 @@ class AllocationPage extends React.Component {
             `/tournaments/${this.props.match.params.slug}/round/${this.props.match.params.rid}`,
             `GET`,
             (respData) => {
+                let adj = [];
                 const debates = respData.round.Debates.map(debate => {
                     let debateObj = {
-                        'teams': {}
+                        'teams': {},
+                        id: debate.id.toString()
                     };
                     ["OG", "OO", "CG", "CO"].forEach(pos => {
-                        let dta = debate.DebateTeamAllocations.find(dta => dta.position === pos);
+                        let dta = debate.TeamAllocs.find(dta => dta.position === pos);
                         if (dta) {
                             dta = dta.Team.name;
                         } else {
@@ -40,11 +37,27 @@ class AllocationPage extends React.Component {
                         }
                         debateObj['teams'][pos] = dta;
                     });
+                    let index = 0;
+                    adj = adj.concat(
+                        debate.AdjAllocs.map(adjAlloc => {
+                            if (!adjAlloc.chair) {
+                                index++;
+                            }
 
+                            return({
+                                roomid: adjAlloc.DebateId.toString(),
+                                id: adjAlloc.id.toString(),
+                                name: adjAlloc.Adjudicator.Person.name,
+                                index: adjAlloc.chair ? 0 : index,
+                                score: adjAlloc.Adjudicator.testScore.toString()
+                            })
+                        })
+                    )
                     return debateObj;
                 });
 
-                this.setState({...respData, debates});
+
+                this.setState({...respData, debates, adj});
             },
             (err) => {
                 this.setState({

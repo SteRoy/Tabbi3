@@ -62,7 +62,8 @@ router.post(`/:slug/adjudicators/placeholder/create`, (req, res) => {
                                 testScore: adjDetails.testScore,
                                 independent: adjDetails.independent,
                                 placeholder: true,
-                                TournamentId: tournament.id
+                                TournamentId: tournament.id,
+                                active: true
                             }
                         ]
                     },

@@ -51,6 +51,10 @@ class AdjudicatorListPage extends React.Component {
             }
         }
 
+        const activeField = (row) => {
+            return row.active ? <span className="pi pi-check text-success"/> : <span className="pi pi-times text-danger"/>;
+        }
+
         return (
             <div>
                 <NavBar active="tournaments"/>
@@ -89,6 +93,7 @@ class AdjudicatorListPage extends React.Component {
                                 rowClassName={rowBodyTemplate}
                             >
                                 <Column field="name" header="Adjudicator Name" sortable filter filterPlaceholder="Search by name" filterMatchMode="contains"/>
+                                <Column body={activeField} header="Active" sortable/>
                                 <Column field="testScore" header="Test Score" sortable/>
                                 <Column body={adjIndependent} header="Independent Adjudicator" sortable/>
                             </DataTable>

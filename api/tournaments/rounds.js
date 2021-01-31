@@ -66,9 +66,20 @@ router.get(`/:slug/round/:roundid`, (req, res) => {
                         model: models.Debate,
                         include: [
                             {
-                                model: models.DebateTeamAllocation,
+                                model: models.TeamAlloc,
                                 include: [
                                     models.Team
+                                ]
+                            },
+                            {
+                                model: models.AdjAlloc,
+                                include: [
+                                    {
+                                        model: models.Adjudicator,
+                                        include: [
+                                            models.Person
+                                        ]
+                                    }
                                 ]
                             }
                         ]
@@ -237,6 +248,11 @@ router.post(`/:slug/round/:roundid/draw`, (req, res) => {
                             return res.status(400).json({error: `Tournament Team Count not divisible by 4.`})
                         }
 
+                        let adjudicators = tournament.Adjudicators.filter(a => a.active);
+                        if (adjudicators.length < teams.length/4) {
+                            return res.status(400).json({error: `Tournament has insufficient active adjudicators. Has: ${adjudicators.length}, Needs: ${teams.length/4}`})
+                        }
+
                     //  Powerpairing determines if we shuffle or group
                         if (powerpairing) {
                         //    TODO: implement power pairing -> group by team points, shuffle sub arrays, join again
@@ -246,27 +262,37 @@ router.post(`/:slug/round/:roundid/draw`, (req, res) => {
                         }
 
                         const rooms = ttlib.array.partition(teams, 4);
+                        const panels = ttlib.array.chunkify(adjudicators, rooms.length);
+
                         let debatePromises = [];
                         let roomRanking = 1;
                         rooms.forEach(room => {
-                            room = ttlib.array.shuffle(room);
                             let i = 0;
-                            const DTAllocs = ["OG", "OO", "CG", "CO"].map(position => {
+                            room = ttlib.array.shuffle(room);
+                            const TAllocs = ["OG", "OO", "CG", "CO"].map(position => {
                                 const team = room[i];
                                 i++;
                                 return {
                                     position,
                                     TeamId: team.id
                                 }
-                            })
+                            });
+                            const panel = panels[roomRanking - 1].map((adj, index) => ({
+                                    chair: index === 0,
+                                    AdjudicatorId: adj.id
+                                }
+                            ));
+
                             debatePromises.push(
                                 models.Debate.create({
                                     ranking: roomRanking,
                                     RoundId: round.id,
-                                    DebateTeamAllocations: DTAllocs
+                                    TeamAllocs: TAllocs,
+                                    AdjAllocs: panel
                                 }, {
                                     include: [
-                                        models.DebateTeamAllocation
+                                        models.TeamAlloc,
+                                        models.AdjAlloc
                                     ]
                                 })
                             )

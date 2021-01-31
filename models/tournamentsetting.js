@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   TournamentSetting.init({
     key: DataTypes.STRING,
     value: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       get() {
         const rawValue = this.getDataValue('value');
         if (rawValue === 'true') {

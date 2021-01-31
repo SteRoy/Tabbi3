@@ -3,6 +3,7 @@ import {Toolbar} from "primereact/toolbar";
 import {Button} from "primereact/button";
 import {SplitButton} from 'primereact/splitbutton';
 import {isMobile} from 'react-device-detect';
+import * as ttlib from "ttlib";
 
 class TournamentToolBar extends React.Component {
     constructor(props) {
@@ -34,6 +35,68 @@ class TournamentToolBar extends React.Component {
                 }
             ])
         });
+
+        this.roundOptions = [
+                {
+                    label: 'Create Round',
+                    icon: 'pi pi-plus',
+                    command: (e) => {
+                        ttlib.api.requestAPI(
+                            `/tournaments/${this.props.slug}/rounds/create`,
+                            'POST',
+                            (respData) => {
+                                window.location.pathname = `/tournaments/${this.props.slug}/round/${respData.round.id}`;
+                            },
+                            (err) => {
+                                console.error(err);
+                            },
+                            {}
+                        )
+                    }
+                },
+        ];
+
+        this.ballotOptions = [
+            {
+                label: 'Ballot Overview',
+                icon: 'pi pi-align-justify',
+                command: (e) => {
+                }
+            }
+        ]
+    }
+
+    componentDidMount() {
+        ttlib.api.requestAPI(
+            `/tournaments/${this.props.slug}/rounds`,
+            `GET`,
+            (respData) => {
+                if (respData.tournament.Rounds) {
+                    respData.tournament.Rounds.forEach(round => {
+                            this.roundOptions.push({
+                                label: round.title,
+                                icon: `pi pi-${round.completed ? 'check' : 'spinner pi-spin'}`,
+                                command: () => {
+                                    window.location.pathname = `/tournament/${this.props.slug}/round/${round.id}`;
+                                }
+                            });
+
+                            this.ballotOptions.push({
+                                label: `${round.title} - Results`,
+                                icon: `pi pi-${round.completed ? 'check' : 'spinner pi-spin'}`,
+                                command: () => {
+                                    window.location.pathname = `/tournament/${this.props.slug}/round/${round.id}`;
+                                }
+                            });
+                    }
+
+                    )
+                }
+            },
+            (err) => {
+                console.log(err);
+            }
+        )
     }
 
     render() {
@@ -41,8 +104,8 @@ class TournamentToolBar extends React.Component {
             <React.Fragment>
                 <SplitButton id="teams" model={this.splitOptionsTeams} onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/teams`} label="Teams" icon="pi pi-users" className="p-mr-2 p-button-info" />
                 <SplitButton id="adjudicators" model={this.splitOptionsAdjudicators} onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/adjudicators`} label="Adjudicators" icon="pi pi-user" className="p-mr-2 p-button-info" />
-                <SplitButton id="rounds" label="Rounds" icon="pi pi-briefcase" className="p-mr-2 p-button-help" />
-                <SplitButton id="ballots" label="Ballots" icon="pi pi-file" className="p-mr-2 p-button-help" />
+                <SplitButton id="rounds" model={this.roundOptions} label="Rounds" icon="pi pi-briefcase" className="p-mr-2 p-button-help" />
+                <SplitButton id="ballots" model={this.ballotOptions} label="Ballots" icon="pi pi-file" className="p-mr-2 p-button-help" />
             </React.Fragment>
         );
 

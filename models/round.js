@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            this.hasOne(models.Tournament);
+            this.belongsTo(models.Tournament);
             this.hasMany(models.RoundSetting);
         }
     }
@@ -23,6 +23,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.ENUM,
             values: ['inround', 'outround']
         },
+        motion: DataTypes.TEXT,
+        infoslide: DataTypes.TEXT,
         completed: DataTypes.BOOLEAN
     }, {
         sequelize,

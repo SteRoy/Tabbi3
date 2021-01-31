@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            this.hasMany(models.DebateTeamAllocation);
+            this.hasMany(models.DebateTeamAllocation, {onDelete: 'cascade'});
             this.belongsTo(models.Round);
         }
     }

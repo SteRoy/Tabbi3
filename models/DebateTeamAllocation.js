@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            this.belongsTo(models.Debate);
-            this.hasOne(models.Team);
+            this.belongsTo(models.Debate, {allowNull: false});
+            this.belongsTo(models.Team);
         }
     }
 

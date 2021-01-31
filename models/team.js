@@ -20,14 +20,15 @@ module.exports = (sequelize, DataTypes) => {
             });
 
             this.belongsTo(models.Tournament);
-            this.belongsTo(models.DebateTeamAllocation);
+            this.hasMany(models.DebateTeamAllocation);
         }
     }
 
     Team.init({
         name: DataTypes.STRING,
         codename: DataTypes.STRING,
-        swing: DataTypes.BOOLEAN
+        swing: DataTypes.BOOLEAN,
+        active: DataTypes.BOOLEAN
     }, {
         sequelize,
         modelName: 'Team',

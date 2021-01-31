@@ -109,7 +109,8 @@ router.post(`/:slug/teams/placeholder/create`, (req, res) => {
                             Speaker1Id: personOne.Speakers[0].id,
                             Speaker2Id: personTwo.Speakers[0].id,
                             TournamentId: tournament.id,
-                            swing: true
+                            swing: true,
+                            active: true
                         }).then(team => {
                             return res.status(200).json({success: `Team Created`, team})
                         }).catch(err => {

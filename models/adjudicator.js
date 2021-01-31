@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
         redacted: DataTypes.BOOLEAN,
         independent: DataTypes.BOOLEAN,
         testScore: DataTypes.DOUBLE,
-        placeholder: DataTypes.BOOLEAN
+        placeholder: DataTypes.BOOLEAN,
+        active: DataTypes.BOOLEAN
     }, {
         sequelize,
         modelName: 'Adjudicator',

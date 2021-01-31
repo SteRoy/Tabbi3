@@ -16,16 +16,7 @@ class RoundViewPage extends React.Component {
         super(props);
         this.state = {
             showDetails: false,
-            draw: [
-                {
-                    room: "Room 1",
-                    og: "Team A",
-                    oo: "Team B",
-                    cg: "Team C",
-                    co: "Team D",
-                    panel: "Matt Hazell"
-                }
-            ],
+            debates: [],
             error: null,
             showMotionDialog: false
         }
@@ -38,7 +29,23 @@ class RoundViewPage extends React.Component {
                     {key: "Motion", value: respData.round.motion},
                     {key: "Info Slide", value: respData.round.infoslide}
                 ]
-                this.setState({...respData, details});
+
+                const debates = respData.round.Debates.map(debate => {
+                    let debateObj = {};
+                    ["OG", "OO", "CG", "CO"].forEach(pos => {
+                        let dta = debate.DebateTeamAllocations.find(dta => dta.position === pos);
+                        if (dta) {
+                            dta = dta.Team.name;
+                        } else {
+                            dta = "Not Set"
+                        }
+                        debateObj[pos] = dta;
+                    });
+
+                    return debateObj;
+                });
+
+                this.setState({...respData, details, debates});
             },
             (err) => {
                 this.setState({
@@ -123,14 +130,14 @@ class RoundViewPage extends React.Component {
                                     <hr/>
                                     <h6 className="text-center">Draw</h6>
                                     <DataTable
-                                        value={this.state.draw}
+                                        value={this.state.debates}
                                         className="p-datatable-striped"
                                     >
                                         <Column field="room" header="Room"/>
-                                        <Column field="og" header="OG"/>
-                                        <Column field="oo" header="OO"/>
-                                        <Column field="cg" header="CG"/>
-                                        <Column field="co" header="CO"/>
+                                        <Column field="OG" header="OG"/>
+                                        <Column field="OO" header="OO"/>
+                                        <Column field="CG" header="CG"/>
+                                        <Column field="CO" header="CO"/>
                                         <Column field="panel" header="Panel"/>
                                     </DataTable>
                                 </Card>

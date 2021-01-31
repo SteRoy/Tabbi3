@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
             // define association here
             this.belongsTo(models.Tournament);
             this.hasMany(models.RoundSetting);
-            this.hasMany(models.Debate);
+            this.hasMany(models.Debate, {onDelete: 'CASCADE'});
         }
     }
 

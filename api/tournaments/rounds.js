@@ -4,6 +4,7 @@ const ttlib = require("ttlib");
 
 const RoundSettings = [
     {key: "silent", description: "Should these round results be used in public aggregated/individual results before the competition is completed.", type: "boolean", required: true},
+    {key: "powerpairing", description: "Should this round draw use Power Pairing?", type: "boolean", required: true},
     {key: "breakcategory", description: "[Elimination Rounds Only] Should the Round seed only teams qualifying in a particular break category?", type: "text", required: false}
 ];
 
@@ -60,6 +61,17 @@ router.get(`/:slug/round/:roundid`, (req, res) => {
                 include: [
                     {
                         model: models.RoundSetting
+                    },
+                    {
+                        model: models.Debate,
+                        include: [
+                            {
+                                model: models.DebateTeamAllocation,
+                                include: [
+                                    models.Team
+                                ]
+                            }
+                        ]
                     }
                 ]
             }
@@ -176,6 +188,114 @@ router.post(`/:slug/round/:roundid/configuration`, (req, res) => {
 })
 
 //
+// POST /tournaments/:slug/round/:roundid/draw
+// Create a round draw
+// 200 - draw created
+//
+router.post(`/:slug/round/:roundid/draw`, (req, res) => {
+    models.Round.findOne({
+        where: {
+            id: req.params.roundid
+        },
+        include: [
+            models.Debate,
+            models.RoundSetting
+        ]
+    }).then(async round => {
+        if (round) {
+        // Round Found
+            if (round.Debates) {
+                if (round.Debates.length > 0) {
+                //    Delete previous debates
+                    round.Debates.map(debate => debate.destroy());
+                }
+            }
+        // Determine if we need to use Power Pairing
+            let powerpairing = round.RoundSettings.find(setting => setting.key === 'powerpairing');
+            if (powerpairing) {
+                powerpairing = powerpairing.value;
+            } else {
+                // Default to not consider power pairing, although this should never be the case.
+                powerpairing = false;
+            }
+
+        //    We need to grab all of the teams and adjudicators
+        //    TODO: clash and institution will need to come through here too
+            models.Tournament.findOne({
+                where: {
+                    slug: req.params.slug
+                },
+                include: [
+                    models.Adjudicator,
+                    models.Team
+                ]
+            }).then(tournament => {
+                if (tournament) {
+                    if (tournament.Teams) {
+                        let teams = tournament.Teams.filter(t => t.active);
+                        if (teams.length % 4 !== 0) {
+                            return res.status(400).json({error: `Tournament Team Count not divisible by 4.`})
+                        }
+
+                    //  Powerpairing determines if we shuffle or group
+                        if (powerpairing) {
+                        //    TODO: implement power pairing -> group by team points, shuffle sub arrays, join again
+                        } else {
+                        //    Random allocation
+                            teams = ttlib.array.shuffle(teams);
+                        }
+
+                        const rooms = ttlib.array.partition(teams, 4);
+                        let debatePromises = [];
+                        let roomRanking = 1;
+                        rooms.forEach(room => {
+                            room = ttlib.array.shuffle(room);
+                            let i = 0;
+                            const DTAllocs = ["OG", "OO", "CG", "CO"].map(position => {
+                                const team = room[i];
+                                i++;
+                                return {
+                                    position,
+                                    TeamId: team.id
+                                }
+                            })
+                            debatePromises.push(
+                                models.Debate.create({
+                                    ranking: roomRanking,
+                                    RoundId: round.id,
+                                    DebateTeamAllocations: DTAllocs
+                                }, {
+                                    include: [
+                                        models.DebateTeamAllocation
+                                    ]
+                                })
+                            )
+                            roomRanking++;
+                        });
+                        Promise.all(debatePromises).then((debates) => {
+                        //    Debates are created with teams!
+                        //    TODO: we will next allocate adjudicators
+                            return res.status(200).json({debates});
+                        })
+                    } else {
+                        return res.status(400).json({error: `Tournament has no teams.`});
+                    }
+                } else {
+                    return res.status(404).json({error: `Tournament Not Found`});
+                }
+            }).catch(err => {
+                console.log(err);
+                return res.status(500).json({error: `Internal Server Error ${err}`})
+            })
+        } else {
+            return res.status(404).json({error: `Round not found`});
+        }
+    }).catch(err => {
+        return res.status(500).json({error: `Internal Server Error: ${err}`})
+    })
+})
+
+//
 // POST /api/tournaments/:slug/rounds/create
 // Create a new round
 //
@@ -202,7 +322,8 @@ router.post(`/:slug/rounds/create`, (req, res) => {
                 type: 'inround',
                 completed: false,
                 RoundSettings: [
-                    {key: 'silent', value: 'true'}
+                    {key: 'silent', value: 'true'},
+                    {key: 'powerpairing', value: `${newRound === 1 ? 'false' : 'true'}`}
                 ],
                 TournamentId: tournament.id
             },

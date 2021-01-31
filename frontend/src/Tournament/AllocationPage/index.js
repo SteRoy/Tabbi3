@@ -3,32 +3,14 @@ import NavBar from "../../NavBar";
 import {Card} from "primereact/card";
 import { DragDropContext } from 'react-beautiful-dnd';
 import PanelAllocation from "./components/PanelAllocation";
+const ttlib = require("ttlib");
 
 
 class AllocationPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            rooms: [
-                {
-                    id: "0",
-                    teams: {
-                        og: "Team A",
-                        oo: "Team B",
-                        cg: "Team C",
-                        co: "Team D"
-                    }
-                },
-                {
-                    id: "1",
-                    teams: {
-                        og: "Team E",
-                        oo: "Team F",
-                        cg: "Team G",
-                        co: "Team H"
-                    }
-                }
-            ],
+            debates: [],
             adj: [
                 {roomid: "0", id: "0", name: "Judge 1", score: "10.0", index: 0},
                 {roomid: "1", id: "1", name: "Judge 2", score: "10.0", index: 0},
@@ -38,6 +20,38 @@ class AllocationPage extends React.Component {
         }
 
         this.onDragEnd = this.onDragEnd.bind(this);
+    }
+
+    componentDidMount() {
+        ttlib.api.requestAPI(
+            `/tournaments/${this.props.match.params.slug}/round/${this.props.match.params.rid}`,
+            `GET`,
+            (respData) => {
+                const debates = respData.round.Debates.map(debate => {
+                    let debateObj = {
+                        'teams': {}
+                    };
+                    ["OG", "OO", "CG", "CO"].forEach(pos => {
+                        let dta = debate.DebateTeamAllocations.find(dta => dta.position === pos);
+                        if (dta) {
+                            dta = dta.Team.name;
+                        } else {
+                            dta = "Not Set"
+                        }
+                        debateObj['teams'][pos] = dta;
+                    });
+
+                    return debateObj;
+                });
+
+                this.setState({...respData, debates});
+            },
+            (err) => {
+                this.setState({
+                    error: err
+                })
+            }
+        )
     }
 
     onDragEnd = (result) => {
@@ -79,6 +93,7 @@ class AllocationPage extends React.Component {
                 <NavBar active=""/>
                     <div className="p-grid p-justify-center p-align-center p-mt-5">
                         <div className="p-col-11">
+                            { this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : "" }
                             <Card>
                             <div className="display-4 text-center w-100">Allocations - Round 1 - Doxbridge Worlds 2021</div>
                             <div className="text-center mt-2">
@@ -100,18 +115,18 @@ class AllocationPage extends React.Component {
                                     </thead>
                                     <tbody>
                                     {
-                                        this.state.rooms.map(room => (
+                                        this.state.debates.map(room => (
                                             <tr>
                                                 <td>{room.id}</td>
                                                 <td>
                                                     <div className="p-grid" style={{margin: "0"}}>
                                                         <div className="p-col" style={{padding: "0"}}>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.og}</div>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.cg}</div>
+                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.OG}</div>
+                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.CG}</div>
                                                         </div>
                                                         <div className="p-col" style={{padding: "0"}}>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.oo}</div>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.co}</div>
+                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.OO}</div>
+                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.CO}</div>
                                                         </div>
                                                     </div>
                                                 </td>

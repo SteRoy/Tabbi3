@@ -51,6 +51,10 @@ class TeamListPage extends React.Component {
             }
         }
 
+        const activeField = (row) => {
+            return row.active ? <span className="pi pi-check text-success"/> : <span className="pi pi-times text-danger"/>;
+        }
+
         return (
             <div>
                 <NavBar active="tournaments"/>
@@ -59,7 +63,7 @@ class TeamListPage extends React.Component {
                     <div className="p-col-11">
                         <TournamentToolBar slug={this.props.match.params.slug}/>
                         <Card>
-                            <div className="display-4 text-center">Tournament Adjudicators</div>
+                            <div className="display-4 text-center">Tournament Teams</div>
                             <div className="p-grid p-justify-between">
                                 {
                                     this.state.teams.length > 0 ?
@@ -89,6 +93,7 @@ class TeamListPage extends React.Component {
                                 rowClassName={rowBodyTemplate}
                             >
                                 <Column field="name" header="Team Name" sortable filter filterPlaceholder="Search by name" filterMatchMode="contains"/>
+                                <Column body={activeField} header="Active" sortable/>
                                 <Column field="codename" header="Codename" sortable filter filterPlaceholder="Search by codename" filterMatchMode="contains"/>
                                 <Column field="s1name" header="Speaker 1" sortable filter filterPlaceholder="Search by codename" filterMatchMode="contains"/>
                                 <Column field="s2name" header="Speaker 2" sortable filter filterPlaceholder="Search by codename" filterMatchMode="contains"/>

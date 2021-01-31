@@ -5,12 +5,24 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class PersonalClash extends Model {
     static associate(models) {
-      // define association here
+      this.belongsTo(models.Account, {
+        foreignKey: {
+          name: 'fromAccountId',
+          allowNull: false
+        },
+        onDelete: 'CASCADE'
+      });
+
+      this.belongsTo(models.Account, {
+        foreignKey: {
+          name: 'targetAccountId',
+          allowNull: false
+        },
+        onDelete: 'CASCADE'
+      });
     }
   }
   PersonalClash.init({
-    fromAccountId: DataTypes.INTEGER,
-    targetAccountId: DataTypes.INTEGER,
     type: {
       type: DataTypes.ENUM,
       values: ['soft', 'hard']

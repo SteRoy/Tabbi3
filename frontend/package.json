@@ -21,6 +21,7 @@
     "react-spinners": "^0.10.4",
     "react-sticky-footer": "0.1.0-rc3",
     "react-transition-group": "^2.5.1",
+    "socket.io-client": "^3.1.0",
     "ttlib": "file:../lib",
     "web-vitals": "^0.2.4"
   },

@@ -3,6 +3,9 @@ import NavBar from "../../NavBar";
 import {Card} from "primereact/card";
 import { DragDropContext } from 'react-beautiful-dnd';
 import PanelAllocation from "./components/PanelAllocation";
+import socketIOClient from "socket.io-client";
+import {Button} from "primereact/button";
+import {Toast} from "primereact/toast";
 const ttlib = require("ttlib");
 
 
@@ -17,7 +20,39 @@ class AllocationPage extends React.Component {
         this.onDragEnd = this.onDragEnd.bind(this);
     }
 
+    componentWillUnmount() {
+        if (this.state.socket) {
+            this.state.socket.disconnect();
+        }
+    }
+
     componentDidMount() {
+        if (!this.state.socket) {
+            const socket = socketIOClient();
+
+            socket.on("toast", (title, subtitle) => {
+                this.toast.show({
+                    severity: 'error',
+                    summary: title,
+                    detail: subtitle,
+                    life: 10000
+                })
+            })
+
+            socket.on("connect", () => {
+                this.setState({
+                    connected: true
+                })
+            });
+
+            socket.on("disconnect", () => {
+                this.setState({
+                    connected: false
+                })
+            });
+
+            this.setState({socket})
+        }
         ttlib.api.requestAPI(
             `/tournaments/${this.props.match.params.slug}/round/${this.props.match.params.rid}`,
             `GET`,
@@ -104,10 +139,11 @@ class AllocationPage extends React.Component {
         return (
             <div>
                 <NavBar active=""/>
-                    <div className="p-grid p-justify-center p-align-center p-mt-5">
-                        <div className="p-col-11">
-                            { this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : "" }
-                            <Card>
+                <Toast ref={(ref) => this.toast = ref}/>
+                <div className="p-grid p-justify-center p-align-center p-mt-5">
+                    <div className="p-col-11">
+                        { this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : "" }
+                        <Card>
                             <div className="display-4 text-center w-100">Allocations - Round 1 - Doxbridge Worlds 2021</div>
                             <div className="text-center mt-2">
                                 <span className="mr-2">Legend</span>
@@ -115,6 +151,14 @@ class AllocationPage extends React.Component {
                                 <span className="clash-legend clashed-institution-previous mr-2">Prev. Institutional Clash</span>
                                 <span className="clash-legend clashed-personal mr-2">Personal Clash</span>
                                 <span className="clash-legend clashed-soft mr-2">Soft Clash</span>
+                            </div>
+                            <div className="text-left">
+                                {
+                                    this.state.connected ?
+                                        <Button className="p-button-outlined p-button-success" label="Connected"/>
+                                        :
+                                        <Button className="p-button-outlined p-button-danger" label="Disconnected"/>
+                                }
                             </div>
                             <hr/>
                             <DragDropContext onDragEnd={this.onDragEnd}>
@@ -159,8 +203,8 @@ class AllocationPage extends React.Component {
                     </div>
                 </div>
             </div>
-        )
-    }
+            )
+        }
 }
 
 export default AllocationPage;

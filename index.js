@@ -7,6 +7,9 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const ttlib = require("ttlib");
 const models = require("./models");
+const socketIo = require("socket.io");
+const http = require('http').Server(app);
+const passportSocketIo = require("passport.socketio");
 
 // Use JSON
 app.use(express.json());
@@ -71,7 +74,22 @@ passport.use(new LocalStrategy(
 ));
 
 // TODO: Update storage strategy to use postgresql
-app.use(session({secret: process.env.SECRET_TOKEN, resave: false, saveUninitialized: false}));
+const sessionStore = new (require('connect-pg-simple')(session))({
+    conObject: {
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    }
+});
+const expressSession = session({
+    store: sessionStore,
+    secret: process.env.SECRET_TOKEN,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+});
+app.use(expressSession);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -87,7 +105,7 @@ app.get('*', (req, res) => {
 });
 
 const port = process.env.PORT || 5000;
-app.listen(port);
+http.listen(port);
 
 console.log(`Tabbi3 Running on ${port}`);
 
@@ -99,3 +117,23 @@ try {
 } catch (error) {
     console.error(`Unable to connect to database: `, error);
 }
+
+// SOCKET Setup
+const io = socketIo(http);
+io.use(passportSocketIo.authorize({
+    key:          'connect.sid',
+    secret:       process.env.SECRET_TOKEN,
+    store:        sessionStore,
+    success:      onAuthorizeSuccess,
+    fail:         onAuthorizeFail,
+}));
+
+function onAuthorizeSuccess(data, accept) {
+    accept(null, true);
+}
+
+function onAuthorizeFail(data, message, error, accept) {
+    accept(null, false);
+}
+
+require("./api/socket").listen(io);

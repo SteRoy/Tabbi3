@@ -16,7 +16,7 @@ class CreatePlaceholderModelPage extends React.Component {
             slug: props.match.params.slug,
             model: props.match.params.model,
             testScore: 0,
-            redirect: !["teams", "adjudicators"].includes(props.match.params.model),
+            redirect: !["teams", "adjudicators", "venues"].includes(props.match.params.model),
             errors: {}
         }
 
@@ -33,7 +33,11 @@ class CreatePlaceholderModelPage extends React.Component {
                 {id: "independent", label: "Independent Adjudicator", type: "boolean", tooltip: "Is this an independent adjudicator?", required: false, default: false},
             ];
 
-        this.fields = props.match.params.model === "teams" ? this.teamFields : this.judgeFields;
+        this.venueFields = [
+            {id: "name", label: "Venue Name", type: "text", tooltip: "The venue name", required: true},
+        ]
+
+        this.fields = props.match.params.model === "teams" ? this.teamFields : props.match.params.model === "adjudicators" ? this.judgeFields : this.venueFields;
 
         this.submit = this.submit.bind(this);
     }
@@ -45,7 +49,7 @@ class CreatePlaceholderModelPage extends React.Component {
                     [key]: `Swing Speaker ${crypto.randomBytes(1).toString("hex").toUpperCase()}`
                 })
             })
-        } else {
+        } else if (this.state.model === "adjudicators") {
             this.setState({
                 name: `Swing Judge ${crypto.randomBytes(1).toString("hex").toUpperCase()}`
             })
@@ -59,7 +63,7 @@ class CreatePlaceholderModelPage extends React.Component {
                 formObj[field.id] = this.state[field.id] || field.default;
             });
             ttlib.api.requestAPI(
-                `/tournaments/${this.state.slug}/${this.state.model}/placeholder/create`,
+                `/tournaments/${this.state.slug}/${this.state.model}${this.state.model !== "venues" ? '/placeholder' : ''}/create`,
                 `POST`,
                 (respData) => {
                     this.setState({
@@ -91,12 +95,14 @@ class CreatePlaceholderModelPage extends React.Component {
                     <div className="p-col-8">
                         <TournamentToolBar slug={this.props.match.params.slug}/>
                         <Card>
-                            <div className="display-4 text-center">Create Placeholder {this.state.model === "teams" ? "Team" : "Adjudicator"}</div>
+                            <div className="display-4 text-center">Create{this.state.model !== "venues" ? " Placeholder " : " "}{this.state.model === "teams" ? "Team" : this.state.model === "venues" ? "Venue" : "Adjudicator"}</div>
                             {
                                 this.state.model === "teams" ?
                                     <div className="alert alert-info text-center">This tool is only for creating <b>break ineligible</b> swing/placeholder teams required to make the tournament team count divisible by 4. These teams will be exempted from institutional clash and will not be included in the break calculations.</div>
                                     :
+                                    this.state.model === "adjudicators" ?
                                     <div className="alert alert-info text-center">This tool is only for creating <b>break ineligible</b> placeholder adjudicators for a rapid stand in adjudicator. They will not be able to submit e-ballots, submit feedback, receive feedback or be marked as breaking.</div>
+                                    : ""
                             }
                             <hr/>
                             {

@@ -246,6 +246,7 @@ router.post(`/:slug/configuration`, (req, res) => {
 router.use(`/`, require("./adjudicators"));
 router.use(`/`, require("./rounds"));
 router.use(`/`, require("./teams"));
+router.use(`/`, require("./venues"));
 
 
 module.exports = router;

@@ -15,12 +15,13 @@ class TournamentToolBar extends React.Component {
 
         this.splitOptionsTeams = null;
         this.splitOptionsAdjudicators = null;
+        this.splitOptionsVenues = null;
 
         // Since the splitbutton menus are going to be so closely linked, we can generate them in this neat way.
-        [this.splitOptionsTeams, this.splitOptionsAdjudicators] = ["teams", "adjudicators"].map(objType => {
+        [this.splitOptionsTeams, this.splitOptionsAdjudicators, this.splitOptionsVenues] = ["teams", "adjudicators", "venues"].map(objType => {
             return ([
                 {
-                    label: 'Create Placeholder',
+                    label: `Create${objType !== "venues" ? ' Placeholder' : ' Venue'}`,
                     icon: 'pi pi-plus',
                     command: (e) => {
                         window.location.pathname = `/tournament/${this.props.slug}/create/${objType}`;
@@ -104,6 +105,7 @@ class TournamentToolBar extends React.Component {
             <React.Fragment>
                 <SplitButton id="teams" model={this.splitOptionsTeams} onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/teams`} label="Teams" icon="pi pi-users" className="p-mr-2 p-button-info" />
                 <SplitButton id="adjudicators" model={this.splitOptionsAdjudicators} onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/adjudicators`} label="Adjudicators" icon="pi pi-user" className="p-mr-2 p-button-info" />
+                <SplitButton id="venues" model={this.splitOptionsVenues} onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/venues`} label="Venues" icon="pi pi-home" className="p-mr-2 p-button-info" />
                 <SplitButton id="rounds" model={this.roundOptions} label="Rounds" icon="pi pi-briefcase" className="p-mr-2 p-button-help" />
                 <SplitButton id="ballots" model={this.ballotOptions} label="Ballots" icon="pi pi-file" className="p-mr-2 p-button-help" />
             </React.Fragment>

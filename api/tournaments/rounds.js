@@ -72,6 +72,9 @@ router.get(`/:slug/round/:roundid`, (req, res) => {
                                 ]
                             },
                             {
+                                model: models.Venue
+                            },
+                            {
                                 model: models.AdjAlloc,
                                 include: [
                                     {
@@ -238,7 +241,8 @@ router.post(`/:slug/round/:roundid/draw`, (req, res) => {
                 },
                 include: [
                     models.Adjudicator,
-                    models.Team
+                    models.Team,
+                    models.Venue
                 ]
             }).then(tournament => {
                 if (tournament) {
@@ -251,6 +255,11 @@ router.post(`/:slug/round/:roundid/draw`, (req, res) => {
                         let adjudicators = tournament.Adjudicators.filter(a => a.active);
                         if (adjudicators.length < teams.length/4) {
                             return res.status(400).json({error: `Tournament has insufficient active adjudicators. Has: ${adjudicators.length}, Needs: ${teams.length/4}`})
+                        }
+
+                        let venues = tournament.Venues.filter(v => v.active);
+                        if (venues.length < teams.length/4) {
+                            return res.status(400).json({error: `Tournament has insufficient active venues. Has: ${venues.length}, Needs: ${teams.length/4}`});
                         }
 
                     //  Powerpairing determines if we shuffle or group
@@ -288,7 +297,8 @@ router.post(`/:slug/round/:roundid/draw`, (req, res) => {
                                     ranking: roomRanking,
                                     RoundId: round.id,
                                     TeamAllocs: TAllocs,
-                                    AdjAllocs: panel
+                                    AdjAllocs: panel,
+                                    VenueId: venues[roomRanking - 1].id
                                 }, {
                                     include: [
                                         models.TeamAlloc,

@@ -32,7 +32,8 @@ class RoundViewPage extends React.Component {
 
                 const debates = respData.round.Debates.map(debate => {
                     let debateObj = {
-                        panel: debate.AdjAllocs.map(adj => ({name: adj.Adjudicator.Person.name, chair: adj.chair}))
+                        panel: debate.AdjAllocs.map(adj => ({name: adj.Adjudicator.Person.name, chair: adj.chair})),
+                        venue: debate.Venue.name
                     };
                     ["OG", "OO", "CG", "CO"].forEach(pos => {
                         let teamalloc = debate.TeamAllocs.find(dta => dta.position === pos);
@@ -149,7 +150,7 @@ class RoundViewPage extends React.Component {
                                         value={this.state.debates}
                                         className="p-datatable-striped"
                                     >
-                                        <Column field="room" header="Room"/>
+                                        <Column field="venue" header="Venue"/>
                                         <Column field="OG" header="OG"/>
                                         <Column field="OO" header="OO"/>
                                         <Column field="CG" header="CG"/>

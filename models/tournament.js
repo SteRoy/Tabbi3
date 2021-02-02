@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Team);
       this.hasMany(models.Adjudicator);
       this.hasMany(models.Round);
+      this.hasMany(models.Venue);
     }
   }
   Tournament.init({

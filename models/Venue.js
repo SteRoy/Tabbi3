@@ -12,12 +12,13 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             // define association here
             this.belongsTo(models.Tournament);
+            this.hasMany(models.Debate);
         }
     }
 
     Venue.init({
         name: DataTypes.STRING,
-        disabled: DataTypes.BOOLEAN
+        active: DataTypes.BOOLEAN
     }, {
         sequelize,
         modelName: 'Venue',

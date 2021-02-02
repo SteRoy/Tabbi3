@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
             this.hasMany(models.TeamAlloc, {onDelete: 'cascade'});
             this.hasMany(models.AdjAlloc, {onDelete: 'cascade'});
             this.belongsTo(models.Round);
+            this.belongsTo(models.Venue);
         }
     }
 

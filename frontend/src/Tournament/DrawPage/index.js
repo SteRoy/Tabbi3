@@ -26,7 +26,8 @@ class DrawPage extends React.Component {
             (respData) => {
                 let draw = respData.round.Debates.map(debate => {
                     let debateObj = {
-                        panel: debate.AdjAllocs.map(adj => ({name: adj.Adjudicator.Person.name, chair: adj.chair}))
+                        panel: debate.AdjAllocs.map(adj => ({name: adj.Adjudicator.Person.name, chair: adj.chair})),
+                        venue: debate.Venue.name
                     };
 
                     ["OG", "OO", "CG", "CO"].forEach(pos => {

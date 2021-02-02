@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     AdjAlloc.init({
-        chair: DataTypes.BOOLEAN
+        chair: DataTypes.BOOLEAN,
+        index: DataTypes.INTEGER
     }, {
         sequelize,
         modelName: 'AdjAlloc',

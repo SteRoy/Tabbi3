@@ -81,12 +81,16 @@ class RoundViewPage extends React.Component {
             const panel = row.panel.filter(adj => !adj.chair);
             const chair = row.panel.find(adj => adj.chair);
             return [chair, panel].flat().map((adj, index) => {
-                return (adj.chair ?
-                    <span>
+                if (adj) {
+                    return (adj.chair ?
+                        <span>
                         <b>&copy; {adj.name}{index === length - 1 ? '' : ', '}</b>
                     </span>
-                    :
-                    <span>{adj.name}{index === length - 1 ? '' : ','}</span>)
+                        :
+                        <span>{adj.name}{index === length - 1 ? '' : ','}</span>)
+                } else {
+                    return '';
+                }
             })
         }
 

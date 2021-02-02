@@ -18,6 +18,7 @@ class AllocationPage extends React.Component {
         }
 
         this.onDragEnd = this.onDragEnd.bind(this);
+        this.updateDraw = this.updateDraw.bind(this);
     }
 
     componentWillUnmount() {
@@ -61,6 +62,7 @@ class AllocationPage extends React.Component {
                 const debates = respData.round.Debates.map(debate => {
                     let debateObj = {
                         'teams': {},
+                        venue: debate.Venue.name,
                         id: debate.id.toString()
                     };
                     ["OG", "OO", "CG", "CO"].forEach(pos => {
@@ -83,7 +85,7 @@ class AllocationPage extends React.Component {
                                 roomid: adjAlloc.DebateId.toString(),
                                 id: adjAlloc.id.toString(),
                                 name: adjAlloc.Adjudicator.Person.name,
-                                index: adjAlloc.chair ? 0 : index,
+                                index: adjAlloc.chair ? 0 : adjAlloc.index,
                                 score: adjAlloc.Adjudicator.testScore.toString()
                             })
                         })
@@ -91,6 +93,7 @@ class AllocationPage extends React.Component {
                     return debateObj;
                 });
 
+                console.log(adj.map(a => ({id: a.id, name: a.name})));
 
                 this.setState({...respData, debates, adj});
             },
@@ -102,35 +105,91 @@ class AllocationPage extends React.Component {
         )
     }
 
+    updateDraw(adjUpdateObject) {
+        console.log(`Adjudicator Update`);
+        let curAllocs = this.state.adj;
+        adjUpdateObject.forEach(update => {
+            const indexOfAdjAlloc = curAllocs.findIndex(adj => adj.id === update.AdjudicatorId);
+            if (update.type === "SHIFT") {
+                // Adjudicator will be moved to a new, designated position.
+                curAllocs[indexOfAdjAlloc].index = update.shiftTo;
+                console.log(`Shifted ${curAllocs[indexOfAdjAlloc].name} to position ${update.shiftTo}`);
+            } else if (update.type === "SWAP") {
+            //    Capacity to directly exchange two adjudicators TODO
+            } else if (update.type === "NEWROOM") {
+                curAllocs[indexOfAdjAlloc].index = update.shiftTo;
+                // TODO: Validate
+                curAllocs[indexOfAdjAlloc].roomid = update.newRoom;
+                console.log(`Migrated ${curAllocs[indexOfAdjAlloc].name} to position ${update.shiftTo} in room ${update.newRoom}`);
+            }
+        });
+
+        this.setState({
+            adj: curAllocs
+        })
+    }
+
     onDragEnd = (result) => {
-        if (result.destination) {
-            if (result.destination.droppableId !== result.source.droppableId) {
-                // Get all adjudicators in new room
-                let adjInNewRoom = this.state.adj.filter(a => a.roomid === result.destination.droppableId);
+        if (result.destination && result.reason !== "CANCEL") {
+            const isNewAssignment = result.destination.droppableId !== result.source.droppableId;
+            if ((isNewAssignment) || (result.destination.index !== result.source.index)) {
+                const destinationAdj = this.state.adj.filter(adjAlloc => adjAlloc.roomid === result.destination.droppableId);
+                const sourceAdj = this.state.adj.filter(adjAlloc => adjAlloc.roomid === result.source.droppableId);
+                let adjudicatorUpdates = [];
 
-                // Get all adjudicators in old room
-                let adjInOldRoom = this.state.adj.filter(a => a.roomid === result.source.droppableId && a.id !== result.draggableId);
+                const destinationAdjDemoted = destinationAdj.filter(adj => adj.index >= result.destination.index && adj.id !== result.draggableId);
+                const sourceAdjPromoted = sourceAdj.filter(adj => adj.index > result.source.index && adj.id !== result.draggableId);
 
-                // Determine new index for each of those adj
-                // In old room, -- to index for each judge with index > sourceIndex
-                adjInOldRoom = adjInOldRoom.map(adj => adj.index > result.source.index ? {index: adj.index - 1, id: adj.id} : {index: adj.index, id: adj.id});
-                // In new room, ++ to index for each judge with index >= destinationIndex
-                adjInNewRoom = adjInNewRoom.map(adj => adj.index >= result.destination.index ? {index: adj.index + 1, id: adj.id} : {index: adj.index, id: adj.id});
-
-                // Single source of truth for adjudicators who require an update is
-                const adjIDNeedingUpdate = adjInOldRoom.map(adj => adj.id).concat(adjInNewRoom.map(adj => adj.id)).concat([result.draggableId]);
-                const adjUpdates = adjInOldRoom.concat(adjInNewRoom).concat([{id: result.draggableId, index: result.destination.index, roomid: result.destination.droppableId}]);
-
-                // TODO: Investigate a better storage method that allows the parallelism of this to not be such a huge pain in the ass
-                this.setState(prevState => ({
-                    adj: prevState.adj.map(
-                        adjAlloc =>
-                            adjIDNeedingUpdate.includes(adjAlloc.id) ?
-                                {...adjAlloc, ...adjUpdates.find(update => update.id === adjAlloc.id)}
-                                :
-                                {...adjAlloc}
+                if (result.destination.droppableId !== result.source.droppableId) {
+                    adjudicatorUpdates.push(
+                        {
+                            AdjudicatorId: result.draggableId,
+                            type: "NEWROOM",
+                            newRoom: result.destination.droppableId,
+                            shiftTo: result.destination.index
+                        }
                     )
-                }));
+                } else {
+                    adjudicatorUpdates.push(
+                        {
+                            AdjudicatorId: result.draggableId,
+                            type: "SHIFT",
+                            shiftTo: result.destination.index
+                        }
+                    )
+                }
+
+                let alreadyHandled = [];
+                let order = [];
+
+                if (result.destination.index < result.source.index) {
+                    order = [[destinationAdjDemoted, (ind) => ind + 1, (adj) => adj.index < result.source.index], [sourceAdjPromoted, (ind) => ind - 1, () => true]];
+                } else {
+                    order = [[sourceAdjPromoted, (ind) => ind - 1, (adj) => adj.index >= result.source.index], [destinationAdjDemoted, (ind) => ind + 1, () => true]];
+                }
+
+                if (!isNewAssignment) {
+                    order = [order[0]];
+                }
+
+                order.forEach((orderObj) => {
+                    orderObj[0].forEach(adjAlloc => {
+                        if (!alreadyHandled.includes(adjAlloc.id)) {
+                            alreadyHandled.push(adjAlloc.id);
+                            if (isNewAssignment || orderObj[2](adjAlloc)) {
+                                adjudicatorUpdates.push(
+                                    {
+                                        AdjudicatorId: adjAlloc.id,
+                                        type: "SHIFT",
+                                        shiftTo: orderObj[1](adjAlloc.index)
+                                    }
+                                )
+                            }
+                        }
+                    })
+                })
+
+                this.updateDraw(adjudicatorUpdates);
             }
         }
     };
@@ -172,24 +231,24 @@ class AllocationPage extends React.Component {
                                     </thead>
                                     <tbody>
                                     {
-                                        this.state.debates.map(room => (
+                                        this.state.debates.map(debate => (
                                             <tr>
-                                                <td>{room.id}</td>
+                                                <td>{debate.id} - {debate.venue}</td>
                                                 <td>
                                                     <div className="p-grid" style={{margin: "0"}}>
                                                         <div className="p-col" style={{padding: "0"}}>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.OG}</div>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.CG}</div>
+                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{debate.teams.OG}</div>
+                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{debate.teams.CG}</div>
                                                         </div>
                                                         <div className="p-col" style={{padding: "0"}}>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.OO}</div>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{room.teams.CO}</div>
+                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{debate.teams.OO}</div>
+                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{debate.teams.CO}</div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <PanelAllocation
-                                                        id={room.id}
+                                                        id={debate.id}
                                                         adj={this.state.adj}
                                                     />
                                                 </td>

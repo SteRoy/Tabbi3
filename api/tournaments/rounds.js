@@ -288,6 +288,7 @@ router.post(`/:slug/round/:roundid/draw`, (req, res) => {
                             });
                             const panel = panels[roomRanking - 1].map((adj, index) => ({
                                     chair: index === 0,
+                                    index,
                                     AdjudicatorId: adj.id
                                 }
                             ));

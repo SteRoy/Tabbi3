@@ -41,12 +41,70 @@ class AllocationPage extends React.Component {
             })
 
             socket.on("connect", () => {
+                ttlib.api.requestAPI(
+                    `/tournaments/${this.props.match.params.slug}/round/${this.props.match.params.rid}`,
+                    `GET`,
+                    (respData) => {
+                        let adj = [];
+                        const debates = respData.round.Debates.map(debate => {
+                            let debateObj = {
+                                'teams': {},
+                                venue: debate.Venue.name,
+                                id: debate.id.toString()
+                            };
+                            ["OG", "OO", "CG", "CO"].forEach(pos => {
+                                let dta = debate.TeamAllocs.find(dta => dta.position === pos);
+                                if (dta) {
+                                    dta = dta.Team.name;
+                                } else {
+                                    dta = "Not Set"
+                                }
+                                debateObj['teams'][pos] = dta;
+                            });
+                            let index = 0;
+                            adj = adj.concat(
+                                debate.AdjAllocs.map(adjAlloc => {
+                                    if (!adjAlloc.chair) {
+                                        index++;
+                                    }
+
+                                    return({
+                                        roomid: adjAlloc.DebateId.toString(),
+                                        id: adjAlloc.id.toString(),
+                                        name: adjAlloc.Adjudicator.Person.name,
+                                        index: adjAlloc.chair ? 0 : adjAlloc.index,
+                                        score: adjAlloc.Adjudicator.testScore.toString()
+                                    })
+                                })
+                            )
+                            return debateObj;
+                        });
+
+                        this.setState({...respData, debates, adj});
+                    },
+                    (err) => {
+                        this.setState({
+                            error: err
+                        })
+                    }
+                )
+                socket.emit("join_allocation", `${this.props.match.params.slug}`, `${this.props.match.params.rid}`);
+                this.toast.clear();
                 this.setState({
                     connected: true
                 })
             });
 
+            socket.on("new_adj_update", (adjUpdate) => {
+                this.updateDraw(adjUpdate);
+            })
+
+            socket.on("error", (errorMessage) => {
+                this.toast.show({severity: "error", detail: errorMessage, summary: "Error", sticky: true});
+            })
+
             socket.on("disconnect", () => {
+                this.toast.show({severity: "error", detail: "Server Disconnected", summary: "Your browser has disconnected from the server. Any updates you make may not make it to the server. Try refreshing/check your internet connection.", sticky: true});
                 this.setState({
                     connected: false
                 })
@@ -54,75 +112,29 @@ class AllocationPage extends React.Component {
 
             this.setState({socket})
         }
-        ttlib.api.requestAPI(
-            `/tournaments/${this.props.match.params.slug}/round/${this.props.match.params.rid}`,
-            `GET`,
-            (respData) => {
-                let adj = [];
-                const debates = respData.round.Debates.map(debate => {
-                    let debateObj = {
-                        'teams': {},
-                        venue: debate.Venue.name,
-                        id: debate.id.toString()
-                    };
-                    ["OG", "OO", "CG", "CO"].forEach(pos => {
-                        let dta = debate.TeamAllocs.find(dta => dta.position === pos);
-                        if (dta) {
-                            dta = dta.Team.name;
-                        } else {
-                            dta = "Not Set"
-                        }
-                        debateObj['teams'][pos] = dta;
-                    });
-                    let index = 0;
-                    adj = adj.concat(
-                        debate.AdjAllocs.map(adjAlloc => {
-                            if (!adjAlloc.chair) {
-                                index++;
-                            }
-
-                            return({
-                                roomid: adjAlloc.DebateId.toString(),
-                                id: adjAlloc.id.toString(),
-                                name: adjAlloc.Adjudicator.Person.name,
-                                index: adjAlloc.chair ? 0 : adjAlloc.index,
-                                score: adjAlloc.Adjudicator.testScore.toString()
-                            })
-                        })
-                    )
-                    return debateObj;
-                });
-
-                console.log(adj.map(a => ({id: a.id, name: a.name})));
-
-                this.setState({...respData, debates, adj});
-            },
-            (err) => {
-                this.setState({
-                    error: err
-                })
-            }
-        )
     }
 
     updateDraw(adjUpdateObject) {
-        console.log(`Adjudicator Update`);
         let curAllocs = this.state.adj;
+        let toasts = [];
         adjUpdateObject.forEach(update => {
             const indexOfAdjAlloc = curAllocs.findIndex(adj => adj.id === update.AdjudicatorId);
+            const adjAlloc = curAllocs[indexOfAdjAlloc];
             if (update.type === "SHIFT") {
                 // Adjudicator will be moved to a new, designated position.
-                curAllocs[indexOfAdjAlloc].index = update.shiftTo;
-                console.log(`Shifted ${curAllocs[indexOfAdjAlloc].name} to position ${update.shiftTo}`);
+                adjAlloc.index = update.shiftTo;
+                toasts.push({severity:'info', summary: `${adjAlloc.name}`, detail: `Shifted to position ${update.shiftTo}`, life: 2000});
             } else if (update.type === "SWAP") {
             //    Capacity to directly exchange two adjudicators TODO
             } else if (update.type === "NEWROOM") {
-                curAllocs[indexOfAdjAlloc].index = update.shiftTo;
+                adjAlloc.index = update.shiftTo;
                 // TODO: Validate
-                curAllocs[indexOfAdjAlloc].roomid = update.newRoom;
-                console.log(`Migrated ${curAllocs[indexOfAdjAlloc].name} to position ${update.shiftTo} in room ${update.newRoom}`);
+                toasts.push({severity:'success', summary: `${adjAlloc.name}`, detail: `Moved from Room ID: ${adjAlloc.roomid} to Room ID: ${update.shiftTo}`, life: 2000});
+                adjAlloc.roomid = update.newRoom;
             }
         });
+
+        this.adjUpdates.show(toasts);
 
         this.setState({
             adj: curAllocs
@@ -189,7 +201,15 @@ class AllocationPage extends React.Component {
                     })
                 })
 
-                this.updateDraw(adjudicatorUpdates);
+                if (this.state.socket) {
+                    this.state.socket.emit(
+                        "adjudicator_update",
+                        this.props.match.params.slug,
+                        this.props.match.params.rid,
+                        adjudicatorUpdates
+                    )
+                    this.updateDraw(adjudicatorUpdates);
+                }
             }
         }
     };
@@ -199,6 +219,7 @@ class AllocationPage extends React.Component {
             <div>
                 <NavBar active=""/>
                 <Toast ref={(ref) => this.toast = ref}/>
+                <Toast ref={(ref) => this.adjUpdates = ref} position="bottom-left"/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
                         { this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : "" }
@@ -211,7 +232,7 @@ class AllocationPage extends React.Component {
                                 <span className="clash-legend clashed-personal mr-2">Personal Clash</span>
                                 <span className="clash-legend clashed-soft mr-2">Soft Clash</span>
                             </div>
-                            <div className="text-left">
+                            <div className="text-center mt-1">
                                 {
                                     this.state.connected ?
                                         <Button className="p-button-outlined p-button-success" label="Connected"/>

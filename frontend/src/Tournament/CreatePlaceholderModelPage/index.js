@@ -56,7 +56,8 @@ class CreatePlaceholderModelPage extends React.Component {
         }
     }
 
-    submit() {
+    submit(event) {
+        event.preventDefault();
         ttlib.validation.objContainsFields(this.state, this.fields.filter(f => f.required).map(f => f.id)).then(() => {
             let formObj = {};
             this.fields.forEach(field => {
@@ -95,34 +96,36 @@ class CreatePlaceholderModelPage extends React.Component {
                     <div className="p-col-8">
                         <TournamentToolBar slug={this.props.match.params.slug}/>
                         <Card>
-                            <div className="display-4 text-center">Create{this.state.model !== "venues" ? " Placeholder " : " "}{this.state.model === "teams" ? "Team" : this.state.model === "venues" ? "Venue" : "Adjudicator"}</div>
-                            {
-                                this.state.model === "teams" ?
-                                    <div className="alert alert-info text-center">This tool is only for creating <b>break ineligible</b> swing/placeholder teams required to make the tournament team count divisible by 4. These teams will be exempted from institutional clash and will not be included in the break calculations.</div>
-                                    :
-                                    this.state.model === "adjudicators" ?
-                                    <div className="alert alert-info text-center">This tool is only for creating <b>break ineligible</b> placeholder adjudicators for a rapid stand in adjudicator. They will not be able to submit e-ballots, submit feedback, receive feedback or be marked as breaking.</div>
-                                    : ""
-                            }
-                            <hr/>
-                            {
-                                this.fields.map(field => (
-                                    <InputBox
-                                        id={field.id}
-                                        value={this.state[field.id]}
-                                        cb={(dict) => this.setState(dict)}
-                                        errors={this.state.errors}
-                                        type={field.type}
-                                        label={field.label}
-                                        tooltip={field.tooltip}
-                                        options={field.options}
-                                        multiple={true}
-                                        min={field.min}
-                                        max={field.max}
-                                    />
-                                ))
-                            }
-                            <Button onClick={this.submit} className="btn btn-block p-button-success p-mt-2" label="Create"/>
+                            <form onSubmit={this.submit}>
+                                <div className="display-4 text-center">Create{this.state.model !== "venues" ? " Placeholder " : " "}{this.state.model === "teams" ? "Team" : this.state.model === "venues" ? "Venue" : "Adjudicator"}</div>
+                                {
+                                    this.state.model === "teams" ?
+                                        <div className="alert alert-info text-center">This tool is only for creating <b>break ineligible</b> swing/placeholder teams required to make the tournament team count divisible by 4. These teams will be exempted from institutional clash and will not be included in the break calculations.</div>
+                                        :
+                                        this.state.model === "adjudicators" ?
+                                        <div className="alert alert-info text-center">This tool is only for creating <b>break ineligible</b> placeholder adjudicators for a rapid stand in adjudicator. They will not be able to submit e-ballots, submit feedback, receive feedback or be marked as breaking.</div>
+                                        : ""
+                                }
+                                <hr/>
+                                {
+                                    this.fields.map(field => (
+                                        <InputBox
+                                            id={field.id}
+                                            value={this.state[field.id]}
+                                            cb={(dict) => this.setState(dict)}
+                                            errors={this.state.errors}
+                                            type={field.type}
+                                            label={field.label}
+                                            tooltip={field.tooltip}
+                                            options={field.options}
+                                            multiple={true}
+                                            min={field.min}
+                                            max={field.max}
+                                        />
+                                    ))
+                                }
+                                <Button className="btn btn-block p-button-success p-mt-2" label="Create"/>
+                            </form>
                         </Card>
                     </div>
                 </div>

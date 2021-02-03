@@ -60,7 +60,8 @@ class CreateTournamentPage extends React.Component {
         });
     }
 
-    submit() {
+    submit(event) {
+        event.preventDefault();
         ttlib.validation.objContainsFields(this.state, this.fields.filter(f => f.required).map(f => f.id)).then(postForm => {
             ttlib.api.requestAPI(
                 `/tournaments/create`,
@@ -101,52 +102,54 @@ class CreateTournamentPage extends React.Component {
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-8">
                         <Card>
-                            <div className="display-4 text-center">New Tournament</div>
-                            <hr/>
-                            {
-                                this.fields.map(field => (
-                                    <InputBox
-                                        id={field.id}
-                                        value={this.state[field.id]}
-                                        cb={(dict) => this.setState(dict)}
-                                        errors={this.state.errors}
-                                        type={field.type}
-                                        label={field.label}
-                                        tooltip={field.tooltip}
-                                        options={field.options}
-                                        multiple={true}
-                                        min={field.min}
-                                        max={field.max}
-                                    />
-                                ))
-                            }
-                            <hr/>
-                            <div className="display-5 mb-3">Tournament Settings</div>
-                            {
-                                this.settings.map((setting) => {
-                                    return (
-                                        <div key={`div-${setting.id}`} className="p-field-checkbox">
-                                            <Checkbox
-                                                inputId={setting.id}
-                                                name={setting.id}
-                                                checked={this.state.settings[setting.id]}
-                                                onChange={
-                                                    (e) => {
-                                                        let curSet = this.state.settings;
-                                                        curSet[e.target.name] = e.checked;
-                                                        this.setState({
-                                                                settings: curSet
-                                                            }
-                                                        )
+                            <form onSubmit={this.submit}>
+                                <div className="display-4 text-center">New Tournament</div>
+                                <hr/>
+                                {
+                                    this.fields.map(field => (
+                                        <InputBox
+                                            id={field.id}
+                                            value={this.state[field.id]}
+                                            cb={(dict) => this.setState(dict)}
+                                            errors={this.state.errors}
+                                            type={field.type}
+                                            label={field.label}
+                                            tooltip={field.tooltip}
+                                            options={field.options}
+                                            multiple={true}
+                                            min={field.min}
+                                            max={field.max}
+                                        />
+                                    ))
+                                }
+                                <hr/>
+                                <div className="display-5 mb-3">Tournament Settings</div>
+                                {
+                                    this.settings.map((setting) => {
+                                        return (
+                                            <div key={`div-${setting.id}`} className="p-field-checkbox">
+                                                <Checkbox
+                                                    inputId={setting.id}
+                                                    name={setting.id}
+                                                    checked={this.state.settings[setting.id]}
+                                                    onChange={
+                                                        (e) => {
+                                                            let curSet = this.state.settings;
+                                                            curSet[e.target.name] = e.checked;
+                                                            this.setState({
+                                                                    settings: curSet
+                                                                }
+                                                            )
+                                                        }
                                                     }
-                                                }
-                                            />
-                                            <label htmlFor={`label-${setting.id}`}>{setting.label} - <small>{setting.description}</small></label>
-                                        </div>
-                                    )
-                                })
-                            }
-                            <Button onClick={this.submit} className="btn btn-block p-button-success" label="Create"/>
+                                                />
+                                                <label htmlFor={`label-${setting.id}`}>{setting.label} - <small>{setting.description}</small></label>
+                                            </div>
+                                        )
+                                    })
+                                }
+                                <Button className="btn btn-block p-button-success" label="Create"/>
+                            </form>
                         </Card>
                     </div>
                 </div>

@@ -20,7 +20,8 @@ class LoginPage extends React.Component {
         this.login = this.login.bind(this);
     }
 
-    login() {
+    login(event) {
+        event.preventDefault();
         let validation = true;
         let errors = {};
         // This should probably be refactored to be more dynamic.
@@ -91,10 +92,9 @@ class LoginPage extends React.Component {
                                     type="password"
                                     errors={this.state.errors}
                                 />
+                                <Button label="Login" className="p-button-raised p-button-success p-mt-4" type="submit" />
+                                <Button label="Forgot Password" className="p-button-raised p-button-secondary p-ml-4" />
                             </form>
-
-                            <Button label="Login" className="p-button-raised p-button-success p-mt-4" onClick={this.login} />
-                            <Button label="Forgot Password" className="p-button-raised p-button-secondary p-ml-4" />
                         </Card>
                     </div>
                 </div>

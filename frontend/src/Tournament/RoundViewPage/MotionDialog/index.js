@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'primereact/button';
 import {Dialog} from "primereact/dialog";
 import InputBox from "../../../components/InputBox";
 const ttlib = require("ttlib");
@@ -21,7 +22,8 @@ class MotionDialog extends React.Component {
         this.submit = this.submit.bind(this);
     }
 
-    submit() {
+    submit(event) {
+        event.preventDefault();
         ttlib.validation.objContainsFields(this.state, ['motion']).then(() => {
             let postForm = {
                 motion: this.state.motion
@@ -47,31 +49,27 @@ class MotionDialog extends React.Component {
                 }
             })
         })
+        this.props.hide()
     }
 
     render() {
         return(
             <Dialog header={`${this.props.round.title} - Motion & Info Slide`} visible={this.props.visible} onHide={this.props.hide}>
-                {
-                    this.fields.map(field => (
-                        <InputBox
-                            id={field.id}
-                            label={field.label}
-                            cb={(dict) => this.setState(dict)}
-                            value={this.state[field.id]}
-                            type={field.type || "text"}
-                            errors={this.state.errors}
-                        />
-                    ))
-                }
-                <button className="btn btn-block btn-success"
-                        onClick={() => {
-                                this.submit();
-                                this.props.hide();
-                            }
-                        }>
-                    Save
-                </button>
+                <form onSubmit={this.submit}>
+                    {
+                        this.fields.map(field => (
+                            <InputBox
+                                id={field.id}
+                                label={field.label}
+                                cb={(dict) => this.setState(dict)}
+                                value={this.state[field.id]}
+                                type={field.type || "text"}
+                                errors={this.state.errors}
+                            />
+                        ))
+                    }
+                    <Button label="Save" className="btn btn-block btn-success" />
+                </form>
             </Dialog>
         )
     }

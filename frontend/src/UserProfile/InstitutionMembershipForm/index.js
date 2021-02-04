@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'primereact/button';
 import InputBox from "../../components/InputBox";
 const ttlib = require("ttlib");
 
@@ -40,7 +41,8 @@ class InstitutionMembershipForm extends React.Component {
         )
     }
 
-    submit() {
+    submit(event) {
+        event.preventDefault();
         console.log(this.state);
         ttlib.validation.objContainsFields(this.state, ["selectedInstitution"]).then(postForm => {
             ttlib.api.requestAPI(
@@ -68,22 +70,23 @@ class InstitutionMembershipForm extends React.Component {
     render() {
         return(
             <div>
-                {
-                    this.fields.map(field => (
-                        <InputBox
-                            id={field.id}
-                            value={this.state[field.id]}
-                            cb={(dict) => this.setState(dict)}
-                            errors={this.state.errors}
-                            type={field.type}
-                            label={field.label}
-                            options={field.options}
-                            time={field.time}
-                        />
-                    ))
-                }
-                <br/>
-                <button onClick={this.submit} className="btn btn-success btn-block mt-2">Save</button>
+                <form onSubmit={this.submit}>
+                    {
+                        this.fields.map(field => (
+                            <InputBox
+                                id={field.id}
+                                value={this.state[field.id]}
+                                cb={(dict) => this.setState(dict)}
+                                errors={this.state.errors}
+                                type={field.type}
+                                label={field.label}
+                                options={field.options}
+                                time={field.time}
+                            />
+                        ))
+                    }
+                    <Button label="Save" className="btn btn-success btn-block mt-2" />
+                </form>
             </div>
         )
     }

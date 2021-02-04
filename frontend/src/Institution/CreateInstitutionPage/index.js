@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'primereact/button';
 import InputBox from "../../components/InputBox";
 import Fuse from 'fuse.js';
 const ttlib = require("ttlib");
@@ -61,7 +62,8 @@ class CreateInstitutionPage extends React.Component {
         }
     }
 
-    save() {
+    save(event) {
+        event.preventDefault();
         ttlib.api.requestAPI(
             `/institutions/create`,
             `POST`,
@@ -96,21 +98,22 @@ class CreateInstitutionPage extends React.Component {
                         :
                         ""
                 }
-                {
-                    this.fields.map(field => (
-                        <InputBox
-                            id={field.id}
-                            value={this.state[field.id]}
-                            cb={(dict) => this.changeState(dict)}
-                            errors={this.state.errors}
-                            type={field.type}
-                            label={field.label}
-                            tooltip={field.tooltip}
-                        />
-                    ))
-                }
-                <br/>
-                <button onClick={this.save} className="btn btn-success btn-block">Save</button>
+                <form onSubmit={this.save}>
+                    {
+                        this.fields.map(field => (
+                            <InputBox
+                                id={field.id}
+                                value={this.state[field.id]}
+                                cb={(dict) => this.changeState(dict)}
+                                errors={this.state.errors}
+                                type={field.type}
+                                label={field.label}
+                                tooltip={field.tooltip}
+                            />
+                        ))
+                    }
+                    <Button label="Save" className="btn btn-success btn-block" />
+                </form>
             </div>
         );
     }

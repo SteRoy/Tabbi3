@@ -27,7 +27,8 @@ class RegisterPage extends React.Component {
         this.register = this.register.bind(this);
     }
 
-    register() {
+    register(event) {
+        event.preventDefault();
         let validation = true;
         let errors = {};
         // This should probably be refactored to be more dynamic.
@@ -98,9 +99,8 @@ class RegisterPage extends React.Component {
                                         />
                                     ))
                                 }
+                                <Button label="Register" className="p-button-raised p-button-success p-mt-4" />
                             </form>
-
-                            <Button label="Register" className="p-button-raised p-button-success p-mt-4" onClick={this.register} />
                         </Card>
                     </div>
                 </div>

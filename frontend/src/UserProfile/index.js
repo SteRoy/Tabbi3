@@ -57,7 +57,12 @@ class UserProfile extends React.Component {
         }
 
         const personalClashName = (row) => {
-            return <span>{this.state.people.find(p => p.id === row.targetAccountId).name}</span>
+            const person = this.state.people.find(p => p.id === row.targetAccountId);
+            if (person) {
+                return <span>{person.name}</span>
+            } else {
+                return <span className="text-danger">Person Not Found</span>
+            }
         }
 
         const personalClashDate = (row) => {

@@ -125,6 +125,7 @@ class InputBox extends React.Component {
                                 onChange={(e) => this.props.cb({[this.props.id]: e.value})}
                                 value={this.props.value}
                                 className={`w-100 ${this.props.errors[this.props.id] ? 'p-invalid' : ''}`}
+                                appendTo={document.body}
                             />
                         </div>
                         : ""

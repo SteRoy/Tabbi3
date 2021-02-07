@@ -13,6 +13,8 @@ const tournamentConfigOptions = [
     // Boolean
     {key: "test", description: "This tournament is a 'test' - it won't have real participants or is simply a small internal competition. The tournament will not appear on the frontpage.", type: "boolean"},
     {key: "wudc", description: "Enforces WUDC constitutional restrictions.", type: "boolean"},
+    {key: "eballots", description: "Enable chair submission of ballots via Tabbi3.", type: "boolean"},
+    {key: "eballots-panel", description: "Enable panellist submission of ballots via Tabbi3.", type: "boolean"},
 
     //  Textarea
     {key: "description", description: "The Tournament Homepage description text.", type: "textarea"},

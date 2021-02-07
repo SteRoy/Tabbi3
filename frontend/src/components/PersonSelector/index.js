@@ -32,13 +32,24 @@ class PersonSelector extends React.Component {
         }
         return(
             <AutoComplete
-                multiple={this.props.multiple}
+                forceSelection
+                multiple={true}
                 id={this.props.id}
                 value={this.props.value}
                 field="name"
                 suggestions={this.state.suggestions}
                 completeMethod={searchPerson}
-                onChange={(e) => this.props.cb({[this.props.id]: e.value})}
+                onChange={(e) => {
+                    if (!this.props.multiple) {
+                        if (this.props.value) {
+                            if (this.props.value.length > 0) {
+                                // Reject
+                                return;
+                            }
+                        }
+                    }
+                    this.props.cb({[this.props.id]: e.value})
+                }}
                 className={"child-w-100 w-100"}
                 itemTemplate={templateList}
                 selectedItemTemplate={templateSelected}

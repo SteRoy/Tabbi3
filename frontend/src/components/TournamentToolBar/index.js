@@ -86,7 +86,7 @@ class TournamentToolBar extends React.Component {
                                 label: `${round.title} - Results`,
                                 icon: `pi pi-${round.completed ? 'check' : 'spinner pi-spin'}`,
                                 command: () => {
-                                    window.location.pathname = `/tournament/${this.props.slug}/round/${round.id}`;
+                                    window.location.pathname = `/tournament/${this.props.slug}/ballots/${round.id}`;
                                 }
                             });
                     }

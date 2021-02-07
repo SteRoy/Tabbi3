@@ -3,7 +3,7 @@ const {
     Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    class Debate extends Model {
+    class Ballot extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -11,19 +11,18 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            this.hasMany(models.TeamAlloc, {onDelete: 'cascade'});
-            this.hasMany(models.AdjAlloc, {onDelete: 'cascade'});
-            this.hasMany(models.Ballot, {onDelete: 'cascade'});
-            this.belongsTo(models.Round);
-            this.belongsTo(models.Venue);
+            this.belongsTo(models.Debate, {allowNull: false});
+            this.belongsTo(models.Adjudicator);
+            this.hasMany(models.TeamResult, {onDelete: 'CASCADE'});
         }
     }
 
-    Debate.init({
-        ranking: DataTypes.INTEGER,
+    Ballot.init({
+        enteredByTab: DataTypes.BOOLEAN,
+        finalised: DataTypes.BOOLEAN
     }, {
         sequelize,
-        modelName: 'Debate',
+        modelName: 'Ballot',
     });
-    return Debate;
+    return Ballot;
 };

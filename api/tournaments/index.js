@@ -246,6 +246,7 @@ router.post(`/:slug/configuration`, (req, res) => {
 
 // Tournament specific routes for Adjudicators and Teams.
 router.use(`/`, require("./adjudicators"));
+router.use(`/`, require("./ballots"));
 router.use(`/`, require("./rounds"));
 router.use(`/`, require("./teams"));
 router.use(`/`, require("./venues"));

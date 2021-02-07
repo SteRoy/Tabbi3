@@ -46,7 +46,7 @@ class TournamentToolBar extends React.Component {
                             `/tournaments/${this.props.slug}/rounds/create`,
                             'POST',
                             (respData) => {
-                                window.location.pathname = `/tournaments/${this.props.slug}/round/${respData.round.id}`;
+                                window.location.pathname = `/tournament/${this.props.slug}/round/${respData.round.id}`;
                             },
                             (err) => {
                                 console.error(err);

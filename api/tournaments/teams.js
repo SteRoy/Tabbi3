@@ -133,4 +133,37 @@ router.post(`/:slug/teams/placeholder/create`, (req, res) => {
     })
 });
 
+//
+// POST /api/tournaments/:slug/teams/:teamid/active
+// 200 - Toggle an team's active setting
+//
+router.post(`/:slug/teams/:teamid/active`, (req, res) => {
+    models.Tournament.findOne({
+        where: {
+            slug: req.params.slug
+        },
+        include: [
+            {
+                model: models.Team,
+                where: {
+                    id: parseInt(req.params.teamid)
+                }
+            }
+        ]
+    }).then(tournament => {
+        if (tournament) {
+            if (tournament.Teams) {
+                const team = tournament.Teams[0];
+                team.active = !team.active;
+                team.save();
+                return res.status(200).json({success: `Team Active Status Toggled`});
+            }
+        } else {
+            return res.status(404).json({error: `No matching tournament & team found`})
+        }
+    }).catch(err => {
+        return res.status(500).json({error: `Internal Server Error: ${err}`})
+    })
+})
+
 module.exports = router;

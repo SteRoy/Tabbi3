@@ -86,4 +86,37 @@ router.post(`/:slug/adjudicators/placeholder/create`, (req, res) => {
     })
 });
 
+//
+// POST /api/tournaments/:slug/adjudicators/:adjudicatorid/active
+// 200 - Toggle an adjudicator's active setting
+//
+router.post(`/:slug/adjudicators/:adjudicatorid/active`, (req, res) => {
+    models.Tournament.findOne({
+        where: {
+            slug: req.params.slug
+        },
+        include: [
+            {
+                model: models.Adjudicator,
+                where: {
+                    id: parseInt(req.params.adjudicatorid)
+                }
+            }
+        ]
+    }).then(tournament => {
+        if (tournament) {
+            if (tournament.Adjudicators) {
+                const adj = tournament.Adjudicators[0];
+                adj.active = !adj.active;
+                adj.save();
+                return res.status(200).json({success: `Adjudicator Active Status Toggled`});
+            }
+        } else {
+            return res.status(404).json({error: `No matching tournament & adjudicator found`})
+        }
+    }).catch(err => {
+        return res.status(500).json({error: `Internal Server Error: ${err}`})
+    })
+})
+
 module.exports = router;

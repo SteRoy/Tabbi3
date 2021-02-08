@@ -85,7 +85,29 @@ class TeamListPage extends React.Component {
                                 paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} teams" rows={10} rowsPerPageOptions={[10,20,50]}
                                 selection={this.state.selected}
-                                onSelectionChange={e => this.setState({selected: e.value})}
+                                onSelectionChange={e => {
+                                    ttlib.api.requestAPI(
+                                        `/tournaments/${this.props.match.params.slug}/teams/${e.value.id}/active`,
+                                        `POST`,
+                                        (respData) => {
+                                            let teams = this.state.teams;
+                                            teams.forEach(t => {
+                                                if (t.id === e.value.id) {
+                                                    t.active = !t.active;
+                                                }
+                                            });
+                                            this.setState({
+                                                teams
+                                            });
+                                            ttlib.component.toastSuccess(this.toast, "Team Status Updated", "The team's active status has been toggled.");
+                                        },
+                                        (err) => {
+                                            ttlib.component.toastError(this.toast, "Team Update Failed", `The team's active status has not been toggled: ${err}`);
+                                        },
+                                        {}
+                                    )
+                                }
+                                }
                                 selectionMode="single"
                                 sortField="name"
                                 sortOrder={-1}

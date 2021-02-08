@@ -7,6 +7,7 @@ import NavBar from "../../NavBar";
 import {Tag} from "primereact/tag";
 import TournamentToolBar from "../../components/TournamentToolBar";
 import {Knob} from "primereact/knob";
+import {Toast} from "primereact/toast";
 const ttlib = require("ttlib");
 
 class AdjudicatorListPage extends React.Component {
@@ -18,7 +19,8 @@ class AdjudicatorListPage extends React.Component {
 
         this.metrics = [
             {id: "testScore", title: "Avg. Test Score", calc: (adj) => ttlib.array.average(adj.map(x => x.testScore)).toFixed(2)},
-            {id: "count", title: "No. Adjudicators", calc: (adj) => adj.length}
+            {id: "count", title: "No. Adjudicators", calc: (adj) => adj.length},
+            {id: "countActive", title: "No. Active Adjudicators", calc: (adj) => adj.filter(a => a.active).length}
         ]
     }
 
@@ -58,6 +60,7 @@ class AdjudicatorListPage extends React.Component {
         return (
             <div>
                 <NavBar active="tournaments"/>
+                <Toast ref={(ref) => this.toast = ref}/>
                 {this.state.selected ? <Redirect to={`/tournament/${this.props.match.params.slug}/adjudicators/${this.state.selected.id}`}/> : ""}
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
@@ -68,7 +71,7 @@ class AdjudicatorListPage extends React.Component {
                                 {
                                     this.state.adjudicators.length > 0 ?
                                         this.metrics.map(metric => (
-                                            <div className="p-col-12 p-md-6 p-text-center" key={metric.id}>
+                                            <div className="p-col-12 p-md-4 p-text-center" key={metric.id}>
                                                 <h5 className="p-mt-3">{metric.title}</h5>
                                                 <Knob
                                                     value={metric.calc(this.state.adjudicators)}
@@ -85,7 +88,29 @@ class AdjudicatorListPage extends React.Component {
                                 paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} adjudicators" rows={10} rowsPerPageOptions={[10,20,50]}
                                 selection={this.state.selected}
-                                onSelectionChange={e => this.setState({selected: e.value})}
+                                onSelectionChange={e => {
+                                    ttlib.api.requestAPI(
+                                        `/tournaments/${this.props.match.params.slug}/adjudicators/${e.value.id}/active`,
+                                        `POST`,
+                                        (respData) => {
+                                            let adjudicators = this.state.adjudicators;
+                                            adjudicators.forEach(a => {
+                                                if (a.id === e.value.id) {
+                                                    a.active = !a.active;
+                                                }
+                                            });
+                                            this.setState({
+                                                adjudicators
+                                            });
+                                            ttlib.component.toastSuccess(this.toast, "Adjudicator Status Updated", "The adjudicator's active status has been toggled.");
+                                        },
+                                        (err) => {
+                                            ttlib.component.toastError(this.toast, "Adjudicator Update Failed", `The adjudicator's active status has not been toggled: ${err}`);
+                                        },
+                                        {}
+                                    )
+                                }
+                                }
                                 selectionMode="single"
                                 sortField="name"
                                 sortOrder={-1}

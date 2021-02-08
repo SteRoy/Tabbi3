@@ -7,6 +7,7 @@ import NavBar from "../../NavBar";
 import {Tag} from "primereact/tag";
 import TournamentToolBar from "../../components/TournamentToolBar";
 import {Knob} from "primereact/knob";
+import {Toast} from "primereact/toast";
 const ttlib = require("ttlib");
 
 class VenueListPage extends React.Component {
@@ -17,7 +18,8 @@ class VenueListPage extends React.Component {
         }
 
         this.metrics = [
-            {id: "count", title: "No. Venues", calc: (venues) => venues.length}
+            {id: "count", title: "No. Venues", calc: (venues) => venues.length},
+            {id: "countActive", title: "No. Active Venues", calc: (venues) => venues.filter(v => v.active).length}
         ]
     }
 
@@ -47,7 +49,7 @@ class VenueListPage extends React.Component {
         return (
             <div>
                 <NavBar active="tournaments"/>
-                {this.state.selected ? <Redirect to={`/tournament/${this.props.match.params.slug}/venues/${this.state.selected.id}`}/> : ""}
+                <Toast ref={(ref) => this.toast = ref}/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
                         <TournamentToolBar slug={this.props.match.params.slug}/>
@@ -57,7 +59,7 @@ class VenueListPage extends React.Component {
                                 {
                                     this.state.venues.length > 0 ?
                                         this.metrics.map(metric => (
-                                            <div className="p-col-12 p-md-12 p-text-center" key={metric.id}>
+                                            <div className="p-col-12 p-md-6 p-text-center" key={metric.id}>
                                                 <h5 className="p-mt-3">{metric.title}</h5>
                                                 <Knob
                                                     value={metric.calc(this.state.venues)}
@@ -74,7 +76,29 @@ class VenueListPage extends React.Component {
                                 paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} venues" rows={10} rowsPerPageOptions={[10,20,50]}
                                 selection={this.state.selected}
-                                onSelectionChange={e => this.setState({selected: e.value})}
+                                onSelectionChange={e => {
+                                      ttlib.api.requestAPI(
+                                          `/tournaments/${this.props.match.params.slug}/venues/${e.value.id}/active`,
+                                          `POST`,
+                                          (respData) => {
+                                              let venues = this.state.venues;
+                                              venues.forEach(v => {
+                                                  if (v.id === e.value.id) {
+                                                      v.active = !v.active;
+                                                  }
+                                              });
+                                              this.setState({
+                                                  venues
+                                              });
+                                              ttlib.component.toastSuccess(this.toast, "Venue Status Updated", "The venue's active status has been toggled.");
+                                          },
+                                          (err) => {
+                                              ttlib.component.toastError(this.toast, "Venue Update Failed", `The venue's active status has not been toggled: ${err}`);
+                                          },
+                                          {}
+                                      )
+                                    }
+                                }
                                 selectionMode="single"
                                 sortField="name"
                                 sortOrder={-1}

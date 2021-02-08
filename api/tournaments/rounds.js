@@ -49,7 +49,6 @@ router.get(`/:slug/rounds`, (req, res) => {
 // 200 - the Round
 // 404 - tournament or round not found
 //
-// TODO: validate roundid is a Number
 router.get(`/:slug/round/:roundid`, (req, res) => {
     models.Tournament.findOne({
         where: {

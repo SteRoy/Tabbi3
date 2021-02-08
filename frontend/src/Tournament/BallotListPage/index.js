@@ -51,6 +51,8 @@ class BallotListPage extends React.Component {
                     return debateObj;
                 });
 
+                console.log(debates);
+
                 this.setState({...respData, debates, loading: false});
             },
             (err) => {
@@ -64,21 +66,6 @@ class BallotListPage extends React.Component {
             {
                 label: 'E-Ballots',
                 icon: 'pi pi-fw pi-wifi'
-            },
-
-            {
-                label: 'Tab Ballot',
-                icon: 'pi pi-fw pi-file',
-                items: [
-                    {
-                        label: 'View/Edit',
-                        icon: 'pi pi-fw pi-pencil'
-                    },
-                    {
-                        label: 'Mark Finalised',
-                        icon: 'pi pi-fw pi-check-circle'
-                    }
-                ]
             }
         ];
     }
@@ -86,6 +73,22 @@ class BallotListPage extends React.Component {
     render() {
         const debateFinalised = (debate) => {
             return debate.ballots.some(b => b.finalised) ? <span className="pi pi-check text-success"/> : <span className="pi pi-times text-danger"/>;
+        }
+
+        const tabBallots = (debate) => {
+            const ballot = debate.ballots.find(b => b.enteredByTab);
+            if (ballot) {
+                return ballot.finalised ?
+                    <span className="pi pi-check-circle text-success"/>
+                    :
+                    <span className="pi pi-circle-off text-warning"/>;
+            } else {
+                return <span className="pi pi-times text-danger"/>;
+            }
+        }
+
+        const eBallots = (debate) => {
+            return <span className="pi pi-times text-danger"/>;
         }
 
         return (
@@ -126,7 +129,15 @@ class BallotListPage extends React.Component {
                                                 value={this.state.debates}
                                                 globalFilter={this.state.globalFilter}
                                                 contextMenuSelection={this.state.cmSelected}
-                                                onContextMenuSelectionChange={e => this.setState({cmSelected: e.value})}
+                                                onContextMenuSelectionChange={e => {
+                                                    this.contextMenu[0].items = e.value.ballots.map(b => {
+                                                        return ({
+                                                            label: `${b.enteredByTab ? "Tab Ballot" : "Adjudicator Ballot"}`,
+                                                            icon: `pi pi-fw ${b.finalised ? "pi-check" : "pi-file"}`
+                                                        })
+                                                    })
+                                                    this.setState({cmSelected: e.value})
+                                                }}
                                                 onContextMenu={e => this.cm.show(e.originalEvent)}
                                                 selection={this.state.selectedDebate}
                                                 onSelectionChange={e => this.setState({selectedDebate: e.value})}
@@ -143,8 +154,8 @@ class BallotListPage extends React.Component {
                                                 <Column field="CO" header="CO"/>
                                                 <Column field="chair" header="Chair"/>
                                                 <Column body={debateFinalised} header="Finalised"/>
-                                                <Column body={debateFinalised} header="E-Ballot"/>
-                                                <Column body={debateFinalised} header="Tab Ballot"/>
+                                                <Column body={eBallots} header="E-Ballot"/>
+                                                <Column body={tabBallots} header="Tab Ballot"/>
                                             </DataTable>
                                             <small>Right click on a debate to view options.</small>
                                         </span>

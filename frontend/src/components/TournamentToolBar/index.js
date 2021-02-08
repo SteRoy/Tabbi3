@@ -113,7 +113,7 @@ class TournamentToolBar extends React.Component {
 
         const alignRight = (
             <React.Fragment>
-                <Button label="Configuration" icon="pi pi-cog" className="p-mr-2 p-button-secondary" />
+                <a href={`/tournament/${this.state.slug}/config`}><Button label="Configuration" icon="pi pi-cog" className="p-mr-2 p-button-secondary" /></a>
                 <Button label="Hide" icon="pi pi-window-minimize" className="p-mr-2 p-button-danger" onClick={() => this.setState({collapsed: true})}/>
             </React.Fragment>
         );

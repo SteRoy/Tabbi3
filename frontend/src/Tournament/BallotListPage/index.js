@@ -29,13 +29,20 @@ class BallotListPage extends React.Component {
                     let debateObj = {
                         id: debate.id,
                         venue: debate.Venue.name,
-                        ballots: debate.Ballots
+                        ballots: debate.Ballots,
+                        finalised: false
                     };
 
                     const chair = debate.AdjAllocs.find(adj => adj.chair);
 
                     if (chair) {
                         debateObj.chair = chair.Adjudicator.Person.name;
+                    }
+
+                    if (debate.Ballots) {
+                        if (debate.Ballots.length > 0) {
+                            debateObj.finalised = debate.Ballots.some(b => b.finalised);
+                        }
                     }
 
                     ["OG", "OO", "CG", "CO"].forEach(pos => {
@@ -51,14 +58,10 @@ class BallotListPage extends React.Component {
                     return debateObj;
                 });
 
-                console.log(debates);
-
                 this.setState({...respData, debates, loading: false});
             },
             (err) => {
-                this.setState({
-                    error: err
-                })
+                this.state.error = err;
             }
         );
 
@@ -72,7 +75,7 @@ class BallotListPage extends React.Component {
 
     render() {
         const debateFinalised = (debate) => {
-            return debate.ballots.some(b => b.finalised) ? <span className="pi pi-check text-success"/> : <span className="pi pi-times text-danger"/>;
+            return debate.finalised ? <span className="pi pi-check text-success"/> : <span className="pi pi-times text-danger"/>;
         }
 
         const tabBallots = (debate) => {
@@ -89,6 +92,12 @@ class BallotListPage extends React.Component {
 
         const eBallots = (debate) => {
             return <span className="pi pi-times text-danger"/>;
+        }
+
+        const rowBodyTemplate = (debate) => {
+            return {
+                'bg-round-finalised': debate.finalised
+            }
         }
 
         return (
@@ -143,16 +152,17 @@ class BallotListPage extends React.Component {
                                                 onSelectionChange={e => this.setState({selectedDebate: e.value})}
                                                 selectionMode="single"
                                                 dataKey="id"
+                                                rowClassName={rowBodyTemplate}
                                                 paginator
                                                 paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                                                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} debates" rows={10} rowsPerPageOptions={[10,20,50]}
                                             >
-                                                <Column field="venue" header="Room"/>
-                                                <Column field="OG" header="OG"/>
-                                                <Column field="OO" header="OO"/>
-                                                <Column field="CG" header="CG"/>
-                                                <Column field="CO" header="CO"/>
-                                                <Column field="chair" header="Chair"/>
+                                                <Column field="venue" header="Room" sortable/>
+                                                <Column field="OG" header="OG" sortable/>
+                                                <Column field="OO" header="OO" sortable/>
+                                                <Column field="CG" header="CG" sortable/>
+                                                <Column field="CO" header="CO" sortable/>
+                                                <Column field="chair" header="Chair" sortable/>
                                                 <Column body={debateFinalised} header="Finalised"/>
                                                 <Column body={eBallots} header="E-Ballot"/>
                                                 <Column body={tabBallots} header="Tab Ballot"/>

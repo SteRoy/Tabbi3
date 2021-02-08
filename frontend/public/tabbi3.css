@@ -143,3 +143,7 @@ div.person-card>.p-card-body>.p-card-content {
 .p-grid {
     margin-right: 0!important;
 }
+
+.bg-round-finalised {
+    background-color: #B3FDD4!important;
+}

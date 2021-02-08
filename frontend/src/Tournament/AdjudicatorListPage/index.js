@@ -17,7 +17,7 @@ class AdjudicatorListPage extends React.Component {
         }
 
         this.metrics = [
-            {id: "testScore", title: "Avg. Test Score", calc: (adj) => ttlib.array.average(adj.map(x => x.testScore))},
+            {id: "testScore", title: "Avg. Test Score", calc: (adj) => ttlib.array.average(adj.map(x => x.testScore)).toFixed(2)},
             {id: "count", title: "No. Adjudicators", calc: (adj) => adj.length}
         ]
     }

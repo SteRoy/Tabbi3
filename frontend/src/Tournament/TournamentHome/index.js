@@ -4,6 +4,8 @@ import {Card} from "primereact/card";
 import TournamentToolBar from "../../components/TournamentToolBar";
 import PersonCard from "../../components/PersonCard";
 import Loading from "../../components/Loading";
+import TournamentUserView from "./TournamentUserView";
+import {SplitButton} from "primereact/splitbutton";
 const ttlib = require("ttlib");
 
 class TournamentHome extends React.Component {
@@ -12,6 +14,8 @@ class TournamentHome extends React.Component {
         this.state = {
             tournament: null,
             error: null,
+            loggedIn: false,
+            loggedInUser: {}
         }
     }
 
@@ -34,7 +38,7 @@ class TournamentHome extends React.Component {
     render() {
         return (
             <div>
-                <NavBar active=""/>
+                <NavBar active="" userCB={(loggedInUser, loggedIn) => this.setState({loggedInUser, loggedIn})}/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
                         <TournamentToolBar slug={this.props.match.params.slug}/>
@@ -42,6 +46,11 @@ class TournamentHome extends React.Component {
                             this.state.tournament ?
                                 <Card>
                                     <div className="display-4 text-center w-100">{this.state.tournament.name}</div>
+                                    <div className="text-center">
+                                        <SplitButton label="Draw" icon="pi pi-fw pi-table" className="p-mr-1 p-button-outlined p-button-primary" />
+                                        <SplitButton label="Results" icon="pi pi-fw pi-info" className="p-mr-1 p-button-outlined p-button-secondary" />
+                                        <SplitButton label="Standings" icon="pi pi-fw pi-info" className="p-mr-1 p-button-outlined p-button-secondary" />
+                                    </div>
                                     <hr/>
                                     <div className="p-grid">
                                         <div className="p-col p-justify-center" style={{borderRight: "1px solid rgb(0,0,0,.1)"}}>
@@ -52,6 +61,11 @@ class TournamentHome extends React.Component {
                                                     </p>
                                                 ))
                                             }
+                                            <hr/>
+                                            <TournamentUserView
+                                                loggedInUser={this.state.loggedInUser}
+                                                loggedIn={this.state.loggedIn}
+                                            />
                                         </div>
                                         {/* Render publicly available permission assignment */}
                                         <div className="p-col p-mx-1">

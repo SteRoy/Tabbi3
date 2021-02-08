@@ -26,7 +26,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         motion: DataTypes.TEXT,
         infoslide: DataTypes.TEXT,
-        completed: DataTypes.BOOLEAN
+        completed: DataTypes.BOOLEAN,
+        drawReleased: DataTypes.BOOLEAN,
+        motionReleased: DataTypes.BOOLEAN
     }, {
         sequelize,
         modelName: 'Round',

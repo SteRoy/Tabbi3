@@ -117,8 +117,8 @@ class TeamListPage extends React.Component {
                                 <Column field="name" header="Team Name" sortable filter filterPlaceholder="Search by name" filterMatchMode="contains"/>
                                 <Column body={activeField} header="Active" sortable/>
                                 <Column field="codename" header="Codename" sortable filter filterPlaceholder="Search by codename" filterMatchMode="contains"/>
-                                <Column field="s1name" header="Speaker 1" sortable filter filterPlaceholder="Search by codename" filterMatchMode="contains"/>
-                                <Column field="s2name" header="Speaker 2" sortable filter filterPlaceholder="Search by codename" filterMatchMode="contains"/>
+                                <Column field="s1name" header="Speaker 1" sortable filter filterPlaceholder="Search by Speaker1" filterMatchMode="contains"/>
+                                <Column field="s2name" header="Speaker 2" sortable filter filterPlaceholder="Search by Speaker2" filterMatchMode="contains"/>
                             </DataTable>
                         </Card>
                     </div>

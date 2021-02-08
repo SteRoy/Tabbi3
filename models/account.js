@@ -22,7 +22,9 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     password: DataTypes.STRING,
-    salt: DataTypes.STRING
+    salt: DataTypes.STRING,
+    pro: DataTypes.BOOLEAN,
+    god: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Account',

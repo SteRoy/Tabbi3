@@ -53,6 +53,79 @@ router.get("/configuration", (req, res) => {
 })
 
 //
+// GET /tournaments/:slug/participant/me
+// 200 - user is a valid participant of :slug, return PUBLIC information for them
+//
+router.get("/:slug/participant/me", (req, res) => {
+    models.Account.findOne({
+        attributes: ["id"],
+        where: {
+            id: req.user.id
+        },
+        include: [
+            {
+                model: models.Person,
+                attributes: ["name", "id"],
+                include: [
+                    {
+                        model: models.Adjudicator,
+                        attributes: ["active", "independent", "id"],
+                        include: [
+                            {
+                                model: models.Tournament,
+                                attributes: ["name", "slug"]
+                            }
+                        ]
+                    },
+                    {
+                        model: models.Speaker,
+                        attributes: ["redacted"],
+                        include: [
+                            {
+                                model: models.Team,
+                                attributes: ["name", "codename", "swing", "active"],
+                                as: 'Speaker1',
+                                include: [
+                                    {
+                                        model: models.Tournament,
+                                        attributes: ["name", "slug"],
+                                        where: {
+                                            slug: req.params.slug
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        model: models.Speaker,
+                        attributes: ["redacted"],
+                        include: [
+                            {
+                                model: models.Team,
+                                attributes: ["name", "codename", "swing", "active"],
+                                as: 'Speaker2',
+                                include: [
+                                    {
+                                        model: models.Tournament,
+                                        attributes: ["name", "slug"],
+                                        where: {
+                                            slug: req.params.slug
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }).then(tournament => {
+        return res.status(200).json({tournament});
+    })
+});
+
+//
 // POST /tournaments/create
 // 200 - tournament created, provide slug
 // 400 - missing field

@@ -1,5 +1,8 @@
 import React from 'react';
 import GridLoader from "react-spinners/GridLoader";
+import {Column} from "primereact/column";
+import {DataTable} from "primereact/datatable";
+import {Skeleton} from "primereact/skeleton";
 
 class Loading extends React.Component {
     constructor() {
@@ -45,16 +48,25 @@ class Loading extends React.Component {
     }
 
     render() {
+        const bodyTemplate = () => {
+            return <Skeleton/>
+        }
         return(
-            <div className="text-center">
-                <GridLoader
-                    size={30}
-                    color={'aqua'}
-                    loading={true}
-                />
-                <p className="text-white display-5">Loading{this.state.ellipsis}</p>
-            </div>
-
+            this.props.datatable ?
+                <DataTable value={[{a:'b'},{a:'b'},{a:'b'},{a:'b'}]} className="p-datatable-striped">
+                    {
+                        this.props.datatable.map(col => <Column header={col.header} body={bodyTemplate}/>)
+                    }
+                </DataTable>
+                :
+                <div className="text-center">
+                    <GridLoader
+                        size={30}
+                        color={'aqua'}
+                        loading={true}
+                    />
+                    <p className="text-white display-5">Loading{this.state.ellipsis}</p>
+                </div>
         )
     }
 }

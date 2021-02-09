@@ -5,13 +5,15 @@ import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {Chip} from "primereact/chip";
 import {Redirect} from "react-router-dom";
+import Loading from "../components/Loading";
 const ttlib = require("ttlib");
 
 class TournamentListPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            tournaments: []
+            tournaments: [],
+            loading: true
         }
     }
 
@@ -20,7 +22,7 @@ class TournamentListPage extends React.Component {
             `/tournaments`,
             'GET',
             (tournaments) => {
-                this.setState({tournaments})
+                this.setState({tournaments, loading: false})
             },
             () => {}
         )
@@ -47,20 +49,33 @@ class TournamentListPage extends React.Component {
                         <Card>
                             <div className="display-4 text-center">All Tournaments</div>
                             <hr/>
-                            <DataTable
-                                value={this.state.tournaments}
-                                paginator
-                                paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-                                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} tournaments" rows={10} rowsPerPageOptions={[10,20,50]}
-                                selection={this.state.selected}
-                                onSelectionChange={e => this.setState({selected: e.value})}
-                                selectionMode="single"
-                                dataKey="id"
-                            >
-                                <Column field="name" header="Tournament Name"/>
-                                <Column body={(row) => teamBody(row, "tab")} header="Tab Team"/>
-                                <Column body={(row) => teamBody(row, "adjcore")} header="Adj Core"/>
-                            </DataTable>
+                            {
+                                this.state.loading ?
+                                    <Loading
+                                        datatable={
+                                            [
+                                                {header: "Tournament Name"},
+                                                {header: "Tab Team"},
+                                                {header: "Adj Core"}
+                                            ]
+                                        }
+                                    />
+                                    :
+                                    <DataTable
+                                    value={this.state.tournaments}
+                                    paginator
+                                    paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} tournaments" rows={10} rowsPerPageOptions={[10,20,50]}
+                                    selection={this.state.selected}
+                                    onSelectionChange={e => this.setState({selected: e.value})}
+                                    selectionMode="single"
+                                    dataKey="id"
+                                >
+                                    <Column field="name" header="Tournament Name"/>
+                                    <Column body={(row) => teamBody(row, "tab")} header="Tab Team"/>
+                                    <Column body={(row) => teamBody(row, "adjcore")} header="Adj Core"/>
+                                </DataTable>
+                            }
                         </Card>
                     </div>
                 </div>

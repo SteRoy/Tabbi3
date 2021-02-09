@@ -7,7 +7,7 @@ const ttlib = require("ttlib");
 // GET /api/tournaments/:slug/teams
 // 200 - List of tournament teams
 //
-router.get(`/:slug/teams`, (req, res) => {
+router.get(`/:slug/teams`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug
@@ -65,7 +65,7 @@ router.get(`/:slug/teams`, (req, res) => {
 // 400 - Malformed Request
 // 404 - Tournament not found
 // TODO: Promisify because this is dumb
-router.post(`/:slug/teams/placeholder/create`, (req, res) => {
+router.post(`/:slug/teams/placeholder/create`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"),(req, res) => {
     ttlib.validation.objContainsFields(req.body, ["name", "codename", "s1name", "s2name"]).then(teamDetails => {
         models.Tournament.findOne({
             where: {
@@ -137,7 +137,7 @@ router.post(`/:slug/teams/placeholder/create`, (req, res) => {
 // POST /api/tournaments/:slug/teams/:teamid/active
 // 200 - Toggle an team's active setting
 //
-router.post(`/:slug/teams/:teamid/active`, (req, res) => {
+router.post(`/:slug/teams/:teamid/active`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"),(req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug

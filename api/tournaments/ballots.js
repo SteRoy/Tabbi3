@@ -9,7 +9,7 @@ const ttlib = require("ttlib");
 // 404 - tournament or round not found
 //
 // TODO: validate roundid is a Number
-router.get(`/:slug/ballots/round/:roundid`, (req, res) => {
+router.get(`/:slug/ballots/round/:roundid`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug

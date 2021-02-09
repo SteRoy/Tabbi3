@@ -6,7 +6,7 @@ const ttlib = require("ttlib");
 // GET /api/people
 // 200 - a list of all names with their identifiers
 //
-router.get("/", (req, res) => {
+router.get("/", ttlib.middleware.isLoggedIn, (req, res) => {
     models.Person.findAll({
         where: {
             placeholder: false
@@ -25,8 +25,7 @@ router.get("/", (req, res) => {
 // POST /api/people/me/institutions
 // 200 - added new institution membership
 //
-router.post("/me/institutions", (req, res) => {
-    // TODO: Requires req.user, so must be authenticated or hard fail
+router.post("/me/institutions", ttlib.middleware.isLoggedIn, (req, res) => {
     // TODO: Verify that the index uniquity constraint on this works
     ttlib.validation.objContainsFields(req.body, ["institution"]).then(postForm => {
         if (req.user) {
@@ -58,8 +57,7 @@ router.post("/me/institutions", (req, res) => {
 // POST /api/people/me/clash
 // 200 - added new personal conflict
 //
-router.post("/me/clash", (req, res) => {
-    // TODO: Requires req.user, so must be authenticated or hard fail
+router.post("/me/clash", ttlib.middleware.isLoggedIn,(req, res) => {
     // TODO: Verify that the index uniquity constraint on this works
     ttlib.validation.objContainsFields(req.body, ["target", "type"]).then(postForm => {
         if (req.user) {

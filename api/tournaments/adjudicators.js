@@ -6,7 +6,7 @@ const ttlib = require("ttlib");
 // GET /api/tournaments/:slug/adjudicators
 // 200 - List of tournament adjudicators
 //
-router.get(`/:slug/adjudicators`, (req, res) => {
+router.get(`/:slug/adjudicators`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug
@@ -45,7 +45,7 @@ router.get(`/:slug/adjudicators`, (req, res) => {
 // 400 - Malformed Request
 // 404 - Tournament not found
 //
-router.post(`/:slug/adjudicators/placeholder/create`, (req, res) => {
+router.post(`/:slug/adjudicators/placeholder/create`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
     ttlib.validation.objContainsFields(req.body, ["name", "testScore"]).then(adjDetails => {
         models.Tournament.findOne({
             where: {
@@ -90,7 +90,7 @@ router.post(`/:slug/adjudicators/placeholder/create`, (req, res) => {
 // POST /api/tournaments/:slug/adjudicators/:adjudicatorid/active
 // 200 - Toggle an adjudicator's active setting
 //
-router.post(`/:slug/adjudicators/:adjudicatorid/active`, (req, res) => {
+router.post(`/:slug/adjudicators/:adjudicatorid/active`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug

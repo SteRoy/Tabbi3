@@ -3,16 +3,20 @@ const models = require("../../models");
 const ttlib = require("ttlib");
 
 //
-// GET /api/ballots/debate/:debateid/:specificBallotOrTab
-// Returns the (tab iff specificBallotOrTab === "tab") entered ballot (if it exists) for a given Debate
+// GET /api/ballots/debate/:debateid/:nature
+// Returns the  entered ballot (if it exists) for a given Debate
+// @param nature - ["tab", BallotId]
 // 200 - the Debate information with Ballot if it exists
 // 404 - debate could not be found
-router.get(`/debate/:debateid/:specificBallotOrTab`, (req, res) => {
+router.get(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(models), (req, res) => {
     let conditions = {};
-    if (req.params.specificBallotOrTab === "tab") {
+    if (req.params.nature === "tab") {
         conditions.enteredByTab = true;
     } else {
-        conditions.id = parseInt(req.params.specificBallotOrTab);
+        if (req.params.nature === "adjudicator") {
+            return res.status(400).json({error: `Invalid value for 'nature' parameter'`});
+        }
+        conditions.id = parseInt(req.params.nature);
     }
 
     models.Debate.findOne({
@@ -73,7 +77,7 @@ router.get(`/debate/:debateid/:specificBallotOrTab`, (req, res) => {
 // @param nature - ["tab", "adjudicator", BallotId]
 // 200 - the Ballot was created or Updated
 // 404 - debate could not be found
-router.post(`/debate/:debateid/:nature`, (req, res) => {
+router.post(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(models),(req, res) => {
     ttlib.validation.objContainsFields(req.body, ['ballot']).then(body => {
         models.Debate.findOne({
             where: {
@@ -161,7 +165,7 @@ router.post(`/debate/:debateid/:nature`, (req, res) => {
 // Toggle a ballot's finalised status, if there's already a finalised ballot - we will unfinalise it.
 // 200 - the Ballot's finalised field was toggled
 // 404 - debate could not be found
-router.post(`/debate/:debateid/ballot/:ballotid/finalise`, (req, res) => {
+router.post(`/debate/:debateid/ballot/:ballotid/finalise`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
    models.Debate.findOne({
        where: {
            id: parseInt(req.params.debateid)

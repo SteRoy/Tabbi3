@@ -56,7 +56,7 @@ router.get("/configuration", (req, res) => {
 // GET /tournaments/:slug/participant/me
 // 200 - user is a valid participant of :slug, return PUBLIC information for them
 //
-router.get("/:slug/participant/me", (req, res) => {
+router.get("/:slug/participant/me", ttlib.middleware.isLoggedIn,(req, res) => {
     models.Account.findOne({
         attributes: ["id"],
         where: {
@@ -130,7 +130,7 @@ router.get("/:slug/participant/me", (req, res) => {
 // 200 - tournament created, provide slug
 // 400 - missing field
 //
-router.post("/create", (req, res) => {
+router.post("/create", ttlib.middleware.isLoggedIn, (req, res) => {
     ttlib.validation.objContainsFields(req.body,['name', 'startDate', 'endDate', 'rounds', 'tab', 'settings']).then(() => {
         const suffix = crypto.randomBytes(3).toString("hex");
         const slugGeneration = `${req.body.name}-${suffix}`.toLowerCase().split(" ").join("-");
@@ -233,7 +233,7 @@ router.get(`/:slug/public`, (req, res) => {
 // 404 - Tournament not found
 // 500 - ISE
 //
-router.post(`/:slug/configuration`, (req, res) => {
+router.post(`/:slug/configuration`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
     ttlib.validation.objContainsFields(req.body, ['settings']).then(body => {
         models.Tournament.findOne({
             where: {

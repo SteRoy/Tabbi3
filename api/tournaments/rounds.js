@@ -12,7 +12,7 @@ const RoundSettings = [
 // GET /api/tournaments/rounds/settings
 // Return a list of all valid configurations
 //
-router.get("/rounds/settings", (req, res) => {
+router.get("/rounds/settings", ttlib.middleware.isLoggedIn, (req, res) => {
     return res.status(200).json({
         RoundSettings
     });
@@ -24,7 +24,7 @@ router.get("/rounds/settings", (req, res) => {
 // 200 - the list of rounds
 // 404 - tournament not found
 //
-router.get(`/:slug/rounds`, (req, res) => {
+router.get(`/:slug/rounds`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug
@@ -49,7 +49,7 @@ router.get(`/:slug/rounds`, (req, res) => {
 // 200 - the Round
 // 404 - tournament or round not found
 //
-router.get(`/:slug/round/:roundid`, (req, res) => {
+router.get(`/:slug/round/:roundid`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"),(req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug
@@ -116,7 +116,7 @@ router.get(`/:slug/round/:roundid`, (req, res) => {
 // 404 - round/tournament not found
 // 400 - missing field
 //
-router.post(`/:slug/round/:roundid/motion`, (req, res) => {
+router.post(`/:slug/round/:roundid/motion`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"),(req, res) => {
     ttlib.validation.objContainsFields(req.body, ['motion']).then(() => {
         models.Round.findOne({
             where: {
@@ -152,7 +152,7 @@ router.post(`/:slug/round/:roundid/motion`, (req, res) => {
 // 404 - Tournament not found
 // 500 - ISE
 //
-router.post(`/:slug/round/:roundid/configuration`, (req, res) => {
+router.post(`/:slug/round/:roundid/configuration`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"),(req, res) => {
     ttlib.validation.objContainsFields(req.body, ['settings']).then(body => {
         models.Round.findOne({
             where: {
@@ -205,7 +205,7 @@ router.post(`/:slug/round/:roundid/configuration`, (req, res) => {
 // Create a round draw
 // 200 - draw created
 //
-router.post(`/:slug/round/:roundid/draw`, (req, res) => {
+router.post(`/:slug/round/:roundid/draw`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
     models.Round.findOne({
         where: {
             id: req.params.roundid
@@ -335,7 +335,7 @@ router.post(`/:slug/round/:roundid/draw`, (req, res) => {
 // POST /api/tournaments/:slug/rounds/create
 // Create a new round
 //
-router.post(`/:slug/rounds/create`, (req, res) => {
+router.post(`/:slug/rounds/create`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"),(req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug

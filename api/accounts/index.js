@@ -49,7 +49,7 @@ router.post("/login", passport.authenticate('local'), (req, res) => {
 // POST /api/accounts/logout
 // 200 Logged out successfully
 //
-router.post("/logout", (req, res) => {
+router.post("/logout", ttlib.middleware.isLoggedIn, (req, res) => {
     req.logout();
     return res.status(200).json({success: "Logged out"});
 })
@@ -61,7 +61,7 @@ router.post("/logout", (req, res) => {
 // 401 User is not logged in
 // 500 Who knows what happened, you are somehow authed with passport but don't exist
 //
-router.get("/me", (req, res) => {
+router.get("/me", ttlib.middleware.isLoggedIn, (req, res) => {
    if (req.user) {
        models.PersonalClash.findAll({
            attributes: ["createdAt", "type", "targetAccountId"],

@@ -51,7 +51,7 @@ router.get("/options", (req, res) => {
 // 400 - Missing Field
 // 500 - ISE, create object failed
 //
-router.post("/create", (req, res) => {
+router.post("/create", ttlib.middleware.isLoggedIn,(req, res) => {
     ttlib.validation.objContainsFields(req.body, ["name", "shortName", "aliases"]).then(postForm => {
         models.Institution.create(
             {
@@ -78,7 +78,7 @@ router.post("/create", (req, res) => {
 // 200 - Institution Alias created
 // 400 - Missing Field
 //
-router.post(`/:identifier/alias`, (req, res) => {
+router.post(`/:identifier/alias`, ttlib.middleware.isLoggedIn, (req, res) => {
     ttlib.validation.objContainsFields(req.body, ["alias"]).then(postForm => {
         const titleCaseAlias = ttlib.string.toTitleCase(postForm.alias);
         models.InstitutionAlias.findOrCreate({

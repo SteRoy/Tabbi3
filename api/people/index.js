@@ -8,6 +8,9 @@ const ttlib = require("ttlib");
 //
 router.get("/", (req, res) => {
     models.Person.findAll({
+        where: {
+            placeholder: false
+        },
         includes: [
             models.InstitutionMembership
         ]

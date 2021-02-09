@@ -47,9 +47,9 @@ class TournamentHome extends React.Component {
                                 <Card>
                                     <div className="display-4 text-center w-100">{this.state.tournament.name}</div>
                                     <div className="text-center">
-                                        <SplitButton label="Draw" icon="pi pi-fw pi-table" className="p-mr-1 p-button-outlined p-button-primary" />
-                                        <SplitButton label="Results" icon="pi pi-fw pi-info" className="p-mr-1 p-button-outlined p-button-secondary" />
-                                        <SplitButton label="Standings" icon="pi pi-fw pi-info" className="p-mr-1 p-button-outlined p-button-secondary" />
+                                        <SplitButton label="Draw" icon="pi pi-fw pi-table" className="p-mr-1 p-button-primary" />
+                                        <SplitButton label="Results" icon="pi pi-fw pi-info" className="p-mr-1 p-button-secondary" />
+                                        <SplitButton label="Standings" icon="pi pi-fw pi-star" className="p-mr-1 p-button-help" />
                                     </div>
                                     <hr/>
                                     <div className="p-grid">

@@ -57,11 +57,11 @@ class TeamListPage extends React.Component {
 
         return (
             <div>
-                <NavBar active="tournaments"/>
+                <NavBar active="" userCB={(loggedInUser, loggedIn) => this.setState({loggedInUser, loggedIn})}/>
                 {this.state.selected ? <Redirect to={`/tournament/${this.props.match.params.slug}/teams/${this.state.selected.id}`}/> : ""}
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
-                        <TournamentToolBar slug={this.props.match.params.slug}/>
+                        <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser} loggedIn={this.state.loggedIn}/>
                         <Card>
                             <div className="display-4 text-center">Tournament Teams</div>
                             <div className="p-grid p-justify-between">

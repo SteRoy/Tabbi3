@@ -2,6 +2,49 @@ const router = require('express').Router();
 const models = require("../../models");
 const ttlib = require("ttlib");
 
+
+//
+// GET /api/preregistration/:slug/:type
+// Returns all unprocessed preregistrations for a given tournament of a particular type
+//
+router.get(`/:slug/:type`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "orgcomm"), (req, res) => {
+    models.Tournament.findOne({
+       where: {
+           slug: req.params.slug
+       },
+       include: [
+           {
+               model: models.Preregistration,
+               where: {
+                   speakerTwoAccepted: true,
+                   type: req.params.type
+               },
+               include: [
+                   {
+                       model: models.Person,
+                       as: 'registrant',
+                       attributes: ["name", "id"]
+                   },
+                   {
+                       model: models.Person,
+                       as: 'speakerTwo',
+                       required: false,
+                       attributes: ["name", "id"]
+                   }
+               ]
+           }
+       ]
+   }).then(tournament => {
+       if (tournament) {
+           return res.status(200).json({tournament});
+       } else {
+           return res.status(404).json({error: `Could not find Tournament`});
+       }
+   }).catch(err => {
+       return res.status(500).json({error: `Internal Server Error: ${err}`})
+    });
+});
+
 //
 // POST /api/preregistration/:slug
 // Create a Preregistration object for a given registrant (Person)

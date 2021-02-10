@@ -94,7 +94,7 @@ class CreatePlaceholderModelPage extends React.Component {
                 {this.state.redirect ? <Redirect to={`/tournament/${this.state.slug}`}/> : "" }
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-8">
-                        <TournamentToolBar slug={this.props.match.params.slug}/>
+                        <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser} loggedIn={this.state.loggedIn}/>
                         <Card>
                             <form onSubmit={this.submit}>
                                 <div className="display-4 text-center">Create{this.state.model !== "venues" ? " Placeholder " : " "}{this.state.model === "teams" ? "Team" : this.state.model === "venues" ? "Venue" : "Adjudicator"}</div>

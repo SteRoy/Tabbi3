@@ -43,7 +43,7 @@ class TournamentHome extends React.Component {
                 <Toast ref={(ref) => this.toast = ref}/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
-                        <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser}/>
+                        <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser} loggedIn={this.state.loggedIn}/>
                         {
                             this.state.tournament ?
                                 <Card>

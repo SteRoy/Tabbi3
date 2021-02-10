@@ -11,7 +11,8 @@ class TournamentToolBar extends React.Component {
         this.state = {
             collapsed: isMobile,
             slug: props.slug,
-            role: null
+            role: null,
+            TournamentRoles: []
         }
 
         this.splitOptionsTeams = null;
@@ -104,12 +105,9 @@ class TournamentToolBar extends React.Component {
             `/tournaments/${this.props.slug}/public`,
             `GET`,
             (respData) => {
-                if (this.props.user) {
-                    const tournamentRole = respData.tournament.TournamentRoles.find(tr => tr.AccountId === this.props.user.Person.AccountId);
-                    this.setState({
-                        role: tournamentRole.role
-                    })
-                }
+                this.setState({
+                    TournamentRoles: respData.tournament.TournamentRoles
+                })
             },
             (err) => {}
         )
@@ -133,8 +131,18 @@ class TournamentToolBar extends React.Component {
             </React.Fragment>
         );
 
+        const shouldShowBar = (roles, user) => {
+            if (!user || !this.props.loggedIn) {
+                return false;
+            }
+
+            const tr = roles.find(tr => tr.AccountId === user.Person.AccountId);
+            return !!tr;
+
+        }
+
         return (
-            this.state.role ?
+            shouldShowBar(this.state.TournamentRoles, this.props.user) ?
                 this.state.collapsed ?
                     <div className="text-center">
                         <Button label="Show Toolbar" icon="pi pi-window-maximize" className="p-mr-2 p-mb-1 p-button-success" onClick={() => this.setState({collapsed: false})}/>

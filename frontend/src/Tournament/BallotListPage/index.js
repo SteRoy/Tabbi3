@@ -102,16 +102,14 @@ class BallotListPage extends React.Component {
 
         return (
             <div>
-                <NavBar active=""/>
+                <NavBar active="" userCB={(loggedInUser, loggedIn) => this.setState({loggedInUser, loggedIn})}/>
                 <ContextMenu model={this.contextMenu} ref={(ref) => this.cm = ref} onHide={() => this.setState({cmSelected: null})}/>
                 {
                     this.state.selectedDebate ? <Redirect to={`/tournament/${this.props.match.params.slug}/ballots/${this.state.selectedDebate.id}/create`} /> : "" }
                 }
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11 p-lg-9">
-                        <TournamentToolBar
-                            slug={this.props.match.params.slug}
-                        />
+                        <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser} loggedIn={this.state.loggedIn}/>
                         {
                             !this.state.tournament ? <Loading/> :
                             <Card>

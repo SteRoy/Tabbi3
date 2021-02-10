@@ -119,7 +119,7 @@ class PreRegistration extends React.Component {
                 }
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-8">
-                        <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser}/>
+                        <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser} loggedIn={this.state.loggedIn}/>
                         {
                             this.state.loggedInUser && this.state.tournament ?
                                 <Card>

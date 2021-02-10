@@ -34,7 +34,13 @@ passport.deserializeUser(function(email, done) {
     models.Account.findOne({
         where: {
             email
-        }
+        },
+        include: [
+            {
+                model: models.Person,
+                attributes: ["name", "id"]
+            }
+        ]
     }).then(account => {
         if (account) {
             done(null, account);

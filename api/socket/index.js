@@ -39,7 +39,7 @@ module.exports = {
             const email = socket.request.user.email;
 
             socket.on("join_allocation", (tournamentSlug, roundId) => {
-                // TODO: Validation
+                // TODO: Authentication
                 if (email) {
                     socket.join(`${tournamentSlug}-${roundId}`)
                 }

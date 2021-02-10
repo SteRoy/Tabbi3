@@ -1,4 +1,5 @@
 import React from "react";
+import {Button} from "primereact/button";
 const ttlib = require("ttlib");
 
 class TournamentUserView extends React.Component {
@@ -9,30 +10,51 @@ class TournamentUserView extends React.Component {
             speaker: null,
             tournament: null,
             error: null,
-            hasActiveRound: false
+            hasActiveRound: false,
+            prereg: []
         }
 
         ttlib.api.requestAPI(
-            `/tournaments/${props.slug}/participant/me`,
+            `/tournaments/${props.tournament.slug}/participant/me`,
             `GET`,
             (respData) => {
                 if (respData.tournament) {
                     const tournament = respData.tournament;
+                    let stateUpdate = {
+                        person: tournament.Person,
+                        prereg: tournament.Person.speakerTwo.length > 0 ? tournament.Person.speakerTwo : tournament.Person.registrant
+                    }
+
+
                     if (tournament.Person.Adjudicators.length > 0) {
                     //    User is an adjudicator
-                        this.setState({
-                            adjudicator: tournament.Person.Adjudicators[0],
-                            person: tournament.Person,
-                        })
+                        stateUpdate.adjudicator = tournament.Person.Adjudicators[0];
                     } else if (tournament.Person.Speakers.length > 0) {
                     //    User is a speaker
-                        this.setState({
-                            speaker: tournament.Person.Speakers[0]
-                        })
+                        stateUpdate.speaker = tournament.Person.Speakers[0];
                     }
+                    this.setState(stateUpdate);
                 }
             },
-            (err) => {},
+            (err) => {
+                ttlib.component.toastError(this.props.toast, `Fetching Participant Info Failed`, `${err}`)
+            },
+        )
+
+        this.replyToInvite = this.replyToInvite.bind(this);
+    }
+
+    replyToInvite(status) {
+        ttlib.api.requestAPI(
+            `/preregistration/invite/${this.state.prereg[0].id}/${status}`,
+            `POST`,
+            (respData) => {
+                ttlib.component.toastSuccess(this.props.toast, `Invitation Status Updated`, `Your response has been submitted.`)
+            },
+            (error) => {
+                ttlib.component.toastError(this.props.toast, `Invitation Update Failed`, `${error}`)
+            },
+            {}
         )
     }
 
@@ -72,11 +94,58 @@ class TournamentUserView extends React.Component {
                     }
                     </span>
                     :
-                    <div className="alert alert-warning">
-                        You're not currently registered as a participant for this competition.
-                        <hr/>
-                        Pre-Registration is {isPreRegOpenSetting.value ? <b>OPEN</b> : <b>Closed.</b>}
-                    </div>
+                    this.state.prereg.length > 0 ?
+                        this.state.prereg[0].registrantId === this.props.loggedInUser.Person.id ?
+                            <div className="alert alert-info">
+                                You completed {ttlib.string.toTitleCase(this.state.prereg[0].type)} preregistration on {new Date(this.state.prereg[0].createdAt).toDateString()}:
+                                <br/>
+                                Reference: <b>{this.state.prereg[0].reference}</b><br/>
+                                {
+                                    this.state.prereg[0].type === "team" ?
+                                        <span>
+                                            Team Name: <b>{this.state.prereg[0].teamName}</b><br/>
+                                            Speaking Partner: <b className={this.state.prereg[0].speakerTwoAccepted ? "text-success" : "text-danger"}>{this.state.prereg[0].speakerTwo.name} {this.state.prereg[0].speakerTwoAccepted ? "" : "[PENDING]"}</b>
+                                        </span>
+                                        : ""
+                                }
+                                <hr/>
+                                {this.state.prereg[0].speakerTwoAccepted ?
+                                    "Once your preregistration has been approved by the organisation committee, your team details will appear here."
+                                    :
+                                    "Once your partner has accepted this invitation, your preregistration will be submitted to the organisation committee."
+                                }
+                            </div>
+                            :
+                            <div className="alert alert-info">
+                                You were invited to join the a team on {new Date(this.state.prereg[0].createdAt).toDateString()} by <b>{this.state.prereg[0].registrant.name}</b>:
+                                <br/>
+                                Reference: <b>{this.state.prereg[0].reference}</b><br/>
+                                {
+                                    this.state.prereg[0].type === "team" ?
+                                        <span>
+                                            Team Name: <b>{this.state.prereg[0].teamName}</b><br/>
+                                        </span>
+                                        : ""
+                                }
+                                <hr/>
+                                {this.state.prereg[0].speakerTwoAccepted ?
+                                    "Once your preregistration has been approved by the organisation committee, your team details will appear here."
+                                    :
+                                    <span>
+                                        You must accept or decline this invitation to submit your preregistration to the organisation committee.
+                                        <div className='text-center'>
+                                            <Button icon="pi pi-fw pi-check" label="Accept" onClick={() => this.replyToInvite('accept')} className="p-button-success p-mr-1"/>
+                                            <Button icon="pi pi-fw pi-times" label="Reject" onClick={() => this.replyToInvite('reject')} className="p-button-danger"/>
+                                        </div>
+                                    </span>
+                                }
+
+
+                            </div>
+                        :
+                        <div className="alert alert-warning">
+                            You're not currently registered as a participant for this competition. {isPreRegOpenSetting.value ? <span>You can complete preregistration by clicking <a href={`/tournament/${this.props.tournament.slug}/prereg`}>here</a></span> : ""}
+                        </div>
                 :
                 // User is not logged in, show bog standard - register/login link.
                 <div className="alert alert-warning">You are not logged in! Tabbi3 is a centralised, account-based tabulation software which means you can access personalised information about a tournament such as your debate venue, position and submit e-Ballots/feedback if you <a href={"/login"}>login!</a></div>

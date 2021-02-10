@@ -11,11 +11,11 @@ const tournamentConfigOptions = [
     {key: "adjcore", description: "The adjudication core - they set motions, monitor adjudicator feedback, determine breaking adjudicators and allocate adjudicators.", type: "people"},
 
     // Boolean
-    {key: "test", description: "This tournament is a 'test' - it won't have real participants or is simply a small internal competition. The tournament will not appear on the frontpage.", type: "boolean"},
-    {key: "wudc", description: "Enforces WUDC constitutional restrictions.", type: "boolean"},
-    {key: "prereg", description: "Open participant registration?", type: "boolean"},
     {key: "eballots", description: "Enable chair submission of ballots via Tabbi3.", type: "boolean"},
     {key: "eballots-panel", description: "Enable panellist submission of ballots via Tabbi3.", type: "boolean"},
+    {key: "prereg", description: "Open participant registration?", type: "boolean"},
+    {key: "test", description: "This tournament is a 'test' - it won't have real participants or is simply a small internal competition. The tournament will not appear on the frontpage.", type: "boolean"},
+    {key: "wudc", description: "Enforces WUDC constitutional restrictions.", type: "boolean"},
 
     //  Textarea
     {key: "description", description: "The Tournament Homepage description text.", type: "textarea"},
@@ -118,6 +118,40 @@ router.get("/:slug/participant/me", ttlib.middleware.isLoggedIn,(req, res) => {
                                         }
                                     }
                                 ]
+                            }
+                        ]
+                    },
+                    {
+                        model: models.Preregistration,
+                        as: 'registrant',
+                        include: [
+                            {
+                                model: models.Person,
+                                as: 'speakerTwo',
+                                attributes: ["name"]
+                            },
+                            {
+                                model: models.Tournament,
+                                where: {
+                                    slug: req.params.slug
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        model: models.Preregistration,
+                        as: 'speakerTwo',
+                        include: [
+                            {
+                                model: models.Person,
+                                as: 'registrant',
+                                attributes: ["name"]
+                            },
+                            {
+                                model: models.Tournament,
+                                where: {
+                                    slug: req.params.slug
+                                }
                             }
                         ]
                     }

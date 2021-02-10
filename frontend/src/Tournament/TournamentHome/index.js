@@ -6,6 +6,7 @@ import PersonCard from "../../components/PersonCard";
 import Loading from "../../components/Loading";
 import TournamentUserView from "./TournamentUserView";
 import {SplitButton} from "primereact/splitbutton";
+import {Toast} from "primereact/toast";
 const ttlib = require("ttlib");
 
 class TournamentHome extends React.Component {
@@ -39,9 +40,10 @@ class TournamentHome extends React.Component {
         return (
             <div>
                 <NavBar active="" userCB={(loggedInUser, loggedIn) => this.setState({loggedInUser, loggedIn})}/>
+                <Toast ref={(ref) => this.toast = ref}/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
-                        <TournamentToolBar slug={this.props.match.params.slug}/>
+                        <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser}/>
                         {
                             this.state.tournament ?
                                 <Card>
@@ -66,6 +68,7 @@ class TournamentHome extends React.Component {
                                                 loggedInUser={this.state.loggedInUser}
                                                 loggedIn={this.state.loggedIn}
                                                 tournament={this.state.tournament}
+                                                toast={this.toast}
                                             />
                                         </div>
                                         {/* Render publicly available permission assignment */}

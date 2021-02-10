@@ -10,7 +10,8 @@ class TournamentToolBar extends React.Component {
         super(props);
         this.state = {
             collapsed: isMobile,
-            slug: props.slug
+            slug: props.slug,
+            role: null
         }
 
         this.splitOptionsTeams = null;
@@ -97,6 +98,20 @@ class TournamentToolBar extends React.Component {
             (err) => {
                 console.log(err);
             }
+        );
+
+        ttlib.api.requestAPI(
+            `/tournaments/${this.props.slug}/public`,
+            `GET`,
+            (respData) => {
+                if (this.props.user) {
+                    const tournamentRole = respData.tournament.TournamentRoles.find(tr => tr.AccountId === this.props.user.Person.AccountId);
+                    this.setState({
+                        role: tournamentRole.role
+                    })
+                }
+            },
+            (err) => {}
         )
     }
 
@@ -119,12 +134,14 @@ class TournamentToolBar extends React.Component {
         );
 
         return (
-            this.state.collapsed ?
-                <div className="text-center">
-                    <Button label="Show Toolbar" icon="pi pi-window-maximize" className="p-mr-2 p-mb-1 p-button-success" onClick={() => this.setState({collapsed: false})}/>
-                </div>
-                :
-                <Toolbar className="mb-1" left={alignLeft} right={alignRight} />
+            this.state.role ?
+                this.state.collapsed ?
+                    <div className="text-center">
+                        <Button label="Show Toolbar" icon="pi pi-window-maximize" className="p-mr-2 p-mb-1 p-button-success" onClick={() => this.setState({collapsed: false})}/>
+                    </div>
+                    :
+                    <Toolbar className="mb-1" left={alignLeft} right={alignRight} />
+            : ""
         )
     }
 }

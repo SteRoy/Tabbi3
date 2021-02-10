@@ -13,6 +13,7 @@ const tournamentConfigOptions = [
     // Boolean
     {key: "test", description: "This tournament is a 'test' - it won't have real participants or is simply a small internal competition. The tournament will not appear on the frontpage.", type: "boolean"},
     {key: "wudc", description: "Enforces WUDC constitutional restrictions.", type: "boolean"},
+    {key: "prereg", description: "Open participant registration?", type: "boolean"},
     {key: "eballots", description: "Enable chair submission of ballots via Tabbi3.", type: "boolean"},
     {key: "eballots-panel", description: "Enable panellist submission of ballots via Tabbi3.", type: "boolean"},
 
@@ -73,7 +74,10 @@ router.get("/:slug/participant/me", ttlib.middleware.isLoggedIn,(req, res) => {
                         include: [
                             {
                                 model: models.Tournament,
-                                attributes: ["name", "slug"]
+                                attributes: ["name", "slug"],
+                                where: {
+                                    slug: req.params.slug
+                                }
                             }
                         ]
                     },
@@ -303,7 +307,9 @@ router.post(`/:slug/configuration`, ttlib.middleware.userHoldsTournamentRoleOrIs
                             }
                         }
                     } else {
-                        return res.status(400).json({error: `Unidentified configuration option: ${proposedChange.key}`})
+                        if (proposedChange.key !== 'null') {
+                            return res.status(400).json({error: `Unidentified configuration option: ${proposedChange.key}`})
+                        }
                     }
                 });
                 return res.status(200).json({success: `TournamentSettings updated`});

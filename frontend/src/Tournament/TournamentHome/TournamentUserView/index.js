@@ -38,9 +38,11 @@ class TournamentUserView extends React.Component {
 
 
     render() {
+        const isPreRegOpenSetting = this.props.tournament.TournamentSettings.find(setting => setting.key === "prereg") || {value: false};
         return (
             this.props.loggedIn ?
-                <span>
+                this.state.adjudicator || this.state.speaker ?
+                    <span>
                     {
                         this.state.adjudicator ?
                             <div className="alert" style={{border: 'solid 1px black'}}>
@@ -69,6 +71,12 @@ class TournamentUserView extends React.Component {
                             <div className="alert alert-info">At the moment, this tournament isn't running a round you are a participant of.</div>
                     }
                     </span>
+                    :
+                    <div className="alert alert-warning">
+                        You're not currently registered as a participant for this competition.
+                        <hr/>
+                        Pre-Registration is {isPreRegOpenSetting.value ? <b>OPEN</b> : <b>Closed.</b>}
+                    </div>
                 :
                 // User is not logged in, show bog standard - register/login link.
                 <div className="alert alert-warning">You are not logged in! Tabbi3 is a centralised, account-based tabulation software which means you can access personalised information about a tournament such as your debate venue, position and submit e-Ballots/feedback if you <a href={"/login"}>login!</a></div>

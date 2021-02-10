@@ -65,6 +65,7 @@ class TournamentHome extends React.Component {
                                             <TournamentUserView
                                                 loggedInUser={this.state.loggedInUser}
                                                 loggedIn={this.state.loggedIn}
+                                                tournament={this.state.tournament}
                                             />
                                         </div>
                                         {/* Render publicly available permission assignment */}

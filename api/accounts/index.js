@@ -21,7 +21,8 @@ router.post("/create", (req, res) => {
                 salt,
                 password,
                 Person: {
-                    name: postForm.name
+                    name: postForm.name,
+                    placeholder: false
                 }
             },
             {

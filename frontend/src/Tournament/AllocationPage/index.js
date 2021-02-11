@@ -71,6 +71,7 @@ class AllocationPage extends React.Component {
                                     return({
                                         roomid: adjAlloc.DebateId.toString(),
                                         id: adjAlloc.id.toString(),
+                                        adjId: adjAlloc.AdjudicatorId,
                                         name: adjAlloc.Adjudicator.Person.name,
                                         index: adjAlloc.chair ? 0 : adjAlloc.index,
                                         score: adjAlloc.Adjudicator.testScore.toString()
@@ -118,7 +119,7 @@ class AllocationPage extends React.Component {
         let curAllocs = this.state.adj;
         let toasts = [];
         adjUpdateObject.forEach(update => {
-            const indexOfAdjAlloc = curAllocs.findIndex(adj => adj.id === update.AdjudicatorId);
+            const indexOfAdjAlloc = curAllocs.findIndex(adj => adj.adjId === update.AdjudicatorId);
             const adjAlloc = curAllocs[indexOfAdjAlloc];
             if (update.type === "SHIFT") {
                 // Adjudicator will be moved to a new, designated position.
@@ -155,7 +156,7 @@ class AllocationPage extends React.Component {
                 if (result.destination.droppableId !== result.source.droppableId) {
                     adjudicatorUpdates.push(
                         {
-                            AdjudicatorId: result.draggableId,
+                            AdjudicatorId: this.state.adj.find(adjAlloc => adjAlloc.id === result.draggableId).adjId,
                             type: "NEWROOM",
                             newRoom: result.destination.droppableId,
                             shiftTo: result.destination.index
@@ -164,7 +165,7 @@ class AllocationPage extends React.Component {
                 } else {
                     adjudicatorUpdates.push(
                         {
-                            AdjudicatorId: result.draggableId,
+                            AdjudicatorId: this.state.adj.find(adjAlloc => adjAlloc.id === result.draggableId).adjId,
                             type: "SHIFT",
                             shiftTo: result.destination.index
                         }
@@ -191,7 +192,7 @@ class AllocationPage extends React.Component {
                             if (isNewAssignment || orderObj[2](adjAlloc)) {
                                 adjudicatorUpdates.push(
                                     {
-                                        AdjudicatorId: adjAlloc.id,
+                                        AdjudicatorId: adjAlloc.adjId,
                                         type: "SHIFT",
                                         shiftTo: orderObj[1](adjAlloc.index)
                                     }

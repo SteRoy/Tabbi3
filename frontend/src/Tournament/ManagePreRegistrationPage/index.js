@@ -30,9 +30,9 @@ class ManagePreRegistrationPage extends React.Component {
             {key: "teamName", header: "Team Name"}
         ]
             :
-            [
-                {key: "registrant", header: "Adjudicator Name"}
-            ]
+        [
+            {key: "registrant.name", header: "Adjudicator Name"}
+        ]
 
         this.setPreregistrationStatus = this.setPreregistrationStatus.bind(this);
     }

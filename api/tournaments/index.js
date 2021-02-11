@@ -87,7 +87,7 @@ router.get("/:slug/participant/me", ttlib.middleware.isLoggedIn,(req, res) => {
                         include: [
                             {
                                 model: models.Team,
-                                attributes: ["name", "codename", "swing", "active"],
+                                attributes: ["name", "codename", "swing", "active", "id"],
                                 as: 'Speaker1',
                                 include: [
                                     {
@@ -107,7 +107,7 @@ router.get("/:slug/participant/me", ttlib.middleware.isLoggedIn,(req, res) => {
                         include: [
                             {
                                 model: models.Team,
-                                attributes: ["name", "codename", "swing", "active"],
+                                attributes: ["name", "codename", "swing", "active", "id"],
                                 as: 'Speaker2',
                                 include: [
                                     {
@@ -176,8 +176,9 @@ router.get("/:slug/participant/:personId/allocation", ttlib.middleware.isLoggedI
         where: {
             completed: false
         },
-        order: ["sequence", "ASC"],
+        order: ["sequence"],
         limit: 1,
+        attributes: ["title", "type", "motion", "infoslide", "id", "sequence", "drawReleased", "motionReleased"],
         include: [
             {
                 model: models.Debate,
@@ -191,17 +192,14 @@ router.get("/:slug/participant/:personId/allocation", ttlib.middleware.isLoggedI
                                     {
                                         model: models.Speaker,
                                         as: 'Speaker1',
-                                        where: {PersonId: req.user.Person.id},
-                                        require: false
+                                        where: {PersonId: req.user.Person.id}
                                     },
                                     {
                                         model: models.Speaker,
                                         as: 'Speaker2',
-                                        where: {PersonId: req.user.Person.id},
-                                        require: false
+                                        where: {PersonId: req.user.Person.id}
                                     }
-                                ],
-                                require: false
+                                ]
                             }
                         ],
                         require: false
@@ -213,21 +211,52 @@ router.get("/:slug/participant/:personId/allocation", ttlib.middleware.isLoggedI
                                 model: models.Adjudicator,
                                 where: {PersonId: req.user.Person.id}
                             }
-                        ]
+                        ],
+                        require: false
                     }
                 ]
             }
         ]
     }).then(round => {
-        if (round.drawReleased) {
-            if (!round.motionReleased) {
-                round.motion = "";
-                round.infoslide = "";
+        if (round.Debates.length > 0) {
+            if (round.drawReleased) {
+                if (!round.motionReleased) {
+                    round.motion = "";
+                    round.infoslide = "";
+                }
+                models.Debate.findOne({
+                    where: {
+                        id: round.Debates[0].id
+                    },
+                    attributes: ["id"],
+                    include: [
+                        {
+                            model: models.AdjAlloc,
+                            include: {
+                                model: models.Adjudicator,
+                                attributes: ["id"],
+                                include: models.Person
+                            }
+                        },
+                        {
+                            model: models.TeamAlloc,
+                            include: models.Team
+                        },
+                        {
+                            model: models.Venue
+                        }
+                    ]
+                }).then(debate => {
+                    return res.status(200).json({round, debate});
+                })
+
+            } else {
+                return res.status(401).json({error: `The current round draw is not available.`});
             }
-            return res.status(200).json({round});
+        } else {
+            return res.status(400).json({error: `You are not a participant in this round.`});
         }
-        return res.status(401).json({error: `The current round draw is not available.`});
-    })
+    });
 });
 
 

@@ -11,8 +11,8 @@ class TournamentUserView extends React.Component {
             speaker: null,
             tournament: null,
             error: null,
-            hasActiveRound: false,
             loading: true,
+            roundLoading: true,
             prereg: []
         }
 
@@ -22,22 +22,24 @@ class TournamentUserView extends React.Component {
             (respData) => {
                 if (respData.tournament) {
                     const tournament = respData.tournament;
-                    console.log(respData);
                     let stateUpdate = {
                         person: tournament.Person,
                         prereg: tournament.Person.speakerTwo.length > 0 ? tournament.Person.speakerTwo : tournament.Person.registrant,
                         loading: false
                     }
 
+                    console.log(tournament);
+
                     if (tournament.Person.Adjudicators.length > 0) {
                     //    User is an adjudicator
                         stateUpdate.adjudicator = tournament.Person.Adjudicators[0];
+                        this.fetchAlloc();
                     } else if (tournament.Person.Speakers.length > 0) {
                     //    User is a speaker
                         stateUpdate.speaker = tournament.Person.Speakers[0];
-                        stateUpdate.team = tournament.Person.Speakers[0].Speaker1 || tournament.Person.Speakers[0].Speaker2
+                        stateUpdate.team = tournament.Person.Speakers[0].Speaker1 || tournament.Person.Speakers[0].Speaker2;
+                        this.fetchAlloc();
                     }
-                    console.log(stateUpdate);
                     this.setState(stateUpdate);
                 }
             },
@@ -51,6 +53,40 @@ class TournamentUserView extends React.Component {
 
 
         this.replyToInvite = this.replyToInvite.bind(this);
+        this.fetchAlloc = this.fetchAlloc.bind(this);
+    }
+
+    fetchAlloc() {
+        if (!this.props.loggedInUser) {
+            return;
+        }
+
+        ttlib.api.requestAPI(
+            `/tournaments/${this.props.tournament.slug}/participant/${this.props.loggedInUser.Person.id}/allocation`,
+            `GET`,
+            (respData) => {
+                if (respData.round) {
+                    const round = respData.round;
+                    const debate = respData.debate;
+                    let allocation;
+                    if (this.state.adjudicator) {
+                        allocation = debate.AdjAllocs.find(a => a.AdjudicatorId === this.state.adjudicator.id);
+                    } else if (this.state.team) {
+                        allocation = debate.TeamAllocs.find(a => a.TeamId === this.state.team.id);
+                    }
+
+                    if (round && debate && allocation) {
+                        this.setState({round, debate, allocation, roundLoading: false});
+                    }
+                }
+            },
+            (err) => {
+                if (this.props.loggedIn) {
+                    ttlib.component.toastError(this.props.toast, `Fetching Participant Info Failed`, `${err}`)
+                }
+                this.setState({loading: false});
+            },
+        )
     }
 
     replyToInvite(status) {
@@ -70,6 +106,7 @@ class TournamentUserView extends React.Component {
 
     render() {
         const isPreRegOpenSetting = this.props.tournament.TournamentSettings.find(setting => setting.key === "prereg") || {value: false};
+
         return (
             this.props.loggedIn ?
                 this.state.loading ?
@@ -98,11 +135,73 @@ class TournamentUserView extends React.Component {
                                 : ""
                         }
                         {
-                            this.state.hasActiveRound ?
-                                ""
-                                :
-                                //    Tournament does not have an active round but the user is logged in.
-                                <div className="alert alert-info">At the moment, this tournament isn't running a round you are a participant of.</div>
+                            this.state.roundLoading ?
+                                <Loading/>
+                            :
+                                this.state.round ?
+                                    <div className="alert" style={{border: 'solid 1px black'}}>
+                                        <span className="display-5">{this.state.round.title}</span>
+                                        <hr/>
+                                        {
+                                            this.state.speaker ?
+                                                <div>
+                                                    You are <b>{this.state.allocation.position}</b> in <b>{this.state.debate.Venue.name}</b>.
+                                                    <br/><br/>
+                                                    {
+                                                        this.state.round.motion !== "" ?
+                                                            <div className="alert alert-info">
+                                                                {
+                                                                    this.state.round.infoslide ?
+                                                                        <span>
+                                                                            <b>Infoslide:</b>
+                                                                            <p>{this.state.round.infoslide}</p>
+                                                                        </span>
+                                                                        : ""
+                                                                }
+                                                                <b>Motion: </b> <p>{this.state.round.motion}</p>
+                                                            </div> : "Motion is not yet released."
+                                                    }
+                                                    {this.state.debate.Venue.name}:<br/>
+                                                    OG:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "OG").Team.name}<br/>
+                                                    OO:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "OO").Team.name}<br/>
+                                                    CG:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "CG").Team.name}<br/>
+                                                    CO:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "CO").Team.name}<br/>
+                                                    <br/><br/>
+                                                    Your chair is: <span>{this.state.debate.AdjAllocs.filter(adj => adj.chair).map(adj => <b>&copy; {adj.Adjudicator.Person.name}</b>)}</span> <br/>
+                                                    Your adjudication panel is: {this.state.debate.AdjAllocs.filter(adj => !adj.chair).map(adj => adj.Adjudicator.Person.name).join(", ")}
+                                                </div>
+                                                :
+                                                <div>
+                                                    You are <b>{this.state.allocation.chair ? "Chair" : "Panellist"}</b> in <b>{this.state.debate.Venue.name}</b>.
+                                                    <br/><br/>
+                                                    {
+                                                        this.state.round.motion !== "" ?
+                                                            <div className="alert alert-info">
+                                                                {
+                                                                    this.state.round.infoslide ?
+                                                                        <span>
+                                                                            <b>Infoslide:</b>
+                                                                            <p>{this.state.round.infoslide}</p>
+                                                                        </span>
+                                                                        : ""
+                                                                }
+                                                                <b>Motion: </b> <p>{this.state.round.motion}</p>
+                                                            </div> : "Motion is not yet released."
+                                                    }
+                                                    {this.state.debate.Venue.name}:<br/>
+                                                    OG:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "OG").Team.name}<br/>
+                                                    OO:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "OO").Team.name}<br/>
+                                                    CG:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "CG").Team.name}<br/>
+                                                    CO:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "CO").Team.name}<br/>
+                                                    <br/><br/>
+                                                    The chair is: <span>{this.state.debate.AdjAllocs.filter(adj => adj.chair).map(adj => <b>&copy; {adj.Adjudicator.Person.name}</b>)}</span> <br/>
+                                                    The adjudication panel is: {this.state.debate.AdjAllocs.filter(adj => !adj.chair).map(adj => adj.Adjudicator.Person.name).join(", ")}
+                                                </div>
+                                        }
+                                    </div>
+                                    :
+                                    //    Tournament does not have an active round but the user is logged in.
+                                    <div className="alert alert-info">At the moment, this tournament isn't running a round you are a participant of.</div>
                         }
                         </span>
                         :

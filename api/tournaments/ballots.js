@@ -36,7 +36,11 @@ router.get(`/:slug/ballots/round/:roundid`, ttlib.middleware.userHoldsTournament
                             {
                                 model: models.Ballot,
                                 include: [
-                                    models.TeamResult
+                                    models.TeamResult,
+                                    {
+                                        model: models.Adjudicator,
+                                        include: models.Person
+                                    }
                                 ]
                             },
                             {

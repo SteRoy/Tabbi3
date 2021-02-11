@@ -91,7 +91,8 @@ class BallotListPage extends React.Component {
         }
 
         const eBallots = (debate) => {
-            return <span className="pi pi-times text-danger"/>;
+            const ballots = debate.ballots.filter(b => !b.enteredByTab);
+            return ballots.length > 0 ? ballots.length : <span className="pi pi-times text-danger"/>;
         }
 
         const rowBodyTemplate = (debate) => {
@@ -139,8 +140,11 @@ class BallotListPage extends React.Component {
                                                 onContextMenuSelectionChange={e => {
                                                     this.contextMenu[0].items = e.value.ballots.map(b => {
                                                         return ({
-                                                            label: `${b.enteredByTab ? "Tab Ballot" : "Adjudicator Ballot"}`,
-                                                            icon: `pi pi-fw ${b.finalised ? "pi-check" : "pi-file"}`
+                                                            label: `${b.enteredByTab ? "Tab Ballot" : `${b.Adjudicator.Person.name}'s Ballot`}`,
+                                                            icon: `pi pi-fw ${b.finalised ? "pi-check" : "pi-file"}`,
+                                                            command: (e) => {
+                                                                window.location.pathname = `/tournament/${this.props.match.params.slug}/ballots/${b.DebateId}/view/${b.id}`;
+                                                            }
                                                         })
                                                     })
                                                     this.setState({cmSelected: e.value})

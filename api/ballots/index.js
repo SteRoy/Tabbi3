@@ -3,19 +3,21 @@ const models = require("../../models");
 const ttlib = require("ttlib");
 
 //
-// GET /api/ballots/debate/:debateid/:nature
+// GET /api/ballots/:slug/debate/:debateid/:nature
 // Returns the  entered ballot (if it exists) for a given Debate
-// @param nature - ["tab", BallotId]
+// @param nature - ["tab", "adjudicator", BallotId]
 // 200 - the Debate information with Ballot if it exists
 // 404 - debate could not be found
-router.get(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(models), (req, res) => {
+router.get(`/:slug/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(models), async (req, res) => {
     let conditions = {};
     if (req.params.nature === "tab") {
         conditions.enteredByTab = true;
-    } else {
-        if (req.params.nature === "adjudicator") {
-            return res.status(400).json({error: `Invalid value for 'nature' parameter'`});
+    } else if (req.params.nature === "adjudicator") {
+        const adj = await models.Adjudicator.findOne({where: {PersonId: req.user.Person.id}});
+        if (adj) {
+            conditions.AdjudicatorId = adj.id;
         }
+    } else {
         conditions.id = parseInt(req.params.nature);
     }
 
@@ -30,6 +32,10 @@ router.get(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(mod
                 include: [
                     {
                         model: models.TeamResult
+                    },
+                    {
+                        model: models.Adjudicator,
+                        include: models.Person
                     }
                 ],
                 required: false
@@ -55,13 +61,21 @@ router.get(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(mod
                     }
                 ]
             },
+            {model: models.AdjAlloc},
             {model: models.Round, include: models.Tournament},
             {model: models.Venue}
         ]
     }).then(debate => {
         if (debate) {
-            if (conditions.enteredByTab) {
+            if (conditions.AdjudicatorId) {
+                const adjAlloc = debate.AdjAllocs.find(aa => aa.AdjudicatorId === conditions.AdjudicatorId);
+                if (adjAlloc) {
+                    return res.status(200).json({debate});
+                }
+            } else if (conditions.enteredByTab || conditions.id) {
                 return res.status(200).json({debate});
+            } else {
+                return res.status(401).json({error: `You must be on the Tab team.`});
             }
         } else {
             return res.status(404).json({error: `Debate Not Found`});
@@ -72,12 +86,12 @@ router.get(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(mod
 });
 
 //
-// POST /api/ballots/debate/:debateid/:nature
+// POST /api/ballots/:slug/debate/:debateid/:nature
 // Create or Update a Ballot for a specified Debate
 // @param nature - ["tab", "adjudicator", BallotId]
 // 200 - the Ballot was created or Updated
 // 404 - debate could not be found
-router.post(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(models),(req, res) => {
+router.post(`/:slug/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(models), (req, res) => {
     ttlib.validation.objContainsFields(req.body, ['ballot']).then(body => {
         models.Debate.findOne({
             where: {
@@ -94,13 +108,22 @@ router.post(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(mo
                     ]
                 }
             ]
-        }).then(debate => {
+        }).then(async debate => {
             if (debate) {
-                if (debate.Ballots.length > 0 && req.params.nature !== "adjudicator") {
+                let adj;
+                if (debate.Ballots.length > 0) {
                 //    If it already exists, we'll eliminate it and create it again for s a f e t y.
                     const isTab = req.params.nature === "tab";
-                    const ballot = debate.Ballots.find(b => isTab ? b.enteredByTab : b.id === parseInt(req.params.nature));
-                    ballot.destroy();
+                    let ballot;
+                    if (req.params.nature === "adjudicator") {
+                        adj = await models.Adjudicator.findOne({where: {PersonId: req.user.Person.id}});
+                        ballot = debate.Ballots.find(b => b.AdjudicatorId === adj.id);
+                    } else {
+                        ballot = debate.Ballots.find(b => isTab ? b.enteredByTab : b.id === parseInt(req.params.nature));
+                    }
+                    if (ballot) {
+                        ballot.destroy();
+                    }
                 }
 
                 let error = false;
@@ -135,12 +158,18 @@ router.post(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(mo
                     }
                 }
 
-                models.Ballot.create({
+                let ballotObj = {
                     enteredByTab: req.params.nature === "tab",
                     finalised: false,
                     TeamResults: rankedTeamResults,
                     DebateId: debate.id
-                },
+                };
+
+                if (req.params.nature === "adjudicator") {
+                    ballotObj.AdjudicatorId = adj.id;
+                }
+
+                models.Ballot.create(ballotObj,
                 {
                     include: [
                         models.TeamResult
@@ -161,11 +190,11 @@ router.post(`/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBallot(mo
 });
 
 //
-// POST /api/ballots/debate/:debateid/ballot/:ballotid/finalise
+// POST /api/ballots/:slug/debate/:debateid/ballot/:ballotid/finalise
 // Toggle a ballot's finalised status, if there's already a finalised ballot - we will unfinalise it.
 // 200 - the Ballot's finalised field was toggled
 // 404 - debate could not be found
-router.post(`/debate/:debateid/ballot/:ballotid/finalise`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
+router.post(`/:slug/debate/:debateid/ballot/:ballotid/finalise`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
    models.Debate.findOne({
        where: {
            id: parseInt(req.params.debateid)

@@ -107,6 +107,22 @@ class TournamentUserView extends React.Component {
     render() {
         const isPreRegOpenSetting = this.props.tournament.TournamentSettings.find(setting => setting.key === "prereg") || {value: false};
 
+        const eBallot = () => {
+            const eballots = this.props.tournament.TournamentSettings.find(ts => ts.key === "eballots") || {value: false};
+            const eballotsPanels = this.props.tournament.TournamentSettings.find(ts => ts.key === "eballots-panel") || {value: false};
+
+            if (eballotsPanels || (eballots && this.state.allocation.chair)) {
+            //    yes, eballot /tournament/:slug/:debateid/eballot
+                return <div className="text-center">
+                    <a href={`/tournament/${this.props.tournament.slug}/${this.state.debate.id}/eballot`}>
+                        <Button icon="pi pi-fw pi-envelope" label="E-Ballot"/>
+                    </a>
+                </div>
+            } else {
+                return "";
+            }
+        }
+
         return (
             this.props.loggedIn ?
                 this.state.loading ?
@@ -166,14 +182,17 @@ class TournamentUserView extends React.Component {
                                                     OO:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "OO").Team.name}<br/>
                                                     CG:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "CG").Team.name}<br/>
                                                     CO:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "CO").Team.name}<br/>
-                                                    <br/><br/>
+                                                    <br/>
                                                     Your chair is: <span>{this.state.debate.AdjAllocs.filter(adj => adj.chair).map(adj => <b>&copy; {adj.Adjudicator.Person.name}</b>)}</span> <br/>
                                                     Your adjudication panel is: {this.state.debate.AdjAllocs.filter(adj => !adj.chair).map(adj => adj.Adjudicator.Person.name).join(", ")}
                                                 </div>
                                                 :
                                                 <div>
+                                                    {
+                                                        eBallot()
+                                                    }
                                                     You are <b>{this.state.allocation.chair ? "Chair" : "Panellist"}</b> in <b>{this.state.debate.Venue.name}</b>.
-                                                    <br/><br/>
+                                                    <br/>
                                                     {
                                                         this.state.round.motion !== "" ?
                                                             <div className="alert alert-info">
@@ -193,7 +212,7 @@ class TournamentUserView extends React.Component {
                                                     OO:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "OO").Team.name}<br/>
                                                     CG:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "CG").Team.name}<br/>
                                                     CO:&#09;{this.state.debate.TeamAllocs.find(ta => ta.position === "CO").Team.name}<br/>
-                                                    <br/><br/>
+                                                    <br/>
                                                     The chair is: <span>{this.state.debate.AdjAllocs.filter(adj => adj.chair).map(adj => <b>&copy; {adj.Adjudicator.Person.name}</b>)}</span> <br/>
                                                     The adjudication panel is: {this.state.debate.AdjAllocs.filter(adj => !adj.chair).map(adj => adj.Adjudicator.Person.name).join(", ")}
                                                 </div>

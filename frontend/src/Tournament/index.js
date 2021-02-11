@@ -28,7 +28,7 @@ class TournamentRouter extends React.Component {
                 <Route exact path="/tournament/:slug/ballots/:rid" component={BallotListPage}/>
                 <Route exact path="/tournament/:slug/config" component={ConfigPage}/>
                 <Route exact path="/tournament/:slug/create/:model" component={CreatePlaceholderModelPage}/>
-                <Route exact path="/tournament/:slug/eballot" component={BallotPage}/>
+                <Route exact path="/tournament/:slug/:debateid/eballot" render={(props) => <BallotPage {...props} eBallot={true}/>}/>
                 <Route exact path="/tournament/:slug/list/adjudicators" component={AdjudicatorListPage}/>
                 <Route exact path="/tournament/:slug/list/teams" component={TeamListPage}/>
                 <Route exact path="/tournament/:slug/list/venues" component={VenueListPage}/>

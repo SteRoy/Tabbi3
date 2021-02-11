@@ -6,6 +6,7 @@ import TournamentToolBar from "../../components/TournamentToolBar";
 import {Toast} from "primereact/toast";
 import Loading from "../../components/Loading";
 import {Redirect} from 'react-router-dom';
+import {Button} from "primereact/button";
 const ttlib = require("ttlib");
 
 class BallotPage extends React.Component {
@@ -18,18 +19,18 @@ class BallotPage extends React.Component {
             draw: {}
         }
 
-        let requestAddress = "";
+        let requestAddress = '';
 
         if (props.match.params.ballotid) {
             //    Tab viewing an e-ballot
-            requestAddress = `/ballots/debate/${props.match.params.debateid}/${props.match.params.ballotid}`;
+            requestAddress = `/ballots/${props.match.params.slug}/debate/${props.match.params.debateid}/${props.match.params.ballotid}`;
             this.state.tab = true;
-        } else if (props.match.params.debateid) {
+        } else if (!props.eBallot) {
             //    Tab Ballot
-            requestAddress = `/ballots/debate/${props.match.params.debateid}/tab`;
+            requestAddress = `/ballots/${props.match.params.slug}/debate/${props.match.params.debateid}/tab`;
             this.state.tab = true;
         } else {
-        //    Submitting an e-ballot
+            requestAddress = `/ballots/${props.match.params.slug}/debate/${props.match.params.debateid}/adjudicator`;
         }
 
         ttlib.api.requestAPI(
@@ -62,6 +63,7 @@ class BallotPage extends React.Component {
                         ]
                     }
                 })
+
                 this.setState({...respData, draw, loading: false, ballot});
 
                 if (ballot) {
@@ -211,7 +213,7 @@ class BallotPage extends React.Component {
             }
 
             ttlib.api.requestAPI(
-                `/ballots/debate/${this.props.match.params.debateid}/tab`,
+                `/ballots/${this.props.match.params.slug}/debate/${this.props.match.params.debateid}/${this.state.tab ? 'tab' : 'adjudicator'}`,
                 `POST`,
                 (respData) => {
                     ttlib.component.toastSuccess(this.toast, `Ballot Created`, "Your ballot was created successfully.");
@@ -255,18 +257,20 @@ class BallotPage extends React.Component {
                         }
                         {
                             this.state.tab ?
-                                this.state.redirect ? <Redirect to={`/tournament/${this.props.match.params.slug}/ballots/${this.state.debate.Round.id}`}/> : ""
+                                this.state.redirect ? <Redirect to={`/tournament/${this.props.match.params.slug}/ballots/${this.state.debate.Round.id}`}/>
+                                    : ""
                                 : ""
                         }
                         {
-                            this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : "" }
+                            this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : ""
                         }
                         {
                             !this.state.debate ?
                                 <Loading/> :
                                 <Card>
                                 <div className="display-4 text-center w-100">{this.state.debate.Round.title} - {this.state.debate.Round.Tournament.name}</div>
-                                <p className="display-5 text-center w-100">{this.state.debate.Venue.name}</p>
+                                <p className="display-5 text-center w-100">
+                                    {this.state.ballot ? this.state.ballot.Adjudicator ? `${this.state.ballot.Adjudicator.Person.name} - ` : "" : ""} {this.state.debate.Venue.name}</p>
                                     {
                                         this.state.tab ?
                                             <div className="w-100 text-left">
@@ -287,10 +291,13 @@ class BallotPage extends React.Component {
                                                             }
                                                         </a>
                                                         :
-                                                            ""
+                                                        ""
                                                 }
                                             </div>
-                                            : ""
+                                            :
+                                            <a href={`/tournament/${this.props.match.params.slug}`}>
+                                                <Button className="p-button-info" label="Back" icon="pi pi-fw pi-chevron-left"/>
+                                            </a>
                                     }
                                 <hr/>
                                 <div className="p-grid border-bottom">

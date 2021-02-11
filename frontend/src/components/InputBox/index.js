@@ -80,6 +80,7 @@ class InputBox extends React.Component {
                                 onSelect={(dict) => this.props.cb(dict)}
                                 value={this.props.value}
                             />
+                            {this.props.tooltip ? this.props.tooltip : ""}
                         </div>
                         : ""
                 }

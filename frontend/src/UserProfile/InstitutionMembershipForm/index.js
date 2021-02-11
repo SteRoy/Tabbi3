@@ -19,7 +19,8 @@ class InstitutionMembershipForm extends React.Component {
                 id: "selectedInstitution",
                 type: "institution",
                 label: "Institution",
-                options: () => this.state.institutions.map(i => ({...i, aliasFilter: i.InstitutionAliases.map(a => a.alias).join(", ")}))
+                options: () => this.state.institutions.map(i => ({...i, aliasFilter: i.InstitutionAliases.map(a => a.alias).join(", ")})),
+                tooltip: <a href="/institutions"><span>If you can't see your institution on this list you can add it by clicking here</span></a>
             },
             {id: "startDate", type: "date", label: "Start Date", time: false},
             {id: "endDate", type: "date", label: "End Date", time: false}
@@ -43,7 +44,6 @@ class InstitutionMembershipForm extends React.Component {
 
     submit(event) {
         event.preventDefault();
-        console.log(this.state);
         ttlib.validation.objContainsFields(this.state, ["selectedInstitution"]).then(postForm => {
             ttlib.api.requestAPI(
                 `/people/me/institutions`,
@@ -82,6 +82,7 @@ class InstitutionMembershipForm extends React.Component {
                                 label={field.label}
                                 options={field.options}
                                 time={field.time}
+                                tooltip={field.tooltip}
                             />
                         ))
                     }

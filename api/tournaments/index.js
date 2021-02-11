@@ -164,6 +164,74 @@ router.get("/:slug/participant/me", ttlib.middleware.isLoggedIn,(req, res) => {
 });
 
 //
+// GET /tournaments/:slug/participant/:personId
+// 200 - personId is a valid participant of :slug, return their current, public allocation
+//
+router.get("/:slug/participant/:personId/allocation", ttlib.middleware.isLoggedIn,(req, res) => {
+    if (parseInt(req.params.personId) !== req.user.Person.id) {
+        return res.status(401).json({error: `You cannot access another person's allocations`});
+    };
+
+    models.Round.findOne({
+        where: {
+            completed: false
+        },
+        order: ["sequence", "ASC"],
+        limit: 1,
+        include: [
+            {
+                model: models.Debate,
+                include: [
+                    {
+                        model: models.TeamAlloc,
+                        include: [
+                            {
+                                model: models.Team,
+                                include: [
+                                    {
+                                        model: models.Speaker,
+                                        as: 'Speaker1',
+                                        where: {PersonId: req.user.Person.id},
+                                        require: false
+                                    },
+                                    {
+                                        model: models.Speaker,
+                                        as: 'Speaker2',
+                                        where: {PersonId: req.user.Person.id},
+                                        require: false
+                                    }
+                                ],
+                                require: false
+                            }
+                        ],
+                        require: false
+                    },
+                    {
+                        model: models.AdjAlloc,
+                        include: [
+                            {
+                                model: models.Adjudicator,
+                                where: {PersonId: req.user.Person.id}
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }).then(round => {
+        if (round.drawReleased) {
+            if (!round.motionReleased) {
+                round.motion = "";
+                round.infoslide = "";
+            }
+            return res.status(200).json({round});
+        }
+        return res.status(401).json({error: `The current round draw is not available.`});
+    })
+});
+
+
+//
 // POST /tournaments/create
 // 200 - tournament created, provide slug
 // 400 - missing field

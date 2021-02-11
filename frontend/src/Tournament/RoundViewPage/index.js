@@ -109,6 +109,7 @@ class RoundViewPage extends React.Component {
                                         round={this.state.round}
                                         hide={() => this.setState({showMotionDialog: false})}
                                         toast={this.toast}
+                                        slug={this.state.tournament.slug}
                                     />
                                     <div className="display-4 text-center w-100">{this.state.round.title} - {this.state.tournament.name}</div>
                                     <hr/>

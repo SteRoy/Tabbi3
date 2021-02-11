@@ -38,7 +38,7 @@ class MotionDialog extends React.Component {
                     ttlib.component.toastSuccess(this.props.toast, "Motion Updated", `The motion has been updated.`);
                 },
                 (errorMessage) => {
-                    ttlib.component.toastSuccess(this.props.toast, "Motion Update Failed", `The motion could not be updated: ${errorMessage}`);
+                    ttlib.component.toastError(this.props.toast, "Motion Update Failed", `The motion could not be updated: ${errorMessage}`);
                 },
                 postForm
             )

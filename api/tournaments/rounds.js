@@ -428,8 +428,10 @@ router.post(`/:slug/rounds/create`, ttlib.middleware.userHoldsTournamentRoleOrIs
         include: [
             {
                 model: models.Round,
-                order: ['sequence', 'DESC']
             }
+        ],
+        order: [
+            [ models.Round, 'sequence', 'DESC']
         ]
     }).then(tournament => {
         if (tournament) {

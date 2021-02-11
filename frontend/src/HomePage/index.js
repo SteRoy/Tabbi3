@@ -17,10 +17,12 @@ class HomePage extends React.Component {
                             <hr/>
                             <div className="p-grid p-justify-center">
                                 <div className="p-xl-3 p-lg-3 p-md-3 p-col-6">
-                                    <TournamentCard
-                                        title="Doxbridge Worlds 2021"
-                                        description={"Doxbridge Worlds 2021 aims to be the largest ever debating tournament, and a post-NYE filler for those of you who haven't managed to get your competitive debating fix over the holidays."}
-                                    />
+                                    <a href="/tournament/doxbridge-valentine's-day-open-5a6c2e">
+                                        <TournamentCard
+                                            title="Doxbridge Valentine's Day Open"
+                                            description={"Doxbridge Debating is proud to present the first opportunity to show your significant other why you abandon them every weekend to take part in online debating competitions."}
+                                        />
+                                    </a>
                                 </div>
                             </div>
                             <hr/>

@@ -214,6 +214,9 @@ router.get("/:slug/participant/:personId/allocation", ttlib.middleware.isLoggedI
             {model: models.Tournament, where: {slug: req.params.slug}, required: true}
         ]
     }).then(round => {
+        if (!round) {
+            return res.status(400).json({error: `You are not a participant in this round.`});
+        }
         let debates = round.Debates.filter(deb =>
             deb.TeamAllocs.some(ta => ta.Team.Speaker1.PersonId === req.user.Person.id || ta.Team.Speaker2.PersonId === req.user.Person.id)
             ||

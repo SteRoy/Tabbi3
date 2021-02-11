@@ -111,22 +111,27 @@ router.post(`/:slug/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBal
         }).then(async debate => {
             if (debate) {
                 let adj;
+                let error = false;
+                let previousPoints = 4;
+
+                if (req.params.nature === "adjudicator") {
+                    adj = await models.Adjudicator.findOne({where: {PersonId: req.user.Person.id}});
+                }
+
                 if (debate.Ballots.length > 0) {
                 //    If it already exists, we'll eliminate it and create it again for s a f e t y.
                     const isTab = req.params.nature === "tab";
                     let ballot;
                     if (req.params.nature === "adjudicator") {
-                        adj = await models.Adjudicator.findOne({where: {PersonId: req.user.Person.id}});
                         ballot = debate.Ballots.find(b => b.AdjudicatorId === adj.id);
                     } else {
                         ballot = debate.Ballots.find(b => isTab ? b.enteredByTab : b.id === parseInt(req.params.nature));
                     }
+
                     if (ballot) {
                         ballot.destroy();
                     }
                 }
-
-                let error = false;
                 let rankedTeamResults = body.ballot.TeamResults.map(teamResultObj => {
                     ["speakerOneSpeaks", "speakerTwoSpeaks"].forEach(key => {
                         if (teamResultObj[key] < 50 || teamResultObj[key] > 100) {
@@ -147,7 +152,6 @@ router.post(`/:slug/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBal
                     return res.status(400).json({error})
                 }
 
-                let previousPoints = 4;
                 for (let i = 0; i < rankedTeamResults.length; i++) {
                     previousPoints--;
                     if ((i + 1) < rankedTeamResults.length ? rankedTeamResults[i].speakerPoints === rankedTeamResults[i + 1].speakerPoints : false) {

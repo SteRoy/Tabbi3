@@ -276,9 +276,12 @@ router.post(`/:slug/round/:roundid/draw`, ttlib.middleware.userHoldsTournamentRo
                         include: [
                             {
                                 model: models.TeamResult,
-                                where: {"Ballot.finalised": true},
                                 include: [
-                                    models.Ballot
+                                    {
+                                        model: models.Ballot,
+                                        where: {finalised: true},
+                                        required: true
+                                    },
                                 ]
                             }
                         ]
@@ -309,7 +312,7 @@ router.post(`/:slug/round/:roundid/draw`, ttlib.middleware.userHoldsTournamentRo
                             teams = ttlib.array.shuffle(teams);
                             teams = teams.map(t => {
                                 let team = t;
-                                const teamPoints = t.TeamResults.reduce((acc, val) => acc + val.teamPoints);
+                                const teamPoints = t.TeamResults.reduce((acc, val) => acc + val.teamPoints, 0);
                                 team.teamPoints = teamPoints || 0;
                                 return team;
                             }).sort((a,b) => a.teamPoints < b.teamPoints ? -1 : 1);

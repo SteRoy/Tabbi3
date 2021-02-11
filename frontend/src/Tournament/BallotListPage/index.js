@@ -8,6 +8,8 @@ import TournamentToolBar from "../../components/TournamentToolBar";
 import {InputText} from "primereact/inputtext";
 import {ContextMenu} from "primereact/contextmenu";
 import { Redirect } from "react-router-dom";
+import {Button} from "primereact/button";
+import {Toast} from "primereact/toast";
 const ttlib = require("ttlib");
 
 class BallotListPage extends React.Component {
@@ -71,6 +73,24 @@ class BallotListPage extends React.Component {
                 icon: 'pi pi-fw pi-wifi'
             }
         ];
+
+        this.toggleCompletion = this.toggleCompletion.bind(this);
+    }
+
+    toggleCompletion() {
+        ttlib.api.requestAPI(
+            `/tournaments/${this.props.match.params.slug}/round/${this.props.match.params.rid}/complete`,
+            `POST`,
+            (respData) => {
+                let round = this.state.round;
+                round.completed = !round.completed;
+                this.setState({round});
+                ttlib.component.toastSuccess(this.toast, `Completion Updated`, `The round status has been updated`);
+            },
+            (error) => {
+                ttlib.component.toastError(this.toast, `Update Failed`, error);
+            }
+        )
     }
 
     render() {
@@ -104,6 +124,7 @@ class BallotListPage extends React.Component {
         return (
             <div>
                 <NavBar active="" userCB={(loggedInUser, loggedIn) => this.setState({loggedInUser, loggedIn})}/>
+                <Toast ref={(ref) => this.toast = ref}/>
                 <ContextMenu model={this.contextMenu} ref={(ref) => this.cm = ref} onHide={() => this.setState({cmSelected: null})}/>
                 {
                     this.state.selectedDebate ? <Redirect to={`/tournament/${this.props.match.params.slug}/ballots/${this.state.selectedDebate.id}/create`} /> : "" }
@@ -122,6 +143,15 @@ class BallotListPage extends React.Component {
                                         Left clicking on a debate in the table below will open the Tab-entered ballot for a debate.
                                     </small>
                                 </div>
+                                {
+                                    this.state.debates.every(d => d.ballots.some(b => b.finalised)) ? <div className="w-100 text-center">
+                                        <Button
+                                        label={`${this.state.round.completed ? "Unfinalise" : "Finalise"} Round`}
+                                        className={`p-mt-1 ${this.state.round.completed ? "p-button-danger" : ""}`}
+                                        onClick={this.toggleCompletion}
+                                        />
+                                    </div> : ""
+                                }
                                 <hr/>
                                 {
                                     this.state.debates.length > 0 ?

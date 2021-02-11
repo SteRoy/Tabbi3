@@ -64,7 +64,6 @@ class TournamentUserView extends React.Component {
             `GET`,
             (respData) => {
                 if (respData.round) {
-                    console.log(respData.round);
                     const round = respData.round;
                     const debate = respData.debate;
                     let allocation;

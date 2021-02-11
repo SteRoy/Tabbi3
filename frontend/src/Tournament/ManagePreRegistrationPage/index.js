@@ -24,6 +24,16 @@ class ManagePreRegistrationPage extends React.Component {
             this.state.error = "You must use a valid model.";
         }
 
+        this.fields = props.match.params.type === "team" ? [
+            {key: "registrant.name", header: "Speaker 1"},
+            {key: "speakerTwo.name", header: "Speaker 2"},
+            {key: "teamName", header: "Team Name"}
+        ]
+            :
+            [
+                {key: "registrant", header: "Adjudicator Name"}
+            ]
+
         this.setPreregistrationStatus = this.setPreregistrationStatus.bind(this);
     }
 
@@ -44,13 +54,24 @@ class ManagePreRegistrationPage extends React.Component {
     }
 
     setPreregistrationStatus(preregistrationId, decision) {
-
+        let preregistrations = this.state.preregistrations.filter(p => p.id !== preregistrationId);
+        this.setState({preregistrations});
+        ttlib.api.requestAPI(
+            `/preregistration/application/${this.state.tournament.slug}/${preregistrationId}/${decision}`,
+            `POST`,
+            (respData) => {
+                ttlib.component.toastSuccess(this.toast, `Preregistration Updated`, respData.success);
+            },
+            (err) => {
+                ttlib.component.toastError(this.toast, `Preregistration NOT Updated`, err);
+            }
+        )
     }
 
     render() {
 
         const approveBody = (prereg) => {
-            return <Button label="Approve" icon="pi pi-fw pi-check" className="p-button-success" onClick={() => this.setPreregistrationStatus(prereg.id, 'approve')}/>
+            return <Button label="Approve" icon="pi pi-fw pi-check" className="p-button-success" onClick={() => this.setPreregistrationStatus(prereg.id, 'accept')}/>
         }
 
         const rejectBody = (prereg) => {
@@ -65,43 +86,52 @@ class ManagePreRegistrationPage extends React.Component {
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
                         <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser} loggedIn={this.state.loggedIn}/>
-                        <Card>
-                            <div className="display-4 text-center">{ttlib.string.toTitleCase(this.props.match.params.type)} Preregistration</div>
-                            <div className="p-grid p-justify-between">
-                                {
-                                    this.state.preregistrations.length > 0 ?
-                                        this.metrics.map(metric => (
-                                            <div className="p-col-12 p-md-12 p-text-center" key={metric.id}>
-                                                <h5 className="p-mt-3">{metric.title}</h5>
-                                                <Knob
-                                                    value={metric.calc(this.state.preregistrations)}
-                                                />
-                                            </div>
-                                        ))
-                                        : ""
-                                }
-                            </div>
-                            <hr/>
-                            <DataTable
-                                value={this.state.preregistrations}
-                                paginator
-                                paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-                                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} preregistrations" rows={10} rowsPerPageOptions={[10,20,50]}
-                                selection={this.state.selected}
-                                onSelectionChange={e => {}}
-                                selectionMode="single"
-                                sortField="name"
-                                sortOrder={-1}
-                                dataKey="id"
-                            >
-                                <Column field="reference" header="Reference" sortable filter filterPlaceholder="Search by ref" filterMatchMode="contains"/>
-                                <Column field="registrant.name" header="Speaker 1" sortable filter filterPlaceholder="Search by name" filterMatchMode="contains"/>
-                                <Column field="speakerTwo.name" header="Speaker 2" sortable filter filterPlaceholder="Search by name" filterMatchMode="contains"/>
-                                <Column field="teamName" header="Team Name" sortable filter filterPlaceholder="Search by name" filterMatchMode="contains"/>
-                                <Column body={approveBody} header="Approve"/>
-                                <Column body={rejectBody} header="Reject"/>
-                            </DataTable>
-                        </Card>
+                        {
+                            this.state.error ?
+                                <div className="alert alert-danger">
+                                    {this.state.error}
+                                </div>
+                                :
+                                    <Card>
+                                        <div className="display-4 text-center">{ttlib.string.toTitleCase(this.props.match.params.type)} Preregistration</div>
+                                        <div className="p-grid p-justify-between">
+                                            {
+                                                this.state.preregistrations.length > 0 ?
+                                                    this.metrics.map(metric => (
+                                                        <div className="p-col-12 p-md-12 p-text-center" key={metric.id}>
+                                                            <h5 className="p-mt-3">{metric.title}</h5>
+                                                            <Knob
+                                                                value={metric.calc(this.state.preregistrations)}
+                                                            />
+                                                        </div>
+                                                    ))
+                                                    : ""
+                                            }
+                                        </div>
+                                    <hr/>
+                                    <DataTable
+                                        value={this.state.preregistrations}
+                                        paginator
+                                        paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} preregistrations" rows={10} rowsPerPageOptions={[10,20,50]}
+                                        selection={this.state.selected}
+                                        onSelectionChange={e => {}}
+                                        selectionMode="single"
+                                        sortField="name"
+                                        sortOrder={-1}
+                                        dataKey="id"
+                                    >
+                                        <Column field="reference" header="Reference" sortable filter filterPlaceholder="Search by ref" filterMatchMode="contains"/>
+                                        {
+                                            this.fields.map(field => (
+                                                <Column field={field.key} header={field.header} sortable filter filterPlaceholder="Search" filterMatchMode="contains"/>
+                                            ))
+                                        }
+                                        <Column body={approveBody} header="Approve"/>
+                                        <Column body={rejectBody} header="Reject"/>
+                                    </DataTable>
+                            </Card>
+                        }
                     </div>
                 </div>
             </div>

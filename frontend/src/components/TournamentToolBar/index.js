@@ -21,7 +21,7 @@ class TournamentToolBar extends React.Component {
 
         // Since the splitbutton menus are going to be so closely linked, we can generate them in this neat way.
         [this.splitOptionsTeams, this.splitOptionsAdjudicators, this.splitOptionsVenues] = ["teams", "adjudicators", "venues"].map(objType => {
-            return ([
+            let options = [
                 {
                     label: `Create${objType !== "venues" ? ' Placeholder' : ' Venue'}`,
                     icon: 'pi pi-plus',
@@ -36,7 +36,22 @@ class TournamentToolBar extends React.Component {
                         window.location.pathname = `/tournament/${this.props.slug}/list/${objType}`;
                     }
                 }
-            ])
+            ];
+
+            if (objType !== "venues") {
+                const objName = objType.substr(0, objType.length - 1);
+                options.push(
+                    {
+                        label: 'Prereg',
+                        icon: 'pi pi-ticket',
+                        command: (e) => {
+                            window.location.pathname = `/tournament/${this.props.slug}/prereg/${objName}`;
+                        }
+                    }
+                )
+            }
+
+            return options;
         });
 
         this.roundOptions = [

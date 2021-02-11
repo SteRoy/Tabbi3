@@ -22,6 +22,7 @@ class TournamentUserView extends React.Component {
             (respData) => {
                 if (respData.tournament) {
                     const tournament = respData.tournament;
+                    console.log(respData);
                     let stateUpdate = {
                         person: tournament.Person,
                         prereg: tournament.Person.speakerTwo.length > 0 ? tournament.Person.speakerTwo : tournament.Person.registrant,
@@ -34,7 +35,9 @@ class TournamentUserView extends React.Component {
                     } else if (tournament.Person.Speakers.length > 0) {
                     //    User is a speaker
                         stateUpdate.speaker = tournament.Person.Speakers[0];
+                        stateUpdate.team = tournament.Person.Speakers[0].Speaker1 || tournament.Person.Speakers[0].Speaker2
                     }
+                    console.log(stateUpdate);
                     this.setState(stateUpdate);
                 }
             },
@@ -45,6 +48,7 @@ class TournamentUserView extends React.Component {
                 this.setState({loading: false});
             },
         )
+
 
         this.replyToInvite = this.replyToInvite.bind(this);
     }
@@ -84,10 +88,10 @@ class TournamentUserView extends React.Component {
                         }
                         {
                             this.state.speaker ?
-                                <div className="alert">
-                                    You are registered as a <b>speaker</b> at <i>{this.state.speaker.Tournament.name}</i>.
-                                    <br/>Your team name is: '{this.state.speaker.Team.name}'.
-                                    <br/>Your team <b>codename</b> is: '{this.state.speaker.Team.codename}'.
+                                <div className="alert" style={{border: 'solid 1px black'}}>
+                                    You are registered as a <b>speaker</b> at <i>{this.state.team.Tournament.name}</i>.
+                                    <br/>Your team name is: '{this.state.team.name}'.
+                                    <br/>Your team <b>codename</b> is: '{this.state.team.codename}'.
                                     <br/>Your name on the speaker tab will appear as: '{this.state.person.name}'.
                                     <br/>You are currently marked as {this.state.speaker.active ? "active, and so will appear in any future generated draws." : "inactive, and so will not appear in any future generated draws."}
                                 </div>

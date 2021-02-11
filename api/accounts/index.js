@@ -72,7 +72,8 @@ router.get("/me", ttlib.middleware.isLoggedIn, (req, res) => {
        }).then(clash => {
            models.Account.findOne({
                attributes: [
-                   'email'
+                   'email',
+                   'id'
                ],
                where: {
                    email: req.user.email

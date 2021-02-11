@@ -80,7 +80,7 @@ router.post(`/:slug`, ttlib.middleware.isLoggedIn, (req, res) => {
                         if (preregistration) {
                             return res.status(400).json({error: `Preregistration already exists for user.`});
                         } else {
-                            let required = ["reference"];
+                            let required = ["reference", "type"];
                             if (req.body.type === "team") {
                                 required = required.concat(["speakerTwoId", "teamName"]);
                             }

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         type: {
             type: DataTypes.ENUM,
             values: ["adjudicator", "team"],
-            required: true
+            allowNull: false
         },
         teamName: DataTypes.STRING,
         speakerTwoAccepted: DataTypes.BOOLEAN,

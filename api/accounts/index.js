@@ -87,6 +87,9 @@ router.get("/me", ttlib.middleware.isLoggedIn, (req, res) => {
                                include: [
                                    models.Institution
                                ]
+                           },
+                           {
+                               model: models.LanguageStatus
                            }
                        ]
                    }

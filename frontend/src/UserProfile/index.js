@@ -9,6 +9,8 @@ import InstitutionMembershipForm from "./InstitutionMembershipForm";
 import {Dialog} from "primereact/dialog";
 import PersonalClashForm from "./PersonalClashForm";
 import {Tag} from "primereact/tag";
+import SpeakerStatusForm from "./SpeakerStatusForm";
+import {Toast} from "primereact/toast";
 const ttlib = require("ttlib");
 
 class UserProfile extends React.Component {
@@ -28,6 +30,8 @@ class UserProfile extends React.Component {
             {id: "name", value: () => this.state.user ? this.state.user.Person.name || "" : "", type: "text", label: "Display Name", readOnly: true},
             {id: "email", value: () => this.state.user ? this.state.user.email : "",type: "text", label: "E-Mail", readOnly: true}
         ]
+
+        this.deleteLanguageStatus = this.deleteLanguageStatus.bind(this);
     }
 
     componentDidMount() {
@@ -50,6 +54,29 @@ class UserProfile extends React.Component {
 
 
     }
+
+    deleteLanguageStatus(languageStatusType) {
+        ttlib.api.requestAPI(
+            `/people/me/languagestatuses`,
+            `POST`,
+            (respData) => {
+                let user = this.state.user;
+                user.Person.LanguageStatuses = user.Person.LanguageStatuses.filter(u => u.type !== languageStatusType);
+                this.setState({
+                    user
+                })
+                ttlib.component.toastSuccess(this.toast, `Language Status Deleted`, `The Language Status has been deleted successfully.`);
+            },
+            (err) => {
+                ttlib.component.toastError(this.toast, `Language Status Not Deleted`, `The Language Status has not been deleted: ${err}`);
+            },
+            {
+                type: languageStatusType,
+                delete: true
+            }
+        )
+    }
+
 
     render() {
         const imInstitutionName = (row) => {
@@ -77,6 +104,10 @@ class UserProfile extends React.Component {
             }
         }
 
+        const deleteButton = (row) => {
+            return <Button label="Delete" className="p-button-danger" onClick={() => this.deleteLanguageStatus(row.type)}/>
+        }
+
         return(
             <div>
                 <NavBar
@@ -89,6 +120,7 @@ class UserProfile extends React.Component {
                         }
                     }
                 />
+                <Toast ref={(ref) => this.toast = ref}/>
                 <Dialog header="Add New Institution Membership" visible={this.state.showInstitutionMemberForm} style={{ width: '50vw' }} onHide={() => this.setState({showInstitutionMemberForm: false})}>
                     <InstitutionMembershipForm
                         onSuccess={() => this.setState({showInstitutionMemberForm: false})}
@@ -97,6 +129,11 @@ class UserProfile extends React.Component {
                 <Dialog header="Add Personal Clash" visible={this.state.showPersonalClashForm} style={{ width: '50vw' }} onHide={() => this.setState({showPersonalClashForm: false})}>
                     <PersonalClashForm
                         onSuccess={() => this.setState({showPersonalClashForm: false})}
+                    />
+                </Dialog>
+                <Dialog header="Add Speaker Status" visible={this.state.showSpeakerStatusForm} style={{ width: '50vw' }} onHide={() => this.setState({showSpeakerStatusForm: false})}>
+                    <SpeakerStatusForm
+                        onSuccess={() => this.setState({showSpeakerStatusForm: false})}
                     />
                 </Dialog>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
@@ -136,6 +173,13 @@ class UserProfile extends React.Component {
                                         <Column body={personalClashName} header="Clash Target"/>
                                         <Column body={personalClashDate} header="Created"/>
                                         <Column body={personalClashType} field="type" header="Type"/>
+                                    </DataTable>
+                                    <div className="text-center display-5">Speaker Statuses</div>
+                                    <hr/>
+                                    <Button icon="pi pi-plus" label="Add" onClick={() => this.setState({showSpeakerStatusForm: true})}/>
+                                    <DataTable className="p-mt-2" value={this.state.user.Person.LanguageStatuses}>
+                                        <Column field="type" header="Type"/>
+                                        <Column body={deleteButton} header="Delete"/>
                                     </DataTable>
                                 </div>
                                 <div className="p-xl-6 p-lg-6 p-md-6 p-sm-12">

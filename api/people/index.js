@@ -12,7 +12,8 @@ router.get("/", ttlib.middleware.isLoggedIn, (req, res) => {
             placeholder: false
         },
         includes: [
-            models.InstitutionMembership
+            models.InstitutionMembership,
+            models.LanguageStatus
         ]
     }).then(people => {
         return res.status(200).json({people});
@@ -77,5 +78,45 @@ router.post("/me/clash", ttlib.middleware.isLoggedIn,(req, res) => {
         return res.status(400).json({error: `Missing Field: ${missingField}`})
     })
 });
+
+//
+// POST /api/people/me/languagestatuses
+// body: delete: Bool
+// 200 - created new language statuses
+//
+router.post(`/me/languagestatuses`, ttlib.middleware.isLoggedIn, (req, res) => {
+    ttlib.validation.objContainsFields(req.body, ['type']).then(() => {
+        models.LanguageStatus.findOne({
+            where: {
+                PersonId: req.user.Person.id,
+                type: req.body.type
+            }
+        }).then(languageStatus => {
+            if (req.body.delete) {
+                if (languageStatus) {
+                    languageStatus.destroy().then(() => {
+                        return res.status(200).json({success: `Language Status Deleted`});
+                    })
+                } else {
+                    return res.status(404).json({error: `Language Status Not Found`});
+                }
+            } else {
+                if (languageStatus) {
+                    return res.status(200).json({success: `Language Status already exists`});
+                } else {
+                    models.LanguageStatus.create({
+                        PersonId: req.user.Person.id,
+                        type: req.body.type
+                    }).then(() => {
+                        return res.status(200).json({success: `Language Status Created`});
+                    })
+                }
+            }
+        })
+    }).catch(err => {
+        res.status(400).json({error: `Malformed Request Missing ${err}`})
+    })
+})
+
 
 module.exports = router;

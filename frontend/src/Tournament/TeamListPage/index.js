@@ -7,6 +7,7 @@ import NavBar from "../../NavBar";
 import {Tag} from "primereact/tag";
 import TournamentToolBar from "../../components/TournamentToolBar";
 import {Knob} from "primereact/knob";
+import {Toast} from "primereact/toast";
 const ttlib = require("ttlib");
 
 class TeamListPage extends React.Component {
@@ -58,6 +59,7 @@ class TeamListPage extends React.Component {
         return (
             <div>
                 <NavBar active="" userCB={(loggedInUser, loggedIn) => this.setState({loggedInUser, loggedIn})}/>
+                <Toast ref={(ref) => this.toast = ref}/>
                 {this.state.selected ? <Redirect to={`/tournament/${this.props.match.params.slug}/teams/${this.state.selected.id}`}/> : ""}
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">

@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
 
             this.belongsTo(models.Tournament);
             this.hasMany(models.TeamAlloc);
+            this.hasMany(models.TeamResult);
         }
     }
 

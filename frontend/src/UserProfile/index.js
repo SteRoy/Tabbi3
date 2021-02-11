@@ -158,7 +158,7 @@ class UserProfile extends React.Component {
                                             />
                                         ))
                                     }
-                                    <div className="text-center display-5">Institutional Clashes</div>
+                                    <div className="text-center display-5">Institution Memberships</div>
                                     <hr/>
                                     <Button icon="pi pi-plus" label="Add" onClick={() => this.setState({showInstitutionMemberForm: true})} />
                                     <DataTable className="p-mt-2" value={this.state.user.Person.InstitutionMemberships}>

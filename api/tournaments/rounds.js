@@ -146,6 +146,37 @@ router.post(`/:slug/round/:roundid/motion`, ttlib.middleware.userHoldsTournament
 })
 
 //
+// POST /api/tournaments/:slug/round/:roundid/release/:drawOrMotion
+// 200 - toggle release of :drawOrMotion
+//
+router.post(`/:slug/round/:roundid/release/:drawOrMotion`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
+   if (!["draw", "motion"].includes(req.params.drawOrMotion)) {
+       return res.status(400).json({error: `Malformed drawOrMotion parameter`});
+   }
+
+   models.Round.findOne({
+       where: {
+           id: req.params.roundid
+       }
+   }).then(round => {
+        if (round) {
+            if (req.params.drawOrMotion === "draw") {
+                round.drawReleased = !round.drawReleased;
+            } else {
+                round.motionReleased = !round.motionReleased;
+            }
+            round.save().then(() => {
+                return res.status(200).json({success: `Round ${req.params.drawOrMotion} release status updated.`})
+            });
+        } else {
+            return res.status(404).json({error: `Round not found`});
+        }
+   }).catch(error => {
+       return res.status(500).json({error})
+   })
+});
+
+//
 // POST /tournaments/:slug/round/:roundid/configuration
 // 200 - configuration updated
 // 400 - missing or invalid field
@@ -240,7 +271,18 @@ router.post(`/:slug/round/:roundid/draw`, ttlib.middleware.userHoldsTournamentRo
                 },
                 include: [
                     models.Adjudicator,
-                    models.Team,
+                    {
+                        model: models.Team,
+                        include: [
+                            {
+                                model: models.TeamResult,
+                                where: {"Ballot.finalised": true},
+                                include: [
+                                    models.Ballot
+                                ]
+                            }
+                        ]
+                    },
                     models.Venue
                 ]
             }).then(tournament => {
@@ -263,7 +305,14 @@ router.post(`/:slug/round/:roundid/draw`, ttlib.middleware.userHoldsTournamentRo
 
                     //  Powerpairing determines if we shuffle or group
                         if (powerpairing) {
-                        //    TODO: implement power pairing -> group by team points, shuffle sub arrays, join again
+                            // TODO: handle abnormality
+                            teams = ttlib.array.shuffle(teams);
+                            teams = teams.map(t => {
+                                let team = t;
+                                const teamPoints = t.TeamResults.reduce((acc, val) => acc + val.teamPoints);
+                                team.teamPoints = teamPoints || 0;
+                                return team;
+                            }).sort((a,b) => a.teamPoints < b.teamPoints ? -1 : 1);
                         } else {
                         //    Random allocation
                             teams = ttlib.array.shuffle(teams);
@@ -330,6 +379,39 @@ router.post(`/:slug/round/:roundid/draw`, ttlib.middleware.userHoldsTournamentRo
         return res.status(500).json({error: `Internal Server Error: ${err}`})
     })
 })
+
+//
+// POST /tournaments/:slug/round/:roundid/complete
+// Toggle a round as completed
+//
+router.post(`/:slug/round/:roundid/complete`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
+    models.Round.findOne({
+        where: {
+            id: req.params.roundid
+        },
+        include: [
+            {
+                model: models.Debate,
+                include: [
+                    {
+                        model: models.Ballot
+                    }
+                ]
+            }
+        ]
+    }).then(round => {
+        if (round) {
+            round.completed = round.Debates.map(deb => deb.Ballots.some(b => b.finalised)).every(v => v);
+            round.save().then(() => {
+                return res.status(200).json({success: `Round Status Updated`});
+            });
+        } else {
+            return res.status(404).json({error: `Round not found`});
+        }
+    }).catch(error => {
+        return res.status(500).json({error})
+    })
+});
 
 //
 // POST /api/tournaments/:slug/rounds/create

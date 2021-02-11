@@ -230,7 +230,7 @@ class BallotPage extends React.Component {
     toggleFinalised() {
         if (this.state.ballot) {
             ttlib.api.requestAPI(
-                `/ballots/debate/${this.props.match.params.debateid}/ballot/${this.state.ballot.id}/finalise`,
+                `/ballots/${this.props.match.params.slug}/debate/${this.props.match.params.debateid}/ballot/${this.state.ballot.id}/finalise`,
                 `POST`,
                 (respData) => {
                     ttlib.component.toastSuccess(this.toast, respData.success, "Ballot finalisation status updated successfully.");

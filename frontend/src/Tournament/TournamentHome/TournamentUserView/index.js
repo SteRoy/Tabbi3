@@ -28,8 +28,6 @@ class TournamentUserView extends React.Component {
                         loading: false
                     }
 
-                    console.log(tournament);
-
                     if (tournament.Person.Adjudicators.length > 0) {
                     //    User is an adjudicator
                         stateUpdate.adjudicator = tournament.Person.Adjudicators[0];
@@ -66,6 +64,7 @@ class TournamentUserView extends React.Component {
             `GET`,
             (respData) => {
                 if (respData.round) {
+                    console.log(respData.round);
                     const round = respData.round;
                     const debate = respData.debate;
                     let allocation;
@@ -75,16 +74,14 @@ class TournamentUserView extends React.Component {
                         allocation = debate.TeamAllocs.find(a => a.TeamId === this.state.team.id);
                     }
 
-                    if (round && debate && allocation) {
-                        this.setState({round, debate, allocation, roundLoading: false});
-                    }
+                    this.setState({round, debate, allocation, roundLoading: false});
                 }
             },
             (err) => {
-                if (this.props.loggedIn) {
+                if (this.props.loggedIn && err !== "You are not a participant in this round.") {
                     ttlib.component.toastError(this.props.toast, `Fetching Participant Info Failed`, `${err}`)
                 }
-                this.setState({loading: false});
+                this.setState({roundLoading: false});
             },
         )
     }
@@ -111,16 +108,17 @@ class TournamentUserView extends React.Component {
             const eballots = this.props.tournament.TournamentSettings.find(ts => ts.key === "eballots") || {value: false};
             const eballotsPanels = this.props.tournament.TournamentSettings.find(ts => ts.key === "eballots-panel") || {value: false};
 
-            if (eballotsPanels || (eballots && this.state.allocation.chair)) {
-            //    yes, eballot /tournament/:slug/:debateid/eballot
-                return <div className="text-center">
-                    <a href={`/tournament/${this.props.tournament.slug}/${this.state.debate.id}/eballot`}>
-                        <Button icon="pi pi-fw pi-envelope" label="E-Ballot"/>
-                    </a>
-                </div>
-            } else {
-                return "";
+            if (this.state.allocation) {
+                if (eballotsPanels || (eballots && this.state.allocation.chair)) {
+                    //    yes, eballot /tournament/:slug/:debateid/eballot
+                    return <div className="text-center">
+                        <a href={`/tournament/${this.props.tournament.slug}/${this.state.debate.id}/eballot`}>
+                            <Button icon="pi pi-fw pi-envelope" label="E-Ballot"/>
+                        </a>
+                    </div>
+                }
             }
+            return "";
         }
 
         return (
@@ -154,7 +152,7 @@ class TournamentUserView extends React.Component {
                             this.state.roundLoading ?
                                 <Loading/>
                             :
-                                this.state.round ?
+                                this.state.round && this.state.allocation ?
                                     <div className="alert" style={{border: 'solid 1px black'}}>
                                         <span className="display-5">{this.state.round.title}</span>
                                         <hr/>

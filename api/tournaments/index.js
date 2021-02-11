@@ -191,34 +191,35 @@ router.get("/:slug/participant/:personId/allocation", ttlib.middleware.isLoggedI
                                 include: [
                                     {
                                         model: models.Speaker,
-                                        as: 'Speaker1',
-                                        where: {PersonId: req.user.Person.id}
+                                        as: 'Speaker1'
                                     },
                                     {
                                         model: models.Speaker,
-                                        as: 'Speaker2',
-                                        where: {PersonId: req.user.Person.id}
+                                        as: 'Speaker2'
                                     }
                                 ]
                             }
                         ],
-                        require: false
                     },
                     {
                         model: models.AdjAlloc,
                         include: [
                             {
-                                model: models.Adjudicator,
-                                where: {PersonId: req.user.Person.id}
+                                model: models.Adjudicator
                             }
-                        ],
-                        require: false
+                        ]
                     }
                 ]
-            }
+            },
+            {model: models.Tournament, where: {slug: req.params.slug}, required: true}
         ]
     }).then(round => {
-        if (round.Debates.length > 0) {
+        let debates = round.Debates.filter(deb =>
+            deb.TeamAllocs.some(ta => ta.Team.Speaker1.PersonId === req.user.Person.id || ta.Team.Speaker2.PersonId === req.user.Person.id)
+            ||
+            deb.AdjAllocs.some(aa => aa.Adjudicator.PersonId === req.user.Person.id)
+        );
+        if (debates.length > 0) {
             if (round.drawReleased) {
                 if (!round.motionReleased) {
                     round.motion = "";
@@ -226,7 +227,7 @@ router.get("/:slug/participant/:personId/allocation", ttlib.middleware.isLoggedI
                 }
                 models.Debate.findOne({
                     where: {
-                        id: round.Debates[0].id
+                        id: debates[0].id
                     },
                     attributes: ["id"],
                     include: [

@@ -9,6 +9,7 @@ import SpoilerWrapper from "../../components/SpoilerWrapper";
 import {Toast} from "primereact/toast";
 import Loading from "../../components/Loading";
 import MotionDialog from "./MotionDialog";
+import {Button} from "primereact/button";
 const ttlib = require("ttlib");
 
 class RoundViewPage extends React.Component {
@@ -27,7 +28,9 @@ class RoundViewPage extends React.Component {
             (respData) => {
                 const details = [
                     {key: "Motion", value: respData.round.motion},
-                    {key: "Info Slide", value: respData.round.infoslide}
+                    {key: "Info Slide", value: respData.round.infoslide},
+                    {key: "Draw Released", value: respData.round.drawReleased ? "Yes" : "No"},
+                    {key: "Motion Released", value: respData.round.motionReleased ? "Yes" : "No"}
                 ]
 
                 const debates = respData.round.Debates.map(debate => {
@@ -57,6 +60,28 @@ class RoundViewPage extends React.Component {
             }
         )
 
+        this.toggleRelease = this.toggleRelease.bind(this);
+
+    }
+
+    toggleRelease(param) {
+        ttlib.api.requestAPI(
+            `/tournaments/${this.props.match.params.slug}/round/${this.props.match.params.rid}/release/${param}`,
+            `POST`,
+            (respData) => {
+                let round = this.state.round;
+                if (param === "draw") {
+                    round.drawReleased = !round.drawReleased;
+                } else {
+                    round.motionReleased = !round.motionReleased;
+                }
+                this.setState({round});
+                ttlib.component.toastSuccess(this.toast, `Update Succeeded`, `${ttlib.string.toTitleCase(param)} release status updated.`);
+            },
+            (err) => {
+                ttlib.component.toastError(this.toast, `Update Failed`,`${err}`)
+            }
+        )
     }
 
     render() {
@@ -137,6 +162,10 @@ class RoundViewPage extends React.Component {
                                                     (value) => this.setState({showDetails: value})
                                                 }
                                             />
+                                            <div className="w-100 text-center">
+                                                <Button onClick={() => this.toggleRelease('draw')} label={`${this.state.round.drawReleased ? "Unr" : "R"}elease Draw`} className={`p-button-${this.state.round.drawReleased ? "danger" : "success"} p-mr-1`} />
+                                                <Button onClick={() => this.toggleRelease('motion')} label={`${this.state.round.motionReleased ? "Unr" : "R"}elease Motion`} className={`p-button-${this.state.round.motionReleased ? "danger" : "success"}`} />
+                                            </div>
                                         </div>
                                         <div className="p-col text-center">
                                             <h6>Round Settings</h6>

@@ -191,7 +191,6 @@ class InputBox extends React.Component {
                             size={150}
                             onChange={
                                 (e) => this.props.cb({[this.props.id]: e.value})
-
                             }
                         />
                     </div>

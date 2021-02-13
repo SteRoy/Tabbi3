@@ -17,12 +17,14 @@ import VenueListPage from "./VenueListPage";
 import BallotListPage from "./BallotListPage";
 import PreRegistration from "./PreRegistration";
 import ManagePreRegistrationPage from "./ManagePreRegistrationPage";
+import AssignTestScores from "./AssignTestScores";
 
 class TournamentRouter extends React.Component {
     render() {
         return (
             <React.Fragment>
                 <Route exact path="/tournament/:slug" component={TournamentHome}/>
+                <Route exact path="/tournament/:slug/adjudicators/testscores" component={AssignTestScores}/>
                 <Route exact path="/tournament/:slug/ballots/:debateid/create" component={BallotPage}/>
                 <Route exact path="/tournament/:slug/ballots/:debateid/view/:ballotid" component={BallotPage}/>
                 <Route exact path="/tournament/:slug/ballots/:rid" component={BallotListPage}/>

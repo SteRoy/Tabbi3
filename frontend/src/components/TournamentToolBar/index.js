@@ -51,6 +51,18 @@ class TournamentToolBar extends React.Component {
                 )
             }
 
+            if (objType === "adjudicators") {
+                options.push(
+                    {
+                        label: 'Assign Test Scores',
+                        icon: 'pi pi-sliders-h',
+                        command: (e) => {
+                            window.location.pathname = `/tournament/${this.props.slug}/adjudicators/testscores`;
+                        }
+                    }
+                )
+            }
+
             return options;
         });
 

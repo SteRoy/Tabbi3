@@ -67,7 +67,9 @@ router.get(`/:slug/round/:roundid`, ttlib.middleware.userHoldsTournamentRoleOrIs
                             {
                                 model: models.TeamAlloc,
                                 include: [
-                                    models.Team
+                                    {
+                                        model: models.Team
+                                    }
                                 ]
                             },
                             {
@@ -79,7 +81,9 @@ router.get(`/:slug/round/:roundid`, ttlib.middleware.userHoldsTournamentRoleOrIs
                                     {
                                         model: models.Adjudicator,
                                         include: [
-                                            models.Person
+                                            {
+                                                model: models.Person
+                                            }
                                         ]
                                     }
                                 ]

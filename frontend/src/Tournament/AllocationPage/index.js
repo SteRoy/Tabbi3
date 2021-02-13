@@ -14,11 +14,18 @@ class AllocationPage extends React.Component {
         super(props);
         this.state = {
             debates: [],
-            adj: []
+            adj: [],
+            clashMap: null,
+            clashes: {},
+            clashLoaded: false,
+            expanded: {},
         }
+
 
         this.onDragEnd = this.onDragEnd.bind(this);
         this.updateDraw = this.updateDraw.bind(this);
+        this.calculateClashes = this.calculateClashes.bind(this);
+        this.expandRow = this.expandRow.bind(this);
     }
 
     componentWillUnmount() {
@@ -55,9 +62,9 @@ class AllocationPage extends React.Component {
                             ["OG", "OO", "CG", "CO"].forEach(pos => {
                                 let dta = debate.TeamAllocs.find(dta => dta.position === pos);
                                 if (dta) {
-                                    dta = dta.Team.name;
+                                    dta = {name: dta.Team.name, id: dta.Team.id};
                                 } else {
-                                    dta = "Not Set"
+                                    dta = {name: "Not Set", id: -1}
                                 }
                                 debateObj['teams'][pos] = dta;
                             });
@@ -68,7 +75,7 @@ class AllocationPage extends React.Component {
                                         index++;
                                     }
 
-                                    return({
+                                    return ({
                                         roomid: adjAlloc.DebateId.toString(),
                                         id: adjAlloc.id.toString(),
                                         adjId: adjAlloc.AdjudicatorId,
@@ -80,8 +87,26 @@ class AllocationPage extends React.Component {
                             )
                             return debateObj;
                         });
-
                         this.setState({...respData, debates, adj});
+                        ttlib.api.requestAPI(
+                            `/tournaments/${this.props.match.params.slug}/adjudicators/clash`,
+                            "GET",
+                            (respData) => {
+                                if (respData.adjudicatorClashMappings) {
+                                    this.setState({
+                                        clashMap: respData.adjudicatorClashMappings,
+                                        clashLoaded: true
+                                    }, () => {
+                                        this.calculateClashes();
+                                    });
+                                }
+                                ttlib.component.toastSuccess(this.toast, `Clash Map Loaded`, "Clash has been loaded into the allocation and will now appear accordingly.");
+                            },
+                            (err) => {
+                                console.log(err);
+                                ttlib.component.toastError(this.toast, `Clash Map Loading Failed`, err);
+                            }
+                        );
                     },
                     (err) => {
                         this.setState({
@@ -105,7 +130,12 @@ class AllocationPage extends React.Component {
             })
 
             socket.on("disconnect", () => {
-                this.toast.show({severity: "error", detail: "Server Disconnected", summary: "Your browser has disconnected from the server. Any updates you make may not make it to the server. Try refreshing/check your internet connection.", sticky: true});
+                this.toast.show({
+                    severity: "error",
+                    detail: "Server Disconnected",
+                    summary: "Your browser has disconnected from the server. Any updates you make may not make it to the server. Try refreshing/check your internet connection.",
+                    sticky: true
+                });
                 this.setState({
                     connected: false
                 })
@@ -118,6 +148,7 @@ class AllocationPage extends React.Component {
     updateDraw(adjUpdateObject) {
         let curAllocs = this.state.adj;
         let toasts = [];
+        let needClashUpdate = [];
         adjUpdateObject.forEach(update => {
             const indexOfAdjAlloc = curAllocs.findIndex(adj => adj.adjId === update.AdjudicatorId);
             const adjAlloc = curAllocs[indexOfAdjAlloc];
@@ -133,13 +164,21 @@ class AllocationPage extends React.Component {
                 toasts.push({severity:'success', summary: `${adjAlloc.name}`, detail: `Moved from Room ID: ${adjAlloc.roomid} to Room ID: ${update.shiftTo}`, life: 2000});
                 adjAlloc.roomid = update.newRoom;
             }
+
+            [adjAlloc.roomid, update.newRoom].forEach(debateId => {
+                if (debateId && !needClashUpdate.includes(debateId)) {
+                    needClashUpdate.push(debateId);
+                }
+            })
         });
 
         this.adjUpdates.show(toasts);
 
         this.setState({
             adj: curAllocs
-        })
+        }, () => {
+            this.calculateClashes(needClashUpdate);
+        });
     }
 
     onDragEnd = (result) => {
@@ -215,7 +254,86 @@ class AllocationPage extends React.Component {
         }
     };
 
+    calculateClashes(updateSubset) {
+        const updateDebateClashObj = (curVal, newVal) => {
+            if (curVal !== "institutional") {
+                if (newVal === "hard") {
+                    return newVal;
+                } else if (curVal === "hard") {
+                    return curVal;
+                } else {
+                    return newVal === "institutional" ? curVal : newVal;
+                }
+            } else {
+                return newVal;
+            }
+        }
+
+        let clashes = this.state.clashes;
+        let clashMap = this.state.clashMap;
+        if (!this.state.clashLoaded) {
+            clashMap = {}
+        }
+        this.state.debates
+            .filter(deb => {
+                if (updateSubset) {
+                    return updateSubset.includes(deb.id);
+                } else {
+                    return true;
+                }
+            })
+            .forEach(debate => {
+            let debateClashObj = {
+                teams: {},
+                adjudicators: {},
+                messages: []
+            }
+            const teams = Object.keys(debate.teams).map(position => ({id: debate.teams[position].id, position: position, name: debate.teams[position].name}));
+            const adjudicatorsInDebate = this.state.adj.filter(adj => adj.roomid === debate.id);
+            adjudicatorsInDebate.forEach(adj => {
+                const adjClash = clashMap[adj.adjId];
+                if (adjClash) {
+                    teams.forEach(teamObj => {
+                        const teamInDebate = adjClash.teams[teamObj.id];
+                        if (teamInDebate) {
+                            debateClashObj.teams[teamObj.position] = updateDebateClashObj(debateClashObj.teams[teamObj.position], teamInDebate);
+                            debateClashObj.adjudicators[adj.adjId] = updateDebateClashObj(debateClashObj.adjudicators[adj.adjId], teamInDebate);
+                            debateClashObj.messages.push(`${debate.venue}: ${adj.name} is ${teamInDebate.toUpperCase()} clashed from ${teamObj.name}`);
+                        }
+                    });
+
+                    adjudicatorsInDebate.forEach(adjComparison => {
+                        const adjInDebate = adjClash.adjudicators[adjComparison.adjId];
+                        if (adjInDebate) {
+                            debateClashObj.adjudicators[adj.adjId] = updateDebateClashObj(debateClashObj.adjudicators[adj.adjId], adjInDebate);
+                            debateClashObj.adjudicators[adjComparison.adjId] = updateDebateClashObj(debateClashObj.adjudicators[adjComparison.adjId], adjInDebate);
+                            debateClashObj.messages.push(`${debate.venue}: ${adj.name} is ${adjInDebate.toUpperCase()} clashed from ${adjComparison.name}`);
+                        }
+                    })
+                }
+            })
+
+            clashes[debate.id] = debateClashObj;
+        });
+
+        this.setState({clashes});
+    }
+
+    expandRow(rowId) {
+        let currentExpand = this.state.expanded;
+        currentExpand[rowId] = !currentExpand[rowId];
+        this.setState({
+            expanded: currentExpand
+        });
+    }
+
     render() {
+        const clashToClass = {
+            'hard': 'clashed-personal',
+            'soft': 'clashed-soft',
+            'institutional': 'clashed-institution-current'
+        }
+
         return (
             <div>
                 <NavBar active=""/>
@@ -236,9 +354,16 @@ class AllocationPage extends React.Component {
                             <div className="text-center mt-1">
                                 {
                                     this.state.connected ?
-                                        <Button className="p-button-outlined p-button-success" label="Connected"/>
+                                        <Button className="p-button-outlined p-button-success p-mr-1" label="Connected"/>
                                         :
-                                        <Button className="p-button-outlined p-button-danger" label="Disconnected"/>
+                                        <Button className="p-button-outlined p-button-danger p-mr-1" label="Disconnected"/>
+                                }
+
+                                {
+                                    this.state.clashLoaded ?
+                                        <Button className="p-button-outlined p-button-success" label="Clash Loaded"/>
+                                        :
+                                        <Button className="p-button-outlined p-button-danger" label="Clash Not Loaded"/>
                                 }
                             </div>
                             <hr/>
@@ -246,35 +371,93 @@ class AllocationPage extends React.Component {
                                 <table className="table text-center" style={{tableLayout: "fixed"}}>
                                     <thead>
                                         <tr>
+                                            <th style={{width: "5%"}}/>
                                             <th style={{width: "10%"}}>#</th>
                                             <th style={{width: "20%"}}>Teams</th>
-                                            <th style={{width: "70%"}}>Panel</th>
+                                            <th style={{width: "65%"}}>Panel</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                     {
                                         this.state.debates.map(debate => (
-                                            <tr>
-                                                <td>{debate.id} - {debate.venue}</td>
-                                                <td>
-                                                    <div className="p-grid" style={{margin: "0"}}>
-                                                        <div className="p-col" style={{padding: "0"}}>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{debate.teams.OG}</div>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{debate.teams.CG}</div>
+                                            <React.Fragment>
+                                                <tr key={`tr-${debate.id}`}>
+                                                    <td>
+                                                        <Button
+                                                            className={`p-button-outlined p-button-secondary`}
+                                                            onClick={() => this.expandRow(debate.id)}
+                                                            icon={`pi pi-fw pi-chevron-${this.state.expanded[debate.id] ? "down" : "right"}`}
+                                                        />
+                                                    </td>
+                                                    <td>{debate.id} - {debate.venue}</td>
+                                                    <td>
+                                                        <div className="p-grid" style={{margin: "0"}}>
+                                                            <div className="p-col" style={{padding: "0"}}>
+                                                                {
+                                                                    ["OG", "CG"].map(position => {
+                                                                        const clashes = this.state.clashes[debate.id];
+                                                                        let clashClass = "";
+                                                                        if (clashes) {
+                                                                            clashClass = clashes.teams[position];
+                                                                        }
+                                                                        return (
+                                                                            <div
+                                                                            style={{border: "1px solid rgb(0,0,0,.1)"}}
+                                                                            className={clashToClass[clashClass]}
+                                                                            >
+                                                                            {debate.teams[position].name}
+                                                                        </div>
+                                                                        )
+                                                                    })
+                                                                }
+                                                            </div>
+                                                            <div className="p-col" style={{padding: "0"}}>
+                                                                {
+                                                                    ["OO", "CO"].map(position => {
+                                                                        const clashes = this.state.clashes[debate.id];
+                                                                        let clashClass = "";
+                                                                        if (clashes) {
+                                                                            clashClass = clashes.teams[position];
+                                                                        }
+                                                                        return (
+                                                                            <div
+                                                                                style={{border: "1px solid rgb(0,0,0,.1)"}}
+                                                                                className={clashToClass[clashClass]}
+                                                                            >
+                                                                                {debate.teams[position].name}
+                                                                            </div>
+                                                                        )
+                                                                    })
+                                                                }
+                                                            </div>
                                                         </div>
-                                                        <div className="p-col" style={{padding: "0"}}>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{debate.teams.OO}</div>
-                                                            <div style={{border: "1px solid rgb(0,0,0,.1)"}}>{debate.teams.CO}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <PanelAllocation
-                                                        id={debate.id}
-                                                        adj={this.state.adj}
-                                                    />
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                    <td>
+                                                        <PanelAllocation
+                                                            id={debate.id}
+                                                            adj={this.state.adj}
+                                                        />
+                                                    </td>
+                                                </tr>
+                                                {
+                                                    this.state.expanded[debate.id] ?
+                                                        <tr key={`tr-expanded-${debate.id}`}>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td>Debate has {this.state.clashes[debate.id].messages.length} problems.</td>
+                                                            <td>
+                                                                {
+                                                                    this.state.clashes[debate.id].messages ?
+                                                                        this.state.clashes[debate.id].messages.map(
+                                                                            (message, index) => <p>{index + 1}. {message}</p>
+                                                                        )
+                                                                        : "No Problems."
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                        : ""
+                                                }
+                                            </React.Fragment>
                                         ))
                                     }
                                     </tbody>

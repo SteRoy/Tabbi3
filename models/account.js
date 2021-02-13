@@ -13,6 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasOne(models.Person);
       this.hasMany(models.TournamentRole);
+      this.hasMany(models.PersonalClash, {foreignKey: 'fromAccountId', onDelete: 'cascade', as: 'myClash'});
+      this.hasMany(models.PersonalClash, {foreignKey: 'targetAccountId', onDelete: 'cascade', as: 'otherClash'});
     }
   }
   Account.init({

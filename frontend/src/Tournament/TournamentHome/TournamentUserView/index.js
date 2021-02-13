@@ -77,9 +77,6 @@ class TournamentUserView extends React.Component {
                 }
             },
             (err) => {
-                if (this.props.loggedIn && err !== "You are not a participant in this round.") {
-                    ttlib.component.toastError(this.props.toast, `Fetching Participant Info Failed`, `${err}`)
-                }
                 this.setState({roundLoading: false});
             },
         )

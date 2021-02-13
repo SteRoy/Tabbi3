@@ -18,6 +18,7 @@ import BallotListPage from "./BallotListPage";
 import PreRegistration from "./PreRegistration";
 import ManagePreRegistrationPage from "./ManagePreRegistrationPage";
 import AssignTestScores from "./AssignTestScores";
+import StandingsPage from "./StandingsPage";
 
 class TournamentRouter extends React.Component {
     render() {
@@ -38,6 +39,7 @@ class TournamentRouter extends React.Component {
                 <Route exact path="/tournament/:slug/round/:rid/allocate" component={AllocationPage}/>
                 <Route exact path="/tournament/:slug/round/:rid/config" component={RoundConfigPage}/>
                 <Route exact path="/tournament/:slug/round/:rid/displayDraw" component={DrawPage}/>
+                <Route exact path="/tournament/:slug/standings" component={StandingsPage}/>
                 <Route exact path="/tournament/:slug/prereg" component={PreRegistration}/>
                 <Route exact path="/tournament/:slug/prereg/:type" component={ManagePreRegistrationPage}/>
             </React.Fragment>

@@ -86,6 +86,102 @@ router.get(`/:slug/debate/:debateid/:nature`, ttlib.middleware.userMaySubmitBall
 });
 
 //
+// GET /api/ballots/:slug/public/standings
+// Returns all non-silent results
+//
+router.get(`/:slug/public/standings`, (req, res) => {
+    models.Tournament.findOne({
+        where: {
+            slug: req.params.slug
+        },
+        include: [
+            {
+                attributes: ["swing", "name", "id"],
+                model: models.Team,
+                include: [
+                    {
+                        model: models.Speaker,
+                        attributes: ["id", "redacted"],
+                        as: 'Speaker1',
+                        include: [{
+                            model: models.Person,
+                            attributes: ["name"]
+                        }]
+                    },
+                    {
+                        model: models.Speaker,
+                        attributes: ["id", "redacted"],
+                        as: 'Speaker2',
+                        include: [{
+                            model: models.Person,
+                            attributes: ["name"]
+                        }]
+                    },
+                    {
+                        attributes: ["teamPoints", "speakerOneSpeaks", "speakerTwoSpeaks", "abnormality"],
+                        model: models.TeamResult,
+                        include: [
+                            {
+                                attributes: ["id", "finalised"],
+                                model: models.Ballot,
+                                where: {finalised: true},
+                                include: [
+                                    {
+                                        attributes: ["id"],
+                                        model: models.Debate,
+                                        include: [
+                                            {
+                                                attributes: ["id", "completed", "title", "sequence"],
+                                                model: models.Round,
+                                                where: {completed: true},
+                                                required: true,
+                                            }
+                                        ],
+                                        required: true
+                                    }
+                                ],
+                                required: true
+                            }
+                        ]
+                    }
+                ]
+            },
+            {model: models.TournamentSetting, where: {key: 'completed'}, required: false}
+        ]
+    }).then(tournament => {
+        if (!tournament) {
+            return res.status(404).json({error: `Tournament Not Found`});
+        }
+        let completed = false;
+        if (tournament.TournamentSettings.length > 0) {
+            completed = tournament.TournamentSettings[0].value === 'true';
+        }
+
+        let standings = tournament.Teams;
+
+        if (!completed) {
+            standings = tournament.Teams.map(team => {
+                return ({
+                    name: team.name,
+                    swing: team.swing,
+                    id: team.id,
+                    Speaker1: team.Speaker1,
+                    Speaker2: team.Speaker2,
+                    TeamResults: team.TeamResults.map(tr => ({
+                        teamPoints: tr.teamPoints,
+                        abnormality: tr.abnormality,
+                        Ballot: tr.Ballot
+                    }))
+                })
+            });
+        }
+        return res.status(200).json({standings, completed});
+    }).catch(err => {
+        return res.status(500).json({error: `ISE: ${err}`});
+    })
+})
+
+//
 // POST /api/ballots/:slug/debate/:debateid/:nature
 // Create or Update a Ballot for a specified Debate
 // @param nature - ["tab", "adjudicator", BallotId]

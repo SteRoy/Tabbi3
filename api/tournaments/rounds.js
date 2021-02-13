@@ -44,6 +44,39 @@ router.get(`/:slug/rounds`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(mode
 })
 
 //
+// GET /api/tournaments/:slug/public/rounds
+// Return Tournament with Rounds that are completed.
+// 200 - the list of rounds
+// 404 - tournament not found
+//
+router.get(`/:slug/public/rounds`, (req, res) => {
+    models.Tournament.findOne({
+        where: {
+            slug: req.params.slug
+        },
+        include: [
+            {
+                attributes: ["title", "sequence", "id"],
+                model: models.Round,
+                where: {
+                    completed: true
+                },
+                required: false
+            }
+        ]
+    }).then(tournament => {
+        if (tournament) {
+            return res.status(200).json({tournament});
+        } else {
+            return res.status(404).json({error: `Tournament Not Found`});
+        }
+    }).catch(err => {
+        return res.status(500).json({error: `Internal Server Error: ${err}`});
+    })
+})
+
+
+//
 // GET /api/tournaments/:slug/round/:roundid
 // Return Round information
 // 200 - the Round

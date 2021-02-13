@@ -11,6 +11,7 @@ const tournamentConfigOptions = [
     {key: "adjcore", description: "The adjudication core - they set motions, monitor adjudicator feedback, determine breaking adjudicators and allocate adjudicators.", type: "people"},
 
     // Boolean
+    {key: "completed", description: "Tournament is completed and standings can be published.", type: "boolean"},
     {key: "eballots", description: "Enable chair submission of ballots via Tabbi3.", type: "boolean"},
     {key: "eballots-panel", description: "Enable panellist submission of ballots via Tabbi3.", type: "boolean"},
     {key: "prereg", description: "Open participant registration?", type: "boolean"},

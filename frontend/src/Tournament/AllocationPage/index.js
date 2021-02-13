@@ -436,6 +436,7 @@ class AllocationPage extends React.Component {
                                                         <PanelAllocation
                                                             id={debate.id}
                                                             adj={this.state.adj}
+                                                            clashes={this.state.clashes[debate.id]}
                                                         />
                                                     </td>
                                                 </tr>

@@ -10,8 +10,15 @@ class AllocationJudge extends React.Component {
                 return name;
             }
         }
+
+        const clashToClass = {
+            'hard': 'clashed-personal',
+            'soft': 'clashed-soft',
+            'institutional': 'clashed-institution-current'
+        }
+
         return (
-            <span className={`p-grid judge-card ${this.props.isDragged ? 'color-dragged' : ''}`}>
+            <span className={`p-grid judge-card ${this.props.isDragged ? 'color-dragged' : ''} ${this.props.clashInfo && !this.props.isDragged ? clashToClass[this.props.clashInfo] : ""}`}>
                 <span className="judge-card-score mr-1 p-col-4">
                     <b className="mr-1">{this.props.score}</b>
                 </span>

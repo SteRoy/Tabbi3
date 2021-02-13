@@ -37,6 +37,7 @@ class PanelAllocation extends React.Component {
                                                         score={judge.score}
                                                         chair={judge.index === 0}
                                                         isDragged={snapshot.isDragging}
+                                                        clashInfo={ this.props.clashes ? this.props.clashes.adjudicators ? this.props.clashes.adjudicators[judge.adjId] : "" : ""}
                                                     />
                                                 </div>
                                             )}

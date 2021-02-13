@@ -3,6 +3,7 @@ import GridLoader from "react-spinners/GridLoader";
 import {Column} from "primereact/column";
 import {DataTable} from "primereact/datatable";
 import {Skeleton} from "primereact/skeleton";
+import loaderGif from './Tabbi3-Loader.gif';
 
 class Loading extends React.Component {
     constructor() {
@@ -60,11 +61,12 @@ class Loading extends React.Component {
                 </DataTable>
                 :
                 <div className="text-center">
-                    <GridLoader
+                    {/*<GridLoader
                         size={30}
                         color={'aqua'}
                         loading={true}
-                    />
+                    />*/}
+                    <img src={loaderGif} />
                     <p className="text-white display-5">Loading{this.state.ellipsis}</p>
                 </div>
         )

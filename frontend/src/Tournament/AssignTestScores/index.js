@@ -6,6 +6,7 @@ import TournamentToolBar from "../../components/TournamentToolBar";
 import {Toast} from "primereact/toast";
 import InputBox from "../../components/InputBox";
 import {Button} from "primereact/button";
+import Loading from "../../components/Loading";
 const ttlib = require("ttlib");
 
 class AssignTestScores extends React.Component {
@@ -15,8 +16,11 @@ class AssignTestScores extends React.Component {
             currentTestScore: 0,
             adjudicators: [],
             current: 0,
-            errors: {}
+            errors: {},
+            loading: true
         }
+        this.nextAdjudicator = this.nextAdjudicator.bind(this);
+        this.setAdjRanking = this.setAdjRanking.bind(this);
     }
 
     componentDidMount() {
@@ -30,16 +34,50 @@ class AssignTestScores extends React.Component {
                         ...adj,
                         name: adj.Person.name
                     }
-                )).filter(adj => adj.testScore === 0);
+                )).filter(adj => this.props.match.params.adjudicatorid ? adj.id === this.props.match.params.adjudicatorid : adj.testScore === 0);
 
-                this.setState({adjudicators});
+                this.setState({adjudicators, loading: false});
             },
             () => {}
         )
     }
 
     nextAdjudicator() {
+        this.setState({
+            current: this.state.current + 1 % this.state.adjudicators.length
+        })
+    }
 
+    setAdjRanking() {
+        const adjId = this.state.adjudicators[this.state.current].id;
+
+        if (adjId) {
+            if (this.state.currentTestScore === 0) {
+                return this.setState({
+                    errors: {
+                        "currentTestScore": "You must select a test score"
+                    }
+                });
+            }
+
+            ttlib.api.requestAPI(
+                `/tournaments/${this.props.match.params.slug}/adjudicators/${adjId}/score/${this.state.currentTestScore}`,
+                `POST`,
+                (respData) => {
+                    let curAdj = this.state.adjudicators.filter(a => a.id !== adjId);
+                    this.setState({
+                        adjudicators: curAdj,
+                        errors: {},
+                        currentTestScore: 0
+                    });
+                    ttlib.component.toastSuccess(this.toast, `Test Score Updated`, `The adjudicator's test score has been updated.`);
+                },
+                (error) => {
+                    ttlib.component.toastError(this.toast, `Test Score Update Failed`, error);
+                },
+                {}
+            )
+        }
     }
 
     render() {
@@ -78,33 +116,44 @@ class AssignTestScores extends React.Component {
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-8">
                         <TournamentToolBar slug={this.props.match.params.slug} user={this.state.loggedInUser} loggedIn={this.state.loggedIn}/>
-                        <Card>
-                            <div className="display-4 text-center">Adjudicator Test Score Assignment</div>
-                            <div className="w-100 text-center">{this.state.adjudicators.length - 1} Pending</div>
-                            <hr/>
-                            <div className="display-5 text-center">
-                                {this.state.adjudicators[this.state.current] ? this.state.adjudicators[this.state.current].name : ""}
-                            </div>
-                            <p>
-                                TODO: Insert adjudicator CV in here
-                            </p>
-                            <InputBox
-                              id="currentTestScore"
-                              label="Test Score"
-                              type="ranking"
-                              value={this.state.currentTestScore}
-                              cb={(dict) => this.setState(dict)}
-                              errors={this.state.errors}
-                            />
-                            {
-                                getDescription(this.state.currentTestScore)
-                            }
+                        {
+                            this.state.loading ? <Loading/> :
+                                <Card>
+                                    {
+                                        this.state.adjudicators.length > 0 ?
+                                            <span>
+                                                <div className="display-4 text-center">Adjudicator Test Score Assignment</div>
+                                                <div className="w-100 text-center">{this.state.adjudicators.length - 1} Pending</div>
+                                                <hr/>
+                                                <div className="display-5 text-center">
+                                                    {this.state.adjudicators[this.state.current] ? this.state.adjudicators[this.state.current].name : ""}
+                                                </div>
+                                                <p>
+                                                    TODO: Insert adjudicator CV in here
+                                                </p>
+                                                <InputBox
+                                                    id="currentTestScore"
+                                                    label="Test Score"
+                                                    type="ranking"
+                                                    value={this.state.currentTestScore}
+                                                    cb={(dict) => this.setState(dict)}
+                                                    errors={this.state.errors}
+                                                />
+                                                    {
+                                                        getDescription(this.state.currentTestScore)
+                                                    }
 
-                            <div>
-                                <Button label="Save Test Score" className="btn-block p-button-success"/>
-                                <Button label="Skip Adjudicator" className="btn-block p-button-outlined p-button-secondary"/>
-                            </div>
-                        </Card>
+                                                    <div>
+                                                    <Button onClick={this.setAdjRanking} label="Save Test Score" className="btn-block p-button-success"/>
+                                                    <Button onClick={this.nextAdjudicator} label="Skip Adjudicator" className="btn-block p-button-outlined p-button-secondary"/>
+                                                </div>
+                                            </span> :
+                                            <span>
+                                                <div className="display-4 text-center">All Completed</div>
+                                            </span>
+                                    }
+                            </Card>
+                        }
                     </div>
                 </div>
             </div>

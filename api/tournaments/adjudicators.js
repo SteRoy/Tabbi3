@@ -120,6 +120,40 @@ router.post(`/:slug/adjudicators/:adjudicatorid/active`, ttlib.middleware.userHo
 })
 
 //
+// POST /api/tournaments/:slug/adjudicators/:adjudicatorid/score/:testScore
+// 200 - Toggle an adjudicator's testScore
+//
+router.post(`/:slug/adjudicators/:adjudicatorid/score/:testScore`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "adjcore"), (req, res) => {
+    models.Tournament.findOne({
+        where: {
+            slug: req.params.slug
+        },
+        include: [
+            {
+                model: models.Adjudicator,
+                where: {
+                    id: parseInt(req.params.adjudicatorid)
+                }
+            }
+        ]
+    }).then(tournament => {
+        if (tournament) {
+            if (tournament.Adjudicators) {
+                const adj = tournament.Adjudicators[0];
+                adj.testScore = parseInt(req.params.testScore);
+                adj.save();
+                return res.status(200).json({success: `Adjudicator Test Score Updated`});
+            }
+        } else {
+            return res.status(404).json({error: `No matching tournament & adjudicator found`})
+        }
+    }).catch(err => {
+        return res.status(500).json({error: `Internal Server Error: ${err}`})
+    })
+})
+
+
+//
 // POST /api/tournaments/:slug/adjudicators/clash
 // Returns a mapping of Adjudicator -> Teams & Adjudicators from whom they are clashed
 //

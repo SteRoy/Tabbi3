@@ -31,6 +31,30 @@ module.exports = (sequelize, DataTypes) => {
         return rawDate ? new Date(rawDate).toDateString() : "";
       }
     },
+    isActive: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const rawStartDate = this.getDataValue('startDate');
+        const rawEndDate = this.getDataValue('endDate');
+        if (!rawStartDate && !rawEndDate) {
+          return true;
+        } else if (rawStartDate && !rawEndDate) {
+          return true;
+        } else if (!rawStartDate && rawEndDate) {
+          const endDate = new Date.parse(rawEndDate);
+          if (new Date() < endDate) {
+            return true;
+          }
+        } else {
+          const startDate = Date.parse(rawStartDate);
+          const endDate = Date.parse(rawEndDate);
+          const now = new Date();
+          if (startDate < now && endDate > now) {
+            return true;
+          }
+        }
+      }
+    }
   }, {
     indexes: [
       {

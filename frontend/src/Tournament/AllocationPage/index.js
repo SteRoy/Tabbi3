@@ -256,6 +256,10 @@ class AllocationPage extends React.Component {
 
     calculateClashes(updateSubset) {
         const updateDebateClashObj = (curVal, newVal) => {
+            if (!curVal) {
+                return newVal;
+            }
+
             if (curVal !== "institutional") {
                 if (newVal === "hard") {
                     return newVal;

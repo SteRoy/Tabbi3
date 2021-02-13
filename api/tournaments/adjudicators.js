@@ -205,26 +205,6 @@ router.get(`/:slug/adjudicators/clash`, ttlib.middleware.userHoldsTournamentRole
             }
         ]
     }).then(tournament => {
-        const isInsitutionActive = (institutionMembership) => {
-            if (!institutionMembership.startDate && !institutionMembership.endDate) {
-                return true;
-            } else if (institutionMembership.startDate && !institutionMembership.endDate) {
-                return true;
-            } else if (!institutionMembership.startDate && institutionMembership.endDate) {
-                const endDate = new Date(institutionMembership.endDate);
-                if (new Date() < endDate) {
-                    return true;
-                }
-            } else {
-                const startDate = new Date(institutionMembership.startDate);
-                const endDate = new Date(institutionMembership.endDate);
-                const now = new Date();
-                if (startDate < now && endDate > now) {
-                    return true;
-                }
-            }
-            return false;
-        }
         let adjudicatorClashMappings = {};
         let teamClashObjs = {};
         let adjClashObjs = {};
@@ -238,9 +218,8 @@ router.get(`/:slug/adjudicators/clash`, ttlib.middleware.userHoldsTournamentRole
 
             ["Speaker1", "Speaker2"].forEach(speakerKey => {
                 team[speakerKey].Person.InstitutionMemberships.forEach(institution => {
-                    if (isInsitutionActive(institution)) {
+                    if (institution.isActive) {
                         if (institutionObjs[institution.InstitutionId]) {
-                            console.log(`Pushing ${institution.InstitutionId} for ${team.id}`)
                             institutionObjs[institution.InstitutionId].push(team.id);
                         } else {
                             institutionObjs[institution.InstitutionId] = [team.id];
@@ -263,7 +242,7 @@ router.get(`/:slug/adjudicators/clash`, ttlib.middleware.userHoldsTournamentRole
             };
 
             adj.Person.InstitutionMemberships.forEach(institution => {
-                if (isInsitutionActive(institution)) {
+                if (institution.isActive) {
                     adjClashObj.institutions.push(institution.InstitutionId);
                 }
             });

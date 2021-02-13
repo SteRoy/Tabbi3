@@ -342,129 +342,133 @@ class AllocationPage extends React.Component {
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
                     <div className="p-col-11">
                         { this.state.error ? <div className="alert alert-danger">{this.state.error}</div> : "" }
-                        <Card>
-                            <div className="display-4 text-center w-100">Allocations - Round 1 - Doxbridge Worlds 2021</div>
-                            <div className="text-center mt-2">
-                                <span className="mr-2">Legend</span>
-                                <span className="clash-legend clashed-institution-current mr-2">Cur. Institutional Clash</span>
-                                <span className="clash-legend clashed-institution-previous mr-2">Prev. Institutional Clash</span>
-                                <span className="clash-legend clashed-personal mr-2">Personal Clash</span>
-                                <span className="clash-legend clashed-soft mr-2">Soft Clash</span>
-                            </div>
-                            <div className="text-center mt-1">
-                                {
-                                    this.state.connected ?
-                                        <Button className="p-button-outlined p-button-success p-mr-1" label="Connected"/>
-                                        :
-                                        <Button className="p-button-outlined p-button-danger p-mr-1" label="Disconnected"/>
-                                }
+                        {
+                            this.state.tournament ?
+                                <Card>
+                                <div className="display-4 text-center w-100">Allocations - {this.state.round.title} - {this.state.tournament.name}</div>
+                                <div className="text-center mt-2">
+                                    <span className="mr-2">Legend</span>
+                                    <span className="clash-legend clashed-institution-current mr-2">Cur. Institutional Clash</span>
+                                    <span className="clash-legend clashed-institution-previous mr-2">Prev. Institutional Clash</span>
+                                    <span className="clash-legend clashed-personal mr-2">Personal Clash</span>
+                                    <span className="clash-legend clashed-soft mr-2">Soft Clash</span>
+                                </div>
+                                <div className="text-center mt-1">
+                                    {
+                                        this.state.connected ?
+                                            <Button className="p-button-outlined p-button-success p-mr-1" label="Connected"/>
+                                            :
+                                            <Button className="p-button-outlined p-button-danger p-mr-1" label="Disconnected"/>
+                                    }
 
-                                {
-                                    this.state.clashLoaded ?
-                                        <Button className="p-button-outlined p-button-success" label="Clash Loaded"/>
-                                        :
-                                        <Button className="p-button-outlined p-button-danger" label="Clash Not Loaded"/>
-                                }
-                            </div>
-                            <hr/>
-                            <DragDropContext onDragEnd={this.onDragEnd}>
-                                <table className="table text-center" style={{tableLayout: "fixed"}}>
-                                    <thead>
+                                    {
+                                        this.state.clashLoaded ?
+                                            <Button className="p-button-outlined p-button-success" label="Clash Loaded"/>
+                                            :
+                                            <Button className="p-button-outlined p-button-danger" label="Clash Not Loaded"/>
+                                    }
+                                </div>
+                                <hr/>
+                                <DragDropContext onDragEnd={this.onDragEnd}>
+                                    <table className="table text-center" style={{tableLayout: "fixed"}}>
+                                        <thead>
                                         <tr>
                                             <th style={{width: "5%"}}/>
                                             <th style={{width: "10%"}}>#</th>
                                             <th style={{width: "20%"}}>Teams</th>
                                             <th style={{width: "65%"}}>Panel</th>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                    {
-                                        this.state.debates.map(debate => (
-                                            <React.Fragment>
-                                                <tr key={`tr-${debate.id}`}>
-                                                    <td>
-                                                        <Button
-                                                            className={`p-button-outlined p-button-secondary`}
-                                                            onClick={() => this.expandRow(debate.id)}
-                                                            icon={`pi pi-fw pi-chevron-${this.state.expanded[debate.id] ? "down" : "right"}`}
-                                                        />
-                                                    </td>
-                                                    <td>{debate.id} - {debate.venue}</td>
-                                                    <td>
-                                                        <div className="p-grid" style={{margin: "0"}}>
-                                                            <div className="p-col" style={{padding: "0"}}>
-                                                                {
-                                                                    ["OG", "CG"].map(position => {
-                                                                        const clashes = this.state.clashes[debate.id];
-                                                                        let clashClass = "";
-                                                                        if (clashes) {
-                                                                            clashClass = clashes.teams[position];
-                                                                        }
-                                                                        return (
-                                                                            <div
-                                                                            style={{border: "1px solid rgb(0,0,0,.1)"}}
-                                                                            className={clashToClass[clashClass]}
-                                                                            >
-                                                                            {debate.teams[position].name}
-                                                                        </div>
-                                                                        )
-                                                                    })
-                                                                }
+                                        </thead>
+                                        <tbody>
+                                        {
+                                            this.state.debates.map(debate => (
+                                                <React.Fragment>
+                                                    <tr key={`tr-${debate.id}`}>
+                                                        <td>
+                                                            <Button
+                                                                className={`p-button-outlined p-button-secondary`}
+                                                                onClick={() => this.expandRow(debate.id)}
+                                                                icon={`pi pi-fw pi-chevron-${this.state.expanded[debate.id] ? "down" : "right"}`}
+                                                            />
+                                                        </td>
+                                                        <td>{debate.id} - {debate.venue}</td>
+                                                        <td>
+                                                            <div className="p-grid" style={{margin: "0"}}>
+                                                                <div className="p-col" style={{padding: "0"}}>
+                                                                    {
+                                                                        ["OG", "CG"].map(position => {
+                                                                            const clashes = this.state.clashes[debate.id];
+                                                                            let clashClass = "";
+                                                                            if (clashes) {
+                                                                                clashClass = clashes.teams[position];
+                                                                            }
+                                                                            return (
+                                                                                <div
+                                                                                    style={{border: "1px solid rgb(0,0,0,.1)"}}
+                                                                                    className={clashToClass[clashClass]}
+                                                                                >
+                                                                                    {debate.teams[position].name}
+                                                                                </div>
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                </div>
+                                                                <div className="p-col" style={{padding: "0"}}>
+                                                                    {
+                                                                        ["OO", "CO"].map(position => {
+                                                                            const clashes = this.state.clashes[debate.id];
+                                                                            let clashClass = "";
+                                                                            if (clashes) {
+                                                                                clashClass = clashes.teams[position];
+                                                                            }
+                                                                            return (
+                                                                                <div
+                                                                                    style={{border: "1px solid rgb(0,0,0,.1)"}}
+                                                                                    className={clashToClass[clashClass]}
+                                                                                >
+                                                                                    {debate.teams[position].name}
+                                                                                </div>
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                </div>
                                                             </div>
-                                                            <div className="p-col" style={{padding: "0"}}>
-                                                                {
-                                                                    ["OO", "CO"].map(position => {
-                                                                        const clashes = this.state.clashes[debate.id];
-                                                                        let clashClass = "";
-                                                                        if (clashes) {
-                                                                            clashClass = clashes.teams[position];
-                                                                        }
-                                                                        return (
-                                                                            <div
-                                                                                style={{border: "1px solid rgb(0,0,0,.1)"}}
-                                                                                className={clashToClass[clashClass]}
-                                                                            >
-                                                                                {debate.teams[position].name}
-                                                                            </div>
-                                                                        )
-                                                                    })
-                                                                }
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <PanelAllocation
-                                                            id={debate.id}
-                                                            adj={this.state.adj}
-                                                            clashes={this.state.clashes[debate.id]}
-                                                        />
-                                                    </td>
-                                                </tr>
-                                                {
-                                                    this.state.expanded[debate.id] ?
-                                                        <tr key={`tr-expanded-${debate.id}`}>
-                                                            <td></td>
-                                                            <td></td>
-                                                            <td>Debate has {this.state.clashes[debate.id].messages.length} problems.</td>
-                                                            <td>
-                                                                {
-                                                                    this.state.clashes[debate.id].messages ?
-                                                                        this.state.clashes[debate.id].messages.map(
-                                                                            (message, index) => <p>{index + 1}. {message}</p>
-                                                                        )
-                                                                        : "No Problems."
-                                                                }
-                                                            </td>
-                                                        </tr>
-                                                        : ""
-                                                }
-                                            </React.Fragment>
-                                        ))
-                                    }
-                                    </tbody>
-                                </table>
-                            </DragDropContext>
-                        </Card>
+                                                        </td>
+                                                        <td>
+                                                            <PanelAllocation
+                                                                id={debate.id}
+                                                                adj={this.state.adj}
+                                                                clashes={this.state.clashes[debate.id]}
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                    {
+                                                        this.state.expanded[debate.id] ?
+                                                            <tr key={`tr-expanded-${debate.id}`}>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td>Debate has {this.state.clashes[debate.id].messages.length} problems.</td>
+                                                                <td>
+                                                                    {
+                                                                        this.state.clashes[debate.id].messages ?
+                                                                            this.state.clashes[debate.id].messages.map(
+                                                                                (message, index) => <p>{index + 1}. {message}</p>
+                                                                            )
+                                                                            : "No Problems."
+                                                                    }
+                                                                </td>
+                                                            </tr>
+                                                            : ""
+                                                    }
+                                                </React.Fragment>
+                                            ))
+                                        }
+                                        </tbody>
+                                    </table>
+                                </DragDropContext>
+                            </Card>
+                                : ""
+                        }
                     </div>
                 </div>
             </div>

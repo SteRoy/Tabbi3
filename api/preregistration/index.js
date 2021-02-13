@@ -192,7 +192,8 @@ router.post(`/application/:slug/:preregistrationid/:status`, ttlib.middleware.us
                         active: true,
                         Speaker1: {PersonId: prereg.registrant.id, redacted: false, TournamentId: prereg.TournamentId},
                         Speaker2: {PersonId: prereg.speakerTwo.id, redacted: false, TournamentId: prereg.TournamentId},
-                        TournamentId: prereg.TournamentId
+                        TournamentId: prereg.TournamentId,
+                        swing: false,
                     },
                     {
                         include: [

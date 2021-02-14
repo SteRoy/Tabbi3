@@ -163,7 +163,7 @@ router.get(`/:slug/public/standings`, (req, res) => {
         }
         let completed = false;
         if (tournament.TournamentSettings.length > 0) {
-            completed = tournament.TournamentSettings[0].value === 'true';
+            completed = tournament.TournamentSettings[0].value;
         }
 
         let standings = tournament.Teams;

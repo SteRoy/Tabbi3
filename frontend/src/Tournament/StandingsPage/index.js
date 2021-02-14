@@ -108,9 +108,9 @@ class StandingsPage extends React.Component {
                                 const t1sTotal = teamOne.speakTotal;
                                 const t2sTotal = teamTwo.speakTotal;
                                 if (t1sTotal < t2sTotal) {
-                                    return 1;
-                                } else if (t2sTotal < t1sTotal) {
                                     return -1;
+                                } else if (t2sTotal < t1sTotal) {
+                                    return 1;
                                 }
                             }
                             return teamOne.name < teamTwo.name ? -1 : 1;
@@ -141,9 +141,9 @@ class StandingsPage extends React.Component {
                     ]
                 }).flat().sort((speakerOne, speakerTwo) => {
                     if (speakerOne.totalSpeaks < speakerTwo.totalSpeaks) {
-                        return -1;
-                    } else if (speakerTwo.totalSpeaks < speakerOne.totalSpeaks) {
                         return 1;
+                    } else if (speakerTwo.totalSpeaks < speakerOne.totalSpeaks) {
+                        return -1;
                     } else {
                         return speakerOne.speakerName < speakerTwo.speakerName ? -1 : 1;
                     }

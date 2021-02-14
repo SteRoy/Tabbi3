@@ -120,7 +120,7 @@ class StandingsPage extends React.Component {
                     const prevTied = standings[i-1] !== undefined && standings[i-1].teamTotal === team.teamTotal && standings[i-1].speakTotal === team.speakTotal;
                     const nextTied = standings[i+1] !== undefined && standings[i+1].teamTotal === team.teamTotal && standings[i+1].speakTotal === team.speakTotal;
                     team.nRank = prevTied ? standings[i-1].nRank : i + 1;
-                    team.rank = team.nRank.toString() + prevTied || nextTied ? "=" : "";
+                    team.rank = team.nRank.toString() + (prevTied || nextTied ? "=" : "");
                     return team;
                 })
             } else {
@@ -151,7 +151,7 @@ class StandingsPage extends React.Component {
                     const prevTied = standings[i-1] !== undefined && standings[i-1].totalSpeaks === speaker.totalSpeaks;
                     const nextTied = standings[i+1] !== undefined && standings[i+1].totalSpeaks === speaker.totalSpeaks;
                     speaker.nRank = prevTied ? standings[i-1].nRank : i + 1;
-                    speaker.rank = speaker.nRank.toString() + prevTied || nextTied ? "=" : "";
+                    speaker.rank = speaker.nRank.toString() + (prevTied || nextTied ? "=" : "");
                     return speaker;
                 })
             }

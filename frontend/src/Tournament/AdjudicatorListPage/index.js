@@ -22,9 +22,15 @@ class AdjudicatorListPage extends React.Component {
             {id: "count", title: "No. Adjudicators", calc: (adj) => adj.length},
             {id: "countActive", title: "No. Active Adjudicators", calc: (adj) => adj.filter(a => a.active).length}
         ]
+
+        this.refresh = this.refresh.bind(this);
     }
 
     componentDidMount() {
+        this.refresh();
+    }
+
+    refresh() {
         ttlib.api.requestAPI(
             `/tournaments/${this.props.match.params.slug}/adjudicators`,
             'GET',
@@ -93,15 +99,7 @@ class AdjudicatorListPage extends React.Component {
                                         `/tournaments/${this.props.match.params.slug}/adjudicators/${e.value.id}/active`,
                                         `POST`,
                                         (respData) => {
-                                            let adjudicators = this.state.adjudicators;
-                                            adjudicators.forEach(a => {
-                                                if (a.id === e.value.id) {
-                                                    a.active = !a.active;
-                                                }
-                                            });
-                                            this.setState({
-                                                adjudicators
-                                            });
+                                            this.refresh();
                                             ttlib.component.toastSuccess(this.toast, "Adjudicator Status Updated", "The adjudicator's active status has been toggled.");
                                         },
                                         (err) => {

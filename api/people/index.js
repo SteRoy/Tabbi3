@@ -62,14 +62,20 @@ router.post("/me/clash", ttlib.middleware.isLoggedIn,(req, res) => {
     // TODO: Verify that the index uniquity constraint on this works
     ttlib.validation.objContainsFields(req.body, ["target", "type"]).then(postForm => {
         if (req.user) {
-            models.PersonalClash.create({
-                fromAccountId: req.user.id,
-                targetAccountId: postForm.target,
-                type: postForm.type
-            }).then(success => {
-                return res.status(200).json({success: `Created Personal Clash`});
-            }).catch(failed => {
-                return res.status(500).json({error: `Personal Clash Couldn't Be Created: ${failed}`});
+            models.Person.findOne({
+                where: {
+                    id: postForm.target
+                }
+            }).then(target => {
+                models.PersonalClash.create({
+                    fromAccountId: req.user.id,
+                    targetAccountId: target.AccountId,
+                    type: postForm.type
+                }).then(success => {
+                    return res.status(200).json({success: `Created Personal Clash`});
+                }).catch(failed => {
+                    return res.status(500).json({error: `Personal Clash Couldn't Be Created: ${failed}`});
+                })
             })
         } else {
             return res.status(403).json({error: `Not Authorised`});

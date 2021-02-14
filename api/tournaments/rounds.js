@@ -24,7 +24,7 @@ router.get("/rounds/settings", ttlib.middleware.isLoggedIn, (req, res) => {
 // 200 - the list of rounds
 // 404 - tournament not found
 //
-router.get(`/:slug/rounds`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
+router.get(`/:slug/rounds`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "adjcore"), (req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug

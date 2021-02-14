@@ -135,6 +135,15 @@ router.get(`/:slug/public/standings`, (req, res) => {
                                                 model: models.Round,
                                                 where: {completed: true},
                                                 required: true,
+                                                include: [
+                                                    {
+                                                        model: models.RoundSetting,
+                                                        where: {
+                                                            key: 'silent', value: 'false'
+                                                        },
+                                                        required: true
+                                                    }
+                                                ]
                                             }
                                         ],
                                         required: true
@@ -167,11 +176,13 @@ router.get(`/:slug/public/standings`, (req, res) => {
                     id: team.id,
                     Speaker1: team.Speaker1,
                     Speaker2: team.Speaker2,
-                    TeamResults: team.TeamResults.map(tr => ({
-                        teamPoints: tr.teamPoints,
-                        abnormality: tr.abnormality,
-                        Ballot: tr.Ballot
-                    }))
+                    TeamResults: team.TeamResults.map(tr => {
+                        return {
+                            teamPoints: tr.teamPoints,
+                            abnormality: tr.abnormality,
+                            Ballot: tr.Ballot
+                        }
+                    })
                 })
             });
         }

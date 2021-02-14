@@ -82,7 +82,7 @@ router.get(`/:slug/public/rounds`, (req, res) => {
 // 200 - the Round
 // 404 - tournament or round not found
 //
-router.get(`/:slug/round/:roundid`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"),(req, res) => {
+router.get(`/:slug/round/:roundid`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "adjcore"),(req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug

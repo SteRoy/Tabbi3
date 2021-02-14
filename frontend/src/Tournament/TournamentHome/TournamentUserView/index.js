@@ -140,7 +140,7 @@ class TournamentUserView extends React.Component {
                                     <br/>Your team name is: '{this.state.team.name}'.
                                     <br/>Your team <b>codename</b> is: '{this.state.team.codename}'.
                                     <br/>Your name on the speaker tab will appear as: '{this.state.person.name}'.
-                                    <br/>You are currently marked as {this.state.speaker.active ? "active, and so will appear in any future generated draws." : "inactive, and so will not appear in any future generated draws."}
+                                    <br/>You are currently marked as {this.state.team.active ? "active, and so will appear in any future generated draws." : "inactive, and so will not appear in any future generated draws."}
                                 </div>
                                 : ""
                         }

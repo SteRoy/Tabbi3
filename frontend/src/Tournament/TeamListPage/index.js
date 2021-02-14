@@ -21,25 +21,12 @@ class TeamListPage extends React.Component {
             {id: "count", title: "No. Teams", calc: (teams) => teams.length},
             {id: "countActive", title: "No. Active Teams", calc: (teams) => teams.filter(t => t.active).length}
         ]
+
+        this.refresh = this.refresh.bind(this);
     }
 
     componentDidMount() {
-        ttlib.api.requestAPI(
-            `/tournaments/${this.props.match.params.slug}/teams`,
-            'GET',
-            (teamsData) => {
-                let teams = teamsData.teams;
-                teams = teams.map(t => (
-                    {
-                        ...t,
-                        s1name: t.Speaker1.Person.name,
-                        s2name: t.Speaker2.Person.name
-                    }
-                ))
-                this.setState({teams})
-            },
-            () => {}
-        )
+        this.refresh();
     }
 
     render() {
@@ -93,15 +80,7 @@ class TeamListPage extends React.Component {
                                         `/tournaments/${this.props.match.params.slug}/teams/${e.value.id}/active`,
                                         `POST`,
                                         (respData) => {
-                                            let teams = this.state.teams;
-                                            teams.forEach(t => {
-                                                if (t.id === e.value.id) {
-                                                    t.active = !t.active;
-                                                }
-                                            });
-                                            this.setState({
-                                                teams
-                                            });
+                                            this.refresh();
                                             ttlib.component.toastSuccess(this.toast, "Team Status Updated", "The team's active status has been toggled.");
                                         },
                                         (err) => {

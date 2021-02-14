@@ -116,7 +116,12 @@ class StandingsPage extends React.Component {
                             return teamOne.name < teamTwo.name ? -1 : 1;
                         }
                     }
-                )
+                ).forEach((team, i, standings) => {
+                    const prevTied = standings[i-1].teamTotal === team.teamTotal && standings[i-1].speakTotal === team.speakTotal;
+                    const nextTied = standings[i+1].teamTotal === team.teamTotal && standings[i+1].speakTotal === team.speakTotal;
+                    team.nRank = prevTied ? standings[i-1].nRank : i + 1;
+                    team.rank = team.nRank.toString() + prevTied || nextTied ? "=" : "";
+                })
             } else {
                 return this.state.standings.map(standing => {
                     return [
@@ -141,6 +146,11 @@ class StandingsPage extends React.Component {
                     } else {
                         return speakerOne.speakerName < speakerTwo.speakerName ? -1 : 1;
                     }
+                }).forEach((speaker, i, standings) => {
+                    const prevTied = standings[i-1].totalSpeaks === speaker.totalSpeaks;
+                    const nextTied = standings[i+1].totalSpeaks === speaker.totalSpeaks;
+                    speaker.nRank = prevTied ? standings[i-1].nRank : i + 1;
+                    speaker.rank = speaker.nRank.toString() + prevTied || nextTied ? "=" : "";
                 })
             }
 
@@ -184,6 +194,7 @@ class StandingsPage extends React.Component {
                                     paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords}" rows={10} rowsPerPageOptions={[10,20,50]}
                                 >
+                                    <Column key={"rank"} field="rank" header="Rank"/>
                                     {
                                         this.state.teamStandings ? <Column key={"name"} field="name" header="Team Name"/> : null
                                     }

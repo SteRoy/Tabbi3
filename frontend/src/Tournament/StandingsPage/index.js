@@ -117,8 +117,8 @@ class StandingsPage extends React.Component {
                         }
                     }
                 ).forEach((team, i, standings) => {
-                    const prevTied = standings[i-1].teamTotal === team.teamTotal && standings[i-1].speakTotal === team.speakTotal;
-                    const nextTied = standings[i+1].teamTotal === team.teamTotal && standings[i+1].speakTotal === team.speakTotal;
+                    const prevTied = standings[i-1] !== undefined && standings[i-1].teamTotal === team.teamTotal && standings[i-1].speakTotal === team.speakTotal;
+                    const nextTied = standings[i+1] !== undefined && standings[i+1].teamTotal === team.teamTotal && standings[i+1].speakTotal === team.speakTotal;
                     team.nRank = prevTied ? standings[i-1].nRank : i + 1;
                     team.rank = team.nRank.toString() + prevTied || nextTied ? "=" : "";
                 })
@@ -147,8 +147,8 @@ class StandingsPage extends React.Component {
                         return speakerOne.speakerName < speakerTwo.speakerName ? -1 : 1;
                     }
                 }).forEach((speaker, i, standings) => {
-                    const prevTied = standings[i-1].totalSpeaks === speaker.totalSpeaks;
-                    const nextTied = standings[i+1].totalSpeaks === speaker.totalSpeaks;
+                    const prevTied = standings[i-1] !== undefined && standings[i-1].totalSpeaks === speaker.totalSpeaks;
+                    const nextTied = standings[i-1] !== undefined && standings[i+1].totalSpeaks === speaker.totalSpeaks;
                     speaker.nRank = prevTied ? standings[i-1].nRank : i + 1;
                     speaker.rank = speaker.nRank.toString() + prevTied || nextTied ? "=" : "";
                 })

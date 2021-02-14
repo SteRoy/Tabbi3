@@ -29,6 +29,25 @@ class TeamListPage extends React.Component {
         this.refresh();
     }
 
+    refresh() {
+        ttlib.api.requestAPI(
+            `/tournaments/${this.props.match.params.slug}/teams`,
+            'GET',
+            (teamsData) => {
+                let teams = teamsData.teams;
+                teams = teams.map(t => (
+                    {
+                        ...t,
+                        s1name: t.Speaker1.Person.name,
+                        s2name: t.Speaker2.Person.name
+                    }
+                ))
+                this.setState({teams})
+            },
+            () => {}
+        )
+    }
+
     render() {
         const adjIndependent = (row) => {
             return row.independent ? <Tag value="INDEPENDENT" severity="success"/> : <Tag value="INSTITUTIONAL" severity="danger"/>

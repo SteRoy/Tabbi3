@@ -116,11 +116,12 @@ class StandingsPage extends React.Component {
                             return teamOne.name < teamTwo.name ? -1 : 1;
                         }
                     }
-                ).forEach((team, i, standings) => {
+                ).map((team, i, standings) => {
                     const prevTied = standings[i-1] !== undefined && standings[i-1].teamTotal === team.teamTotal && standings[i-1].speakTotal === team.speakTotal;
                     const nextTied = standings[i+1] !== undefined && standings[i+1].teamTotal === team.teamTotal && standings[i+1].speakTotal === team.speakTotal;
                     team.nRank = prevTied ? standings[i-1].nRank : i + 1;
                     team.rank = team.nRank.toString() + prevTied || nextTied ? "=" : "";
+                    return team;
                 })
             } else {
                 return this.state.standings.map(standing => {
@@ -146,14 +147,14 @@ class StandingsPage extends React.Component {
                     } else {
                         return speakerOne.speakerName < speakerTwo.speakerName ? -1 : 1;
                     }
-                }).forEach((speaker, i, standings) => {
+                }).map((speaker, i, standings) => {
                     const prevTied = standings[i-1] !== undefined && standings[i-1].totalSpeaks === speaker.totalSpeaks;
-                    const nextTied = standings[i-1] !== undefined && standings[i+1].totalSpeaks === speaker.totalSpeaks;
+                    const nextTied = standings[i+1] !== undefined && standings[i+1].totalSpeaks === speaker.totalSpeaks;
                     speaker.nRank = prevTied ? standings[i-1].nRank : i + 1;
                     speaker.rank = speaker.nRank.toString() + prevTied || nextTied ? "=" : "";
+                    return speaker;
                 })
             }
-
         }
 
         const columns = (teamStandings) => {

@@ -18,7 +18,8 @@ class TeamListPage extends React.Component {
         }
 
         this.metrics = [
-            {id: "count", title: "No. Teams", calc: (teams) => teams.length}
+            {id: "count", title: "No. Teams", calc: (teams) => teams.length},
+            {id: "countActive", title: "No. Active Teams", calc: (teams) => teams.filter(t => t.active).length}
         ]
     }
 
@@ -70,7 +71,7 @@ class TeamListPage extends React.Component {
                                 {
                                     this.state.teams.length > 0 ?
                                         this.metrics.map(metric => (
-                                            <div className="p-col-12 p-md-12 p-text-center" key={metric.id}>
+                                            <div className="p-col-12 p-md-6 p-text-center" key={metric.id}>
                                                 <h5 className="p-mt-3">{metric.title}</h5>
                                                 <Knob
                                                     value={metric.calc(this.state.teams)}

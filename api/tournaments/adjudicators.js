@@ -6,7 +6,7 @@ const ttlib = require("ttlib");
 // GET /api/tournaments/:slug/adjudicators
 // 200 - List of tournament adjudicators
 //
-router.get(`/:slug/adjudicators`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "tab"), (req, res) => {
+router.get(`/:slug/adjudicators`, ttlib.middleware.userHoldsTournamentRoleOrIsTab(models, "inherit", "adjcore"), (req, res) => {
     models.Tournament.findOne({
         where: {
             slug: req.params.slug

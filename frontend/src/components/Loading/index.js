@@ -61,12 +61,12 @@ class Loading extends React.Component {
                 </DataTable>
                 :
                 <div className="text-center">
-                    {/*<GridLoader
+                    <GridLoader
                         size={30}
                         color={'aqua'}
                         loading={true}
-                    />*/}
-                    <img src={loaderGif} />
+                    />
+                    {/*<img src={loaderGif} />*/}
                     <p className="text-white display-5">Loading{this.state.ellipsis}</p>
                 </div>
         )

@@ -81,7 +81,7 @@ class RegisterPage extends React.Component {
                 <NavBar active="register"/>
                 <Toast ref={(ref) => this.toast = ref}/>
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
-                    <div className="p-col-4">
+                    <div className="p-col-10 p-md-8">
                         <Card>
                             <span className="display-4 text-center">Register</span>
                             <hr/>

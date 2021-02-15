@@ -71,7 +71,7 @@ class LoginPage extends React.Component {
                 <Toast ref={(ref) => this.toast = ref}/>
                 {this.state.redirect ? <Redirect to="/"/> : ""}
                 <div className="p-grid p-justify-center p-align-center p-mt-5">
-                    <div className="p-col-4">
+                    <div className="p-col-10 p-md-8">
                         <Card>
                             <span className="display-4 text-center">Login</span>
                             <hr/>

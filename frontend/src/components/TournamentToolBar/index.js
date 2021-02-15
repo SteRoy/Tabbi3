@@ -2,14 +2,15 @@ import React from "react";
 import {Toolbar} from "primereact/toolbar";
 import {Button} from "primereact/button";
 import {SplitButton} from 'primereact/splitbutton';
-import {isMobile} from 'react-device-detect';
+import { Sidebar } from 'primereact/sidebar';
 import * as ttlib from "ttlib";
+import {Divider} from "primereact/divider";
 
 class TournamentToolBar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            collapsed: isMobile,
+            collapsed: true,
             slug: props.slug,
             role: null,
             TournamentRoles: []
@@ -94,6 +95,12 @@ class TournamentToolBar extends React.Component {
                 }
             }
         ]
+
+
+
+        this.shouldShowBar = this.shouldShowBar.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleClick = this.handleClick.bind(this);
     }
 
     componentDidMount() {
@@ -102,7 +109,7 @@ class TournamentToolBar extends React.Component {
             `GET`,
             (respData) => {
                 if (respData.tournament.Rounds) {
-                    respData.tournament.Rounds.forEach(round => {
+                    respData.tournament.Rounds.sort((a,b) => a.sequence < b.sequence ? -1 : 1).forEach(round => {
                             this.roundOptions.push({
                                 label: round.title,
                                 icon: `pi pi-${round.completed ? 'check' : 'spinner pi-spin'}`,
@@ -138,45 +145,172 @@ class TournamentToolBar extends React.Component {
             },
             (err) => {}
         )
+
+        document.addEventListener("keydown", this.handleKeyDown);
+        document.addEventListener("mousedown", this.handleClick);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.handleKeyDown);
+        document.removeEventListener("mousedown", this.handleClick);
+    }
+
+    handleKeyDown(event) {
+        if (!event.isComposing) {
+            if (event.altKey) {
+                switch (event.keyCode) {
+                    // ESCAPE
+                    case 88:
+                        this.setState({collapsed: false});
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                switch (event.keyCode) {
+                    // ESCAPE
+                    case 27:
+                        this.setState({collapsed: true});
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    handleClick(event) {
+        if (this.sidebar) {
+            if (!this.sidebar.contains(event.target)) {
+                this.setState({
+                    collapsed: true
+                })
+            }
+        }
+    }
+
+    shouldShowBar(roles, user) {
+        if (!user || !this.props.loggedIn) {
+            return false;
+        }
+
+        const tr = roles.find(tr => tr.AccountId === user.Person.AccountId);
+        return !!tr;
+
     }
 
     render() {
-        const alignLeft = (
-            <React.Fragment>
-                <SplitButton id="teams" model={this.splitOptionsTeams} onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/teams`} label="Teams" icon="pi pi-users" className="p-mr-2 p-button-info" />
-                <SplitButton id="adjudicators" model={this.splitOptionsAdjudicators} onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/adjudicators`} label="Adjudicators" icon="pi pi-user" className="p-mr-2 p-button-info" />
-                <SplitButton id="venues" model={this.splitOptionsVenues} onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/venues`} label="Venues" icon="pi pi-home" className="p-mr-2 p-button-info" />
-                <SplitButton id="rounds" model={this.roundOptions} label="Rounds" icon="pi pi-briefcase" className="p-mr-2 p-button-help" />
-                <SplitButton id="ballots" model={this.ballotOptions} label="Ballots" icon="pi pi-file" className="p-mr-2 p-button-help" />
-            </React.Fragment>
-        );
-
-        const alignRight = (
-            <React.Fragment>
-                <a href={`/tournament/${this.state.slug}/config`}><Button label="Configuration" icon="pi pi-cog" className="p-mr-2 p-button-secondary" /></a>
-                <Button label="Hide" icon="pi pi-window-minimize" className="p-mr-2 p-button-danger" onClick={() => this.setState({collapsed: true})}/>
-            </React.Fragment>
-        );
-
-        const shouldShowBar = (roles, user) => {
-            if (!user || !this.props.loggedIn) {
-                return false;
-            }
-
-            const tr = roles.find(tr => tr.AccountId === user.Person.AccountId);
-            return !!tr;
-
-        }
 
         return (
-            shouldShowBar(this.state.TournamentRoles, this.props.user) ?
-                this.state.collapsed ?
-                    <div className="text-center">
-                        <Button label="Show Toolbar" icon="pi pi-window-maximize" className="p-mr-2 p-mb-1 p-button-success" onClick={() => this.setState({collapsed: false})}/>
-                    </div>
-                    :
-                    <Toolbar className="mb-1" left={alignLeft} right={alignRight} />
-            : ""
+            <span>
+                <span ref={ref => this.sidebar = ref}>
+                        <Sidebar
+                            visible={!this.state.collapsed}
+                            onHide={() => this.setState({collapsed: true})}
+                            style={{'z-index': '10000'}}
+                            dismissable={true}
+                        >
+                            <div className="display-5 text-center">
+                                Toolbar
+                            </div>
+                            <hr/>
+                            <div>
+                                <Button
+                                    id="t-home"
+                                    onClick={() => window.location.pathname = `/tournament/${this.state.slug}`}
+                                    label="Tournament Home"
+                                    icon="pi pi-home"
+                                    className="p-mr-2 p-button-success w-100 p-mb-1" />
+                            </div>
+                            <Divider align="center">
+                                <span>Model Tools</span>
+                            </Divider>
+                            <div>
+                                <SplitButton
+                                    id="teams"
+                                    model={this.splitOptionsTeams}
+                                    onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/teams`}
+                                    label="Teams"
+                                    icon="pi pi-users"
+                                    className="p-mr-2 p-button-info w-100 p-mb-1" />
+                            </div>
+                            <div>
+                                <SplitButton
+                                    id="adjudicators"
+                                    model={this.splitOptionsAdjudicators}
+                                    onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/adjudicators`}
+                                    label="Adjudicators"
+                                    icon="pi pi-user"
+                                    className="p-mr-2 p-button-info w-100 p-mb-1" />
+                            </div>
+                            <div>
+                                <SplitButton
+                                    id="venues"
+                                    model={this.splitOptionsVenues}
+                                    onClick={() => window.location.pathname = `/tournament/${this.state.slug}/list/venues`}
+                                    label="Venues"
+                                    icon="pi pi-home"
+                                    className="p-mr-2 p-button-info w-100 p-mb-1"
+                                />
+                            </div>
+                            <Divider align="center">
+                                <span>Round Tools</span>
+                            </Divider>
+                            <div>
+                                <SplitButton
+                                    id="rounds"
+                                    model={this.roundOptions}
+                                    label="Rounds"
+                                    icon="pi pi-briefcase"
+                                    className="p-mr-2 p-button-help w-100 p-mb-1" />
+                            </div>
+                            <div>
+                                <SplitButton
+                                    id="ballots"
+                                    model={this.ballotOptions}
+                                    label="Ballots"
+                                    icon="pi pi-file"
+                                    className="p-mr-2 p-button-help w-100 p-mb-1" />
+                            </div>
+                            <Divider align="center">
+                                <span>Tournament Tools</span>
+                            </Divider>
+                            <div>
+                                <a href={`/tournament/${this.state.slug}/config`}>
+                                    <Button
+                                        label="Tournament Configuration"
+                                        icon="pi pi-cog"
+                                        className="p-mr-2 p-button-secondary w-100 p-mb-1"
+                                    />
+                                </a>
+                            </div>
+                            <hr/>
+                            <div>
+                                <Button
+                                    label="Hide (Esc)"
+                                    icon="pi pi-window-minimize"
+                                    className="p-mr-2 p-button-danger w-100 p-mb-1"
+                                    onClick={() => this.setState({collapsed: true})}
+                                />
+                            </div>
+                            <div className="text-center">
+                                <small>
+                                    You can close this toolbar by pressing 'Escape'.
+                                </small>
+                            </div>
+                        </Sidebar>
+                    </span>
+                {this.shouldShowBar(this.state.TournamentRoles, this.props.user) ?
+                        <div className="text-left">
+                            <Button
+                                label="Show Tournament Toolbar (ALT+X)"
+                                icon="pi pi-window-maximize"
+                                className="p-mr-2 p-mb-1 p-button-success w-100"
+                                onClick={() => this.setState({collapsed: false})}/>
+                        </div>
+                    : ""
+                }
+            </span>
         )
     }
 }
